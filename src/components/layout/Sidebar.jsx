@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -11,149 +11,156 @@ import {
   Hexagon,
   X,
   LogOut,
-  ChevronDown,
   CheckSquare,
   Clock,
-  Briefcase,
+  UserCheck,
   PieChart,
   Building2,
-  CalendarCheck,
   PhoneCall,
-  BookOpen,
-  UserCheck,
-  HelpCircle,
   Activity,
+  BookOpen,
+  HelpCircle,
+  Sparkles,
   Target,
   DollarSign,
   FileSpreadsheet,
   GitBranch,
-  Sparkles
+  Sun,
+  Moon
 } from 'lucide-react';
 
-// Section 1: Dashboards (All 5 primary executive & operational dashboards)
-const dashboardGroup = {
-  id: 'dashboards',
-  label: 'Dashboards',
-  icon: LayoutDashboard,
-  items: [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/projects', label: 'Project Management' },
-    { path: '/crm', label: 'CRM' },
-    { path: '/lms-analytics', label: 'LMS Analytics' },
-    { path: '/sales-analytics', label: 'Sales Analytics' },
-  ],
-};
+// Section 1: Main Dashboards (Simple direct links, NO dropdown!)
+const mainDashboardItems = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 'Main' },
+  { path: '/crm', label: 'CRM', icon: Users },
+  { path: '/projects', label: 'Project Management', icon: GanttChartSquare },
+  { path: '/lms-analytics', label: 'LMS Analytics', icon: BookOpenCheck },
+  { path: '/sales-analytics', label: 'Sales Analytics', icon: TrendingUp },
+];
 
-// Section 2: Application Modules (Subpages for each module)
-const applicationModules = [
+// Section 2: Module Headings and their pages (NO dropdowns below!)
+const moduleSections = [
   {
     id: 'crm',
-    label: 'CRM',
-    icon: Users,
-    basePath: '/crm',
+    title: 'CRM',
     items: [
-      { path: '/crm/customer-segments', label: 'Customer Segments' },
-      { path: '/crm/companies', label: 'Companies' },
-      { path: '/crm/activities', label: 'Activities' },
-      { path: '/crm/calls-emails', label: 'Calls & Emails' },
+      { path: '/crm/customer-segments', label: 'Customer Segments', icon: PieChart },
+      { path: '/crm/companies', label: 'Companies', icon: Building2 },
+      { path: '/crm/activities', label: 'Activities', icon: Activity },
+      { path: '/crm/calls-emails', label: 'Calls & Emails', icon: PhoneCall },
     ],
   },
   {
     id: 'projects',
-    label: 'Project Management',
-    icon: GanttChartSquare,
-    basePath: '/projects',
+    title: 'Project Management',
     items: [
-      { path: '/projects/tasks', label: 'Tasks' },
-      { path: '/projects/team', label: 'Team' },
-      { path: '/projects/timesheets', label: 'Timesheets' },
+      { path: '/projects', label: 'Projects', icon: GanttChartSquare },
+      { path: '/projects/tasks', label: 'Tasks', icon: CheckSquare },
+      { path: '/projects/team', label: 'Team', icon: UserCheck },
+      { path: '/projects/timesheets', label: 'Timesheets', icon: Clock },
     ],
   },
   {
     id: 'lms',
-    label: 'LMS Analytics',
-    icon: BookOpenCheck,
-    basePath: '/lms-analytics',
+    title: 'LMS Analytics',
     items: [
-      { path: '/lms-analytics/course-catalog', label: 'Course Catalog' },
-      { path: '/lms-analytics/learner-profile', label: 'Learner Profile' },
-      { path: '/lms-analytics/quiz-builder', label: 'Quiz Builder' },
-      { path: '/lms-analytics/activity-feed', label: 'Activity Feed' },
+      { path: '/lms-analytics/course-catalog', label: 'Course Catalog', icon: BookOpen },
+      { path: '/lms-analytics/learner-profile', label: 'Learner Profile', icon: Users },
+      { path: '/lms-analytics/quiz-builder', label: 'Quiz Builder', icon: HelpCircle },
+      { path: '/lms-analytics/activity-feed', label: 'Activity Feed', icon: Sparkles },
     ],
   },
   {
     id: 'sales',
-    label: 'Sales Analytics',
-    icon: TrendingUp,
-    basePath: '/sales-analytics',
+    title: 'Sales Analytics',
     items: [
-      { path: '/sales-analytics/leads', label: 'Leads' },
-      { path: '/sales-analytics/deals', label: 'Deals' },
-      { path: '/sales-analytics/quotations', label: 'Quotations' },
-      { path: '/sales-analytics/pipeline', label: 'Pipeline' },
+      { path: '/sales-analytics/leads', label: 'Leads', icon: Target },
+      { path: '/sales-analytics/deals', label: 'Deals', icon: DollarSign },
+      { path: '/sales-analytics/quotations', label: 'Quotations', icon: FileSpreadsheet },
+      { path: '/sales-analytics/pipeline', label: 'Pipeline', icon: GitBranch, badge: 'NEW' },
     ],
   },
 ];
 
-export default function Sidebar({ isOpen, mobileOpen, onToggle, onMobileClose }) {
+export default function Sidebar({
+  isOpen,
+  mobileOpen,
+  onToggle,
+  onMobileClose,
+  theme = 'spruce', // Default is reference website spruce theme (#14201c)
+  onThemeToggle
+}) {
   const location = useLocation();
+  const isLight = theme === 'light';
 
-  // Accordion open states (Dashboards & CRM open by default)
-  const [openGroups, setOpenGroups] = useState({
-    dashboards: true,
-    crm: true,
-    projects: false,
-    lms: false,
-    sales: false,
-  });
-
-  // Auto-expand the group matching current route
-  useEffect(() => {
-    // Check if in dashboard group
-    const isDashboardActive = dashboardGroup.items.some(item => location.pathname === item.path);
-    if (isDashboardActive) {
-      setOpenGroups(prev => ({ ...prev, dashboards: true }));
-    }
-
-    // Check application modules
-    applicationModules.forEach(mod => {
-      const isModActive = mod.items.some(item => location.pathname === item.path) ||
-        (location.pathname.startsWith(mod.basePath) && !dashboardGroup.items.some(item => location.pathname === item.path));
-      if (isModActive) {
-        setOpenGroups(prev => ({ ...prev, [mod.id]: true }));
+  // Theme-specific styling tokens
+  const themeClasses = isLight
+    ? {
+        aside: 'bg-white text-[#1e211f] border-r border-[#e4e7e5] shadow-xs',
+        headerBorder: 'border-b border-[#e4e7e5]',
+        brandTitle: 'text-[#1e211f]',
+        brandSub: 'text-[#757f79]',
+        toggleBtn: 'text-[#5a625c] hover:text-[#1e211f] hover:bg-[#eff1f0]',
+        sectionTitle: 'text-[#757f79]',
+        sectionDivider: 'border-t border-[#eff1f0]',
+        linkActive: 'bg-primary/10 text-primary font-semibold shadow-xs border-l-2 border-primary',
+        linkInactive: 'text-[#5a625c] hover:text-[#1e211f] hover:bg-[#eff1f0]',
+        footerBg: 'bg-[#f7f8f7] border-t border-[#e4e7e5]',
+        userTitle: 'text-[#1e211f]',
+        userSub: 'text-[#757f79]',
+        scrollbar: 'sidebar-scrollbar-light',
       }
-    });
-  }, [location.pathname]);
-
-  const toggleGroup = (groupId) => {
-    setOpenGroups(prev => ({
-      ...prev,
-      [groupId]: !prev[groupId],
-    }));
-  };
+    : {
+        // DreamsCore Reference Spruce Dark Theme (#14201c)
+        aside: 'bg-[#14201c] text-white border-r border-white/[0.08]',
+        headerBorder: 'border-b border-white/[0.08]',
+        brandTitle: 'text-white',
+        brandSub: 'text-white/40',
+        toggleBtn: 'text-white/60 hover:text-white hover:bg-white/10',
+        sectionTitle: 'text-white/40',
+        sectionDivider: 'border-t border-white/[0.06]',
+        linkActive: 'bg-gradient-to-r from-primary/30 to-primary/5 text-white font-semibold shadow-xs border-l-2 border-primary',
+        linkInactive: 'text-white/70 hover:text-white hover:bg-white/[0.06]',
+        footerBg: 'bg-[#0f1714] border-t border-white/[0.08]',
+        userTitle: 'text-white',
+        userSub: 'text-white/40',
+        scrollbar: 'sidebar-scrollbar-dark',
+      };
 
   const sidebarClasses = `
-    fixed top-0 left-0 z-50 h-full bg-[#141414] text-white
+    fixed top-0 left-0 z-50 h-full ${themeClasses.aside}
     transition-all duration-300 flex flex-col
     ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
     lg:translate-x-0
     ${isOpen ? 'w-[260px]' : 'lg:w-[72px] w-[260px]'}
   `;
 
+  const handleNavClick = () => {
+    onMobileClose?.();
+    const mainEl = document.querySelector('main');
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      mainEl.scrollTop = 0;
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
   return (
     <aside className={sidebarClasses}>
       {/* Brand Header */}
-      <div className="flex items-center justify-between h-16 px-4 shrink-0 border-b border-white/[0.08]">
-        <NavLink to="/dashboard" className="flex items-center gap-2.5 min-w-0 rounded-xl px-1.5 py-1.5 group">
+      <div className={`flex items-center justify-between h-16 px-4 shrink-0 ${themeClasses.headerBorder}`}>
+        <NavLink to="/dashboard" onClick={handleNavClick} className="flex items-center gap-2.5 min-w-0 rounded-xl px-1.5 py-1.5 group">
           <div className="shrink-0 w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-sm shadow-primary/30 group-hover:scale-105 transition-transform">
             <Hexagon className="w-5 h-5 fill-white/20 stroke-white" />
           </div>
           {isOpen && (
             <div className="min-w-0">
-              <span className="text-sm font-bold text-white tracking-tight truncate block">
+              <span className={`text-sm font-bold tracking-tight truncate block ${themeClasses.brandTitle}`}>
                 Meridian
               </span>
-              <span className="text-[9px] text-white/40 uppercase tracking-wider block -mt-0.5 truncate font-semibold">
+              <span className={`text-[9px] uppercase tracking-wider block -mt-0.5 truncate font-semibold ${themeClasses.brandSub}`}>
                 Quality Management
               </span>
             </div>
@@ -163,7 +170,7 @@ export default function Sidebar({ isOpen, mobileOpen, onToggle, onMobileClose })
         {/* Desktop collapse toggle */}
         <button
           onClick={onToggle}
-          className="hidden lg:grid place-items-center w-8 h-8 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+          className={`hidden lg:grid place-items-center w-8 h-8 rounded-lg transition-colors ${themeClasses.toggleBtn}`}
           title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {isOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
@@ -172,234 +179,189 @@ export default function Sidebar({ isOpen, mobileOpen, onToggle, onMobileClose })
         {/* Mobile close toggle */}
         <button
           onClick={onMobileClose}
-          className="lg:hidden grid place-items-center w-8 h-8 rounded-lg text-white/60 hover:text-white hover:bg-white/10"
+          className={`lg:hidden grid place-items-center w-8 h-8 rounded-lg transition-colors ${themeClasses.toggleBtn}`}
         >
           <X size={17} />
         </button>
       </div>
 
       {/* Navigation Scrollable Body */}
-      <nav className="flex-1 overflow-y-auto sidebar-scrollbar px-3 pb-6 mt-2 space-y-4">
+      <nav className={`flex-1 overflow-y-auto ${themeClasses.scrollbar} px-3 pb-6 mt-1 space-y-3.5`}>
 
         {/* ========================================================================= */}
-        {/* SECTION 1: DASHBOARDS (Dashboard + 4 core pages like previously) */}
+        {/* SECTION 1: MAIN DASHBOARDS (Simple direct links, NO dropdown!)             */}
         {/* ========================================================================= */}
-        <div>
+        <div className="pt-1">
           {isOpen && (
-            <div className="px-3 pt-1 pb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/35">
-                Dashboards
+            <div className="px-3 pb-1.5">
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${themeClasses.sectionTitle}`}>
+                Main
               </span>
             </div>
           )}
 
-          {/* Dashboards Accordion Dropdown */}
-          <div className="mt-0.5">
-            <button
-              type="button"
-              onClick={() => isOpen && toggleGroup('dashboards')}
-              className={`
-                w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-medium
-                transition-colors cursor-pointer text-left
-                ${dashboardGroup.items.some(item => location.pathname === item.path)
-                  ? 'text-white bg-white/[0.08]'
-                  : 'text-white/70 hover:text-white hover:bg-white/[0.04]'
-                }
-                ${!isOpen ? 'lg:justify-center lg:px-0' : ''}
-              `}
-              title={!isOpen ? 'Dashboards' : undefined}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <LayoutDashboard
-                  size={18}
-                  className={`shrink-0 ${
-                    dashboardGroup.items.some(item => location.pathname === item.path)
-                      ? 'text-primary'
-                      : 'text-white/70'
-                  }`}
-                />
-                {isOpen && (
-                  <span className="truncate font-semibold text-[13px] tracking-normal">
-                    {dashboardGroup.label}
-                  </span>
-                )}
-              </div>
-              {isOpen && (
-                <ChevronDown
-                  size={14}
-                  className={`text-white/40 transition-transform duration-200 shrink-0 ${
-                    openGroups.dashboards ? 'rotate-180 text-white/80' : ''
-                  }`}
-                />
-              )}
-            </button>
+          <ul className="space-y-0.5">
+            {mainDashboardItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
 
-            {/* Dashboards Sub-items with Dotted Line (as in reference screenshot) */}
-            {openGroups.dashboards && isOpen && (
-              <div className="relative pl-3.5 ml-5 mt-1 border-l border-dashed border-white/20 space-y-1">
-                {dashboardGroup.items.map((item) => {
-                  const isActive = location.pathname === item.path;
-                  return (
+              return (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    onClick={handleNavClick}
+                    className={`
+                      flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium
+                      transition-all duration-150 group
+                      ${isActive ? themeClasses.linkActive : themeClasses.linkInactive}
+                      ${!isOpen ? 'lg:justify-center lg:px-0' : ''}
+                    `}
+                    title={!isOpen ? item.label : undefined}
+                  >
+                    <Icon
+                      size={17}
+                      className={`shrink-0 transition-colors ${
+                        isActive
+                          ? 'text-primary'
+                          : isLight
+                          ? 'text-[#5a625c] group-hover:text-[#1e211f]'
+                          : 'text-white/60 group-hover:text-white'
+                      }`}
+                    />
+                    {isOpen && (
+                      <span className="truncate">{item.label}</span>
+                    )}
+
+                    {isOpen && item.badge && (
+                      <span
+                        className={`ms-auto text-[9px] font-bold uppercase px-1.5 py-0.5 rounded tracking-wide ${
+                          isLight
+                            ? 'bg-primary/15 text-primary'
+                            : 'bg-primary/20 text-primary-200'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </NavLink>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* SECTION 2: MODULE HEADINGS & DIRECT PAGES (CRM, PM, LMS, Sales)            */}
+        {/* ========================================================================= */}
+        {moduleSections.map((section) => (
+          <div key={section.id} className={`pt-2.5 ${themeClasses.sectionDivider}`}>
+            {/* Direct Section Heading */}
+            {isOpen && (
+              <div className="px-3 pb-1.5">
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${themeClasses.sectionTitle}`}>
+                  {section.title}
+                </span>
+              </div>
+            )}
+
+            {/* Direct Navigation Links for all subpages (No dropdowns below!) */}
+            <ul className="space-y-0.5">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+
+                return (
+                  <li key={item.path}>
                     <NavLink
-                      key={item.path}
                       to={item.path}
-                      onClick={onMobileClose}
+                      onClick={handleNavClick}
                       className={`
-                        relative flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-medium
+                        flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium
                         transition-all duration-150 group
-                        ${isActive
-                          ? 'bg-primary/20 text-white font-semibold shadow-xs'
-                          : 'text-white/60 hover:text-white hover:bg-white/[0.05]'
-                        }
+                        ${isActive ? themeClasses.linkActive : themeClasses.linkInactive}
+                        ${!isOpen ? 'lg:justify-center lg:px-0' : ''}
                       `}
+                      title={!isOpen ? item.label : undefined}
                     >
-                      {/* Active indicator dot right on the vertical dotted guideline */}
-                      {isActive && (
-                        <span className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary ring-2 ring-primary/40 ring-offset-2 ring-offset-[#141414]" />
+                      <Icon
+                        size={17}
+                        className={`shrink-0 transition-colors ${
+                          isActive
+                            ? 'text-primary'
+                            : isLight
+                            ? 'text-[#5a625c] group-hover:text-[#1e211f]'
+                            : 'text-white/60 group-hover:text-white'
+                        }`}
+                      />
+                      {isOpen && (
+                        <span className="truncate">{item.label}</span>
                       )}
 
-                      <span className="truncate">{item.label}</span>
-
-                      {/* Pill badge for featured dashboards */}
-                      {item.path === '/dashboard' && (
-                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-primary/30 text-primary-200">
-                          Main
+                      {/* Clean Badge without golden selector */}
+                      {isOpen && item.badge && (
+                        <span
+                          className={`ms-auto text-[9px] font-bold uppercase px-1.5 py-0.5 rounded tracking-wide ${
+                            item.badge === 'NEW'
+                              ? 'bg-primary text-white'
+                              : isLight
+                              ? 'bg-primary/15 text-primary'
+                              : 'bg-primary/20 text-primary-200'
+                          }`}
+                        >
+                          {item.badge}
                         </span>
                       )}
                     </NavLink>
-                  );
-                })}
-              </div>
-            )}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* SECTION 2: APPLICATIONS & SUBPAGES (CRM, Project Management, LMS, Sales) */}
-        {/* ========================================================================= */}
-        <div className="pt-2 border-t border-white/[0.06]">
-          {isOpen && (
-            <div className="px-3 pt-1 pb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/35">
-                Applications & Modules
-              </span>
-            </div>
-          )}
-
-          <div className="space-y-1 mt-0.5">
-            {applicationModules.map((module) => {
-              const Icon = module.icon;
-              const isGroupActive = module.items.some(item => location.pathname === item.path);
-              const isExpanded = openGroups[module.id];
-
-              return (
-                <div key={module.id} className="pt-0.5">
-                  {/* Module Accordion Header */}
-                  <button
-                    type="button"
-                    onClick={() => isOpen && toggleGroup(module.id)}
-                    className={`
-                      w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-medium
-                      transition-colors cursor-pointer text-left
-                      ${isGroupActive
-                        ? 'text-white bg-white/[0.08]'
-                        : 'text-white/70 hover:text-white hover:bg-white/[0.04]'
-                      }
-                      ${!isOpen ? 'lg:justify-center lg:px-0' : ''}
-                    `}
-                    title={!isOpen ? module.label : undefined}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Icon
-                        size={18}
-                        className={`shrink-0 ${isGroupActive ? 'text-primary' : 'text-white/70'}`}
-                      />
-                      {isOpen && (
-                        <span className="truncate font-semibold text-[13px] tracking-normal">
-                          {module.label}
-                        </span>
-                      )}
-                    </div>
-                    {isOpen && (
-                      <ChevronDown
-                        size={14}
-                        className={`text-white/40 transition-transform duration-200 shrink-0 ${
-                          isExpanded ? 'rotate-180 text-white/80' : ''
-                        }`}
-                      />
-                    )}
-                  </button>
-
-                  {/* Sub-items with Dotted Line (matching reference screenshot) */}
-                  {isExpanded && isOpen && (
-                    <div className="relative pl-3.5 ml-5 mt-1 border-l border-dashed border-white/20 space-y-1">
-                      {module.items.map((subItem) => {
-                        const isSubActive = location.pathname === subItem.path;
-                        return (
-                          <NavLink
-                            key={subItem.path}
-                            to={subItem.path}
-                            onClick={onMobileClose}
-                            className={`
-                              relative flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-medium
-                              transition-all duration-150 group
-                              ${isSubActive
-                                ? 'bg-primary/20 text-white font-semibold shadow-xs'
-                                : 'text-white/60 hover:text-white hover:bg-white/[0.05]'
-                              }
-                            `}
-                          >
-                            {/* Active indicator dot right on the vertical dotted guideline */}
-                            {isSubActive && (
-                              <span className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary ring-2 ring-primary/40 ring-offset-2 ring-offset-[#141414]" />
-                            )}
-
-                            <span className="truncate">{subItem.label}</span>
-
-                            {subItem.path === '/sales-analytics/pipeline' && (
-                              <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-white text-gray-900 tracking-wide">
-                                NEW
-                              </span>
-                            )}
-                          </NavLink>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
+        ))}
       </nav>
 
-      {/* Footer Profile & Sign Out */}
-      <div className="p-3 border-t border-white/[0.08] shrink-0 bg-[#121212]">
+      {/* Footer Profile & Theme Switcher */}
+      <div className={`p-3 shrink-0 ${themeClasses.footerBg}`}>
         {isOpen ? (
-          <div className="flex items-center justify-between gap-2 p-1.5 rounded-xl hover:bg-white/[0.04] transition-colors">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                 MQ
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-white truncate">Admin User</p>
-                <p className="text-[10px] text-white/40 truncate">Quality Director</p>
+                <p className={`text-xs font-semibold truncate ${themeClasses.userTitle}`}>Admin User</p>
+                <p className={`text-[10px] truncate ${themeClasses.userSub}`}>Quality Director</p>
               </div>
             </div>
-            <NavLink
-              to="/login"
-              title="Sign Out"
-              className="w-7 h-7 rounded-lg text-white/40 hover:text-danger hover:bg-white/10 grid place-items-center transition-colors"
-            >
-              <LogOut size={14} />
-            </NavLink>
+
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Theme Toggle Button */}
+              {onThemeToggle && (
+                <button
+                  type="button"
+                  onClick={onThemeToggle}
+                  className={`w-7 h-7 rounded-lg grid place-items-center transition-colors ${themeClasses.toggleBtn}`}
+                  title={isLight ? 'Switch to Reference Spruce Theme' : 'Switch to Light Theme'}
+                >
+                  {isLight ? <Moon size={14} /> : <Sun size={14} className="text-amber-400" />}
+                </button>
+              )}
+
+              {/* Sign out */}
+              <NavLink
+                to="/login"
+                title="Sign Out"
+                className="w-7 h-7 rounded-lg text-danger/70 hover:text-danger hover:bg-danger/10 grid place-items-center transition-colors"
+              >
+                <LogOut size={14} />
+              </NavLink>
+            </div>
           </div>
         ) : (
           <NavLink
             to="/login"
             title="Sign Out"
-            className="w-full h-8 rounded-lg text-white/40 hover:text-danger hover:bg-white/10 grid place-items-center transition-colors"
+            className="w-full h-8 rounded-lg text-danger/70 hover:text-danger hover:bg-danger/10 grid place-items-center transition-colors"
           >
             <LogOut size={16} />
           </NavLink>

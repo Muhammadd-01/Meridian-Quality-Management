@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import ScrollToTop from '../ui/ScrollToTop';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const mainRef = useRef(null);
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
@@ -33,9 +35,11 @@ export default function AppLayout() {
           onMenuClick={() => setMobileSidebarOpen(true)}
           sidebarOpen={sidebarOpen}
         />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
           <Outlet />
         </main>
+        {/* Floating Scroll To Top button */}
+        <ScrollToTop targetRef={mainRef} />
       </div>
     </div>
   );

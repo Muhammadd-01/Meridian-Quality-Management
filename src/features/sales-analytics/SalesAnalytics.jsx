@@ -20,6 +20,7 @@ import FilterDropdown from '../../components/ui/FilterDropdown';
 import ExportButton from '../../components/ui/ExportButton';
 import DateRangeFilter from '../../components/ui/DateRangeFilter';
 import DataTable from '../../components/tables/DataTable';
+import AnimatedCounter from '../../components/ui/AnimatedCounter';
 import { useToast } from '../../components/ui/Toast';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useSearch from '../../hooks/useSearch';
@@ -195,35 +196,45 @@ export default function SalesAnalytics() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="card p-3">
           <p className="text-[10px] uppercase font-semibold text-gray-400">Closed-Won Revenue</p>
-          <p className="text-lg font-bold text-gray-800 mt-0.5">{formatCurrency(totalRevenue)}</p>
+          <p className="text-lg font-bold text-gray-800 mt-0.5">
+            <AnimatedCounter value={totalRevenue} formatter={(v) => formatCurrency(v)} />
+          </p>
           <p className="text-[10px] text-success font-medium mt-0.5">+25.4% MoM</p>
         </div>
         <div className="card p-3">
           <p className="text-[10px] uppercase font-semibold text-gray-400">Quota Attained</p>
-          <p className="text-lg font-bold text-primary mt-0.5">84%</p>
+          <p className="text-lg font-bold text-primary mt-0.5">
+            <AnimatedCounter value={84} suffix="%" />
+          </p>
           <p className="text-[10px] text-gray-400 mt-0.5">Target: PKR 60M</p>
         </div>
         <div className="card p-3">
           <p className="text-[10px] uppercase font-semibold text-gray-400">Win Rate</p>
-          <p className="text-lg font-bold text-gray-800 mt-0.5">68%</p>
+          <p className="text-lg font-bold text-gray-800 mt-0.5">
+            <AnimatedCounter value={68} suffix="%" />
+          </p>
           <p className="text-[10px] text-success font-medium mt-0.5">+4.2% vs Q2</p>
         </div>
         <div className="card p-3">
           <p className="text-[10px] uppercase font-semibold text-gray-400">Open Pipeline</p>
-          <p className="text-lg font-bold text-gray-800 mt-0.5">{formatCurrency(9140000)}</p>
+          <p className="text-lg font-bold text-gray-800 mt-0.5">
+            <AnimatedCounter value={9140000} formatter={(v) => formatCurrency(v)} />
+          </p>
           <p className="text-[10px] text-gray-400 mt-0.5">312 active ops</p>
         </div>
       </div>
 
       {/* ============ Executive KPI Strip ============ */}
-      <div className="card p-4">
+      <div className="card p-4 animate-slide-up">
         <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-100 gap-y-3 md:gap-y-0">
           <div className="px-3">
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase font-semibold text-gray-400">Closed-Won (YTD)</span>
               <span className="badge-success text-[9px]">+25.4% MoM</span>
             </div>
-            <p className="text-xl font-bold text-gray-800 mt-1">{formatCurrency(totalRevenue)}</p>
+            <p className="text-xl font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={totalRevenue} formatter={(v) => formatCurrency(v)} />
+            </p>
             <div className="h-1 rounded-full bg-gray-100 mt-2 overflow-hidden">
               <div className="h-full bg-success rounded-full" style={{ width: '84%' }} />
             </div>
@@ -231,17 +242,23 @@ export default function SalesAnalytics() {
           </div>
           <div className="px-3">
             <span className="text-[10px] uppercase font-semibold text-gray-400">Sales Velocity</span>
-            <p className="text-xl font-bold text-gray-800 mt-1">{formatCurrency(18400)}<span className="text-xs font-normal text-gray-400">/day</span></p>
+            <p className="text-xl font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={18400} formatter={(v) => formatCurrency(v)} /><span className="text-xs font-normal text-gray-400">/day</span>
+            </p>
             <p className="text-[10px] text-success font-medium mt-2">+12.8% vs plan</p>
           </div>
           <div className="px-3">
             <span className="text-[10px] uppercase font-semibold text-gray-400">Avg Deal Cycle</span>
-            <p className="text-xl font-bold text-gray-800 mt-1">23.6 days</p>
+            <p className="text-xl font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={23.6} decimals={1} suffix=" days" />
+            </p>
             <p className="text-[10px] text-success font-medium mt-2">-3.1 days faster</p>
           </div>
           <div className="px-3">
             <span className="text-[10px] uppercase font-semibold text-gray-400">Open Pipeline</span>
-            <p className="text-xl font-bold text-gray-800 mt-1">{formatCurrency(9140000)}</p>
+            <p className="text-xl font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={9140000} formatter={(v) => formatCurrency(v)} />
+            </p>
             <p className="text-[10px] text-gray-400 mt-2">312 active opportunities</p>
           </div>
         </div>
@@ -380,7 +397,7 @@ export default function SalesAnalytics() {
           <div className="relative">
             <ResponsiveContainer width="100%" height={160}>
               <PieChart>
-                <Pie data={segmentData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={3} dataKey="value">
+                <Pie data={segmentData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={3} dataKey="value" isAnimationActive={true} animationDuration={1400}>
                   {segmentData.map((e, i) => <Cell key={i} fill={e.fill} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />

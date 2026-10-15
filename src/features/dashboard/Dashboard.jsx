@@ -153,7 +153,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 animate-slide-up">
         <ChartCard title="Revenue vs Target" subtitle="Monthly comparison" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={revenueData}>
@@ -168,8 +168,8 @@ export default function Dashboard() {
               <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} />
               <Tooltip formatter={(v) => formatCurrency(v)} contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
               <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Area type="monotone" dataKey="revenue" stroke="#40BFA6" strokeWidth={2} fill="url(#colorRevenue)" name="Revenue" />
-              <Area type="monotone" dataKey="target" stroke="#7c5cfc" strokeWidth={2} fill="none" strokeDasharray="5 5" name="Target" />
+              <Area type="monotone" dataKey="revenue" stroke="#40BFA6" strokeWidth={2} fill="url(#colorRevenue)" name="Revenue" isAnimationActive={true} animationDuration={1400} />
+              <Area type="monotone" dataKey="target" stroke="#7c5cfc" strokeWidth={2} fill="none" strokeDasharray="5 5" name="Target" isAnimationActive={true} animationDuration={1400} />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -185,6 +185,8 @@ export default function Dashboard() {
                 outerRadius={100}
                 paddingAngle={4}
                 dataKey="value"
+                isAnimationActive={true}
+                animationDuration={1400}
               >
                 {leadSourceData.map((entry, i) => (
                   <Cell key={i} fill={entry.fill} />
@@ -198,7 +200,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 animate-slide-up">
         <ChartCard title="Project Status" subtitle="Distribution overview">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={projectStatusDistribution}>
@@ -206,7 +208,7 @@ export default function Dashboard() {
               <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#9ca3af" />
               <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
               <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
-              <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Projects">
+              <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Projects" isAnimationActive={true} animationDuration={1400}>
                 {projectStatusDistribution.map((entry, i) => (
                   <Cell key={i} fill={entry.fill} />
                 ))}
@@ -223,8 +225,8 @@ export default function Dashboard() {
               <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
               <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
               <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Line type="monotone" dataKey="enrollments" stroke="#7c5cfc" strokeWidth={2} dot={{ r: 4 }} name="Enrollments" />
-              <Line type="monotone" dataKey="completions" stroke="#40BFA6" strokeWidth={2} dot={{ r: 4 }} name="Completions" />
+              <Line type="monotone" dataKey="enrollments" stroke="#7c5cfc" strokeWidth={2} dot={{ r: 4 }} name="Enrollments" isAnimationActive={true} animationDuration={1400} />
+              <Line type="monotone" dataKey="completions" stroke="#40BFA6" strokeWidth={2} dot={{ r: 4 }} name="Completions" isAnimationActive={true} animationDuration={1400} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>

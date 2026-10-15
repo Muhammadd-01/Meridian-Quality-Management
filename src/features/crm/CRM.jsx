@@ -23,6 +23,7 @@ import SearchInput from '../../components/ui/SearchInput';
 import FilterDropdown from '../../components/ui/FilterDropdown';
 import ExportButton from '../../components/ui/ExportButton';
 import DataTable from '../../components/tables/DataTable';
+import AnimatedCounter from '../../components/ui/AnimatedCounter';
 import { useToast } from '../../components/ui/Toast';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useSearch from '../../hooks/useSearch';
@@ -284,18 +285,22 @@ export default function CRM() {
       </div>
 
       {/* ============ Executive Metric Strip (6 Metrics) ============ */}
-      <div className="card p-4">
+      <div className="card p-4 animate-slide-up">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-gray-100 gap-y-3 md:gap-y-0">
           <div className="px-3 py-1">
             <p className="text-[10px] uppercase font-semibold text-gray-400">Pipeline Value</p>
-            <p className="text-base font-bold text-gray-800 mt-1">{formatCurrency(totalPipeline)}</p>
+            <p className="text-base font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={totalPipeline} formatter={(v) => formatCurrency(v)} />
+            </p>
             <p className="text-[10px] text-success font-medium mt-0.5 flex items-center gap-0.5">
               <ArrowUpRight size={10} /> +9.4%
             </p>
           </div>
           <div className="px-3 py-1">
             <p className="text-[10px] uppercase font-semibold text-gray-400">Active Deals</p>
-            <p className="text-base font-bold text-gray-800 mt-1">{totalLeads}</p>
+            <p className="text-base font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={totalLeads} />
+            </p>
             <div className="flex items-end gap-0.5 h-3 mt-1">
               {[30, 45, 60, 40, 75, 90, 80].map((h, i) => (
                 <div key={i} className="flex-1 bg-amber-400 rounded-xs" style={{ height: `${h}%` }} />
@@ -305,22 +310,30 @@ export default function CRM() {
           </div>
           <div className="px-3 py-1">
             <p className="text-[10px] uppercase font-semibold text-gray-400">Win Rate</p>
-            <p className="text-base font-bold text-gray-800 mt-1">59%</p>
+            <p className="text-base font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={59} suffix="%" />
+            </p>
             <p className="text-[10px] text-success font-medium mt-0.5">+3 pts</p>
           </div>
           <div className="px-3 py-1">
             <p className="text-[10px] uppercase font-semibold text-gray-400">Avg Deal Size</p>
-            <p className="text-base font-bold text-gray-800 mt-1">{formatCurrency(842000)}</p>
+            <p className="text-base font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={842000} formatter={(v) => formatCurrency(v)} />
+            </p>
             <p className="text-[10px] text-success font-medium mt-0.5">+6.1%</p>
           </div>
           <div className="px-3 py-1">
             <p className="text-[10px] uppercase font-semibold text-gray-400">Avg Sales Cycle</p>
-            <p className="text-base font-bold text-gray-800 mt-1">38 days</p>
+            <p className="text-base font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={38} suffix=" days" />
+            </p>
             <p className="text-[10px] text-gray-400 mt-0.5">-2 days vs plan</p>
           </div>
           <div className="px-3 py-1">
             <p className="text-[10px] uppercase font-semibold text-gray-400">Closing This Week</p>
-            <p className="text-base font-bold text-gray-800 mt-1">14 · {formatCurrency(268000)}</p>
+            <p className="text-base font-bold text-gray-800 mt-1">
+              <AnimatedCounter value={14} /> · {formatCurrency(268000)}
+            </p>
             <p className="text-[10px] text-amber-600 font-medium mt-0.5">3 need action</p>
           </div>
         </div>
@@ -514,8 +527,8 @@ export default function CRM() {
               <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" domain={[130, 200]} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Area type="monotone" dataKey="actual" stroke="#40BFA6" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" />
-              <Area type="monotone" dataKey="forecast" stroke="#9ca3af" strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" />
+              <Area type="monotone" dataKey="actual" stroke="#40BFA6" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" isAnimationActive={true} animationDuration={1400} />
+              <Area type="monotone" dataKey="forecast" stroke="#9ca3af" strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" isAnimationActive={true} animationDuration={1400} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -532,7 +545,7 @@ export default function CRM() {
           <div className="relative">
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
-                <Pie data={dealSourcesData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
+                <Pie data={dealSourcesData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value" isAnimationActive={true} animationDuration={1400}>
                   {dealSourcesData.map((e, i) => <Cell key={i} fill={e.fill} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
@@ -568,7 +581,7 @@ export default function CRM() {
               <XAxis type="number" tick={{ fontSize: 10 }} stroke="#9ca3af" tickFormatter={(v) => `$${v}K`} />
               <YAxis type="category" dataKey="region" tick={{ fontSize: 10 }} stroke="#9ca3af" width={85} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
-              <Bar dataKey="revenue" fill="#40BFA6" radius={[0, 4, 4, 0]} name="Revenue ($K)" />
+              <Bar dataKey="revenue" fill="#40BFA6" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
             </BarChart>
           </ResponsiveContainer>
         </div>

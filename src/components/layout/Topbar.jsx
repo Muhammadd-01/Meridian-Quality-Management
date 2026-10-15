@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import {
   Menu,
   Search,
@@ -16,9 +16,24 @@ import {
 const pageTitles = {
   '/dashboard': 'Dashboard',
   '/projects': 'Project Management',
-  '/crm': 'CRM',
+  '/projects/tasks': 'Tasks',
+  '/projects/team': 'Team',
+  '/projects/timesheets': 'Timesheets',
+  '/crm': 'CRM Overview',
+  '/crm/customer-segments': 'Customer Segments',
+  '/crm/companies': 'Companies',
+  '/crm/activities': 'Activities',
+  '/crm/calls-emails': 'Calls & Emails',
   '/lms-analytics': 'LMS Analytics',
+  '/lms-analytics/course-catalog': 'Course Catalog',
+  '/lms-analytics/learner-profile': 'Learner Profile',
+  '/lms-analytics/quiz-builder': 'Quiz Builder',
+  '/lms-analytics/activity-feed': 'Activity Feed',
   '/sales-analytics': 'Sales Analytics',
+  '/sales-analytics/leads': 'Leads',
+  '/sales-analytics/deals': 'Deals',
+  '/sales-analytics/quotations': 'Quotations',
+  '/sales-analytics/pipeline': 'Pipeline',
 };
 
 export default function Topbar({ onMenuClick }) {
@@ -156,9 +171,9 @@ export default function Topbar({ onMenuClick }) {
                 <Settings size={16} /> Settings
               </a>
               <hr className="my-1 border-gray-100" />
-              <a href="#" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-danger hover:bg-danger-50">
+              <Link to="/login" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-danger hover:bg-danger-50 transition-colors">
                 <LogOut size={16} /> Sign Out
-              </a>
+              </Link>
             </div>
           </div>
         )}

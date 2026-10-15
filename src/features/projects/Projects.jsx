@@ -20,6 +20,7 @@ import SearchInput from '../../components/ui/SearchInput';
 import FilterDropdown from '../../components/ui/FilterDropdown';
 import ExportButton from '../../components/ui/ExportButton';
 import DataTable from '../../components/tables/DataTable';
+import AnimatedCounter from '../../components/ui/AnimatedCounter';
 import { useToast } from '../../components/ui/Toast';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useSearch from '../../hooks/useSearch';
@@ -242,10 +243,10 @@ export default function Projects() {
               <ExportButton onClick={handleExport} label="Export Report" />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Active Projects</p><p className="text-base font-bold text-gray-800 mt-0.5">{totalProjects}</p></div>
-              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Team Members</p><p className="text-base font-bold text-gray-800 mt-0.5">84</p></div>
-              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Sprint Velocity</p><p className="text-base font-bold text-success mt-0.5">92%</p></div>
-              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Productivity</p><p className="text-base font-bold text-success mt-0.5">96%</p></div>
+              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Active Projects</p><p className="text-base font-bold text-gray-800 mt-0.5"><AnimatedCounter value={totalProjects} /></p></div>
+              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Team Members</p><p className="text-base font-bold text-gray-800 mt-0.5"><AnimatedCounter value={84} /></p></div>
+              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Sprint Velocity</p><p className="text-base font-bold text-success mt-0.5"><AnimatedCounter value={92} suffix="%" /></p></div>
+              <div className="rounded-lg p-2.5 bg-gray-50"><p className="text-[10px] text-gray-400">Productivity</p><p className="text-base font-bold text-success mt-0.5"><AnimatedCounter value={96} suffix="%" /></p></div>
             </div>
           </div>
           <div className="rounded-2xl p-4 bg-gradient-to-br from-gray-50 to-primary/5 hidden lg:flex flex-col justify-center gap-3">
@@ -256,7 +257,7 @@ export default function Projects() {
                   <circle cx="50" cy="50" r="42" fill="none" stroke="#28a745" strokeWidth="8" strokeDasharray={`${86 * 2.64} ${(100 - 86) * 2.64}`} strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-lg font-bold text-gray-800">86%</span>
+                  <span className="text-lg font-bold text-gray-800"><AnimatedCounter value={86} suffix="%" /></span>
                   <span className="text-[9px] text-gray-400">On Track</span>
                 </div>
               </div>
@@ -270,7 +271,7 @@ export default function Projects() {
               <p className="text-[11px] font-medium text-gray-600">84 team members across 12 active sprints</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-2.5 bg-white"><p className="text-[10px] text-gray-400">Client NPS</p><p className="text-base font-bold text-primary mt-0.5">+58</p></div>
+              <div className="rounded-xl p-2.5 bg-white"><p className="text-[10px] text-gray-400">Client NPS</p><p className="text-base font-bold text-primary mt-0.5"><AnimatedCounter value={58} prefix="+" /></p></div>
               <div className="rounded-xl p-2.5 bg-white"><p className="text-[10px] text-gray-400">Revenue Impact</p><p className="text-base font-bold text-gray-800 mt-0.5">{formatCurrency(4800000)}</p></div>
             </div>
           </div>
@@ -278,12 +279,12 @@ export default function Projects() {
       </div>
 
       {/* ============ 2. Executive KPI Cards ============ */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-slide-up">
         {[
           { icon: FolderKanban, label: 'Active Projects', value: totalProjects, trend: '+4.2%', trendUp: true, color: 'bg-primary text-white', weekly: '+6', monthly: '+22' },
           { icon: CheckCircle2, label: 'Completed Projects', value: completedCount, trend: '+8.1%', trendUp: true, color: 'bg-success text-white', weekly: '+9', monthly: '+31' },
           { icon: ListTodo, label: 'Pending Tasks', value: pendingTasks, trend: '-2.4%', trendUp: false, color: 'bg-warning text-white', weekly: '-14', monthly: '-52' },
-          { icon: TrendingUp, label: 'Team Productivity', value: '96%', trend: '+3.6%', trendUp: true, color: 'bg-info text-white', weekly: '+3.6%', monthly: '+11%' },
+          { icon: TrendingUp, label: 'Team Productivity', value: 96, suffix: '%', trend: '+3.6%', trendUp: true, color: 'bg-info text-white', weekly: '+3.6%', monthly: '+11%' },
         ].map((kpi, i) => {
           const Icon = kpi.icon;
           return (
@@ -294,7 +295,9 @@ export default function Projects() {
                   {kpi.trendUp ? <ArrowUpRight size={9} /> : <ArrowDownRight size={9} />}{kpi.trend}
                 </span>
               </div>
-              <p className="text-xl font-bold text-gray-800 mt-2.5">{kpi.value}</p>
+              <p className="text-xl font-bold text-gray-800 mt-2.5">
+                <AnimatedCounter value={kpi.value} suffix={kpi.suffix || ''} />
+              </p>
               <p className="text-[11px] text-gray-400">{kpi.label}</p>
               <div className="h-8 mt-1.5 flex items-end gap-0.5">
                 {[40, 55, 35, 65, 45, 70, 50, 80].map((h, j) => (

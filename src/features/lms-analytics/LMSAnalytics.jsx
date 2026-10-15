@@ -19,6 +19,7 @@ import FilterDropdown from '../../components/ui/FilterDropdown';
 import ExportButton from '../../components/ui/ExportButton';
 import DateRangeFilter from '../../components/ui/DateRangeFilter';
 import DataTable from '../../components/tables/DataTable';
+import AnimatedCounter from '../../components/ui/AnimatedCounter';
 import { useToast } from '../../components/ui/Toast';
 import useSearch from '../../hooks/useSearch';
 import usePagination from '../../hooks/usePagination';
@@ -337,19 +338,27 @@ export default function LMSAnalytics() {
           {/* 4 Stat Badges */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3 rounded-xl bg-primary-50/50 border border-primary/10 flex flex-col justify-center">
-              <p className="text-xl font-bold text-primary-700">2.4M</p>
+              <p className="text-xl font-bold text-primary-700">
+                <AnimatedCounter value={2.4} decimals={1} suffix="M" />
+              </p>
               <p className="text-[10px] text-gray-500 mt-0.5">Minutes Learned</p>
             </div>
             <div className="p-3 rounded-xl bg-accent-50/50 border border-accent/10 flex flex-col justify-center">
-              <p className="text-xl font-bold text-accent-700">18,240</p>
+              <p className="text-xl font-bold text-accent-700">
+                <AnimatedCounter value={18240} />
+              </p>
               <p className="text-[10px] text-gray-500 mt-0.5">Badges Earned</p>
             </div>
             <div className="p-3 rounded-xl bg-info-50/50 border border-info/10 flex flex-col justify-center">
-              <p className="text-xl font-bold text-info-700">3,860</p>
+              <p className="text-xl font-bold text-info-700">
+                <AnimatedCounter value={3860} />
+              </p>
               <p className="text-[10px] text-gray-500 mt-0.5">Active Quizzes</p>
             </div>
             <div className="p-3 rounded-xl bg-success-50/50 border border-success/10 flex flex-col justify-center">
-              <p className="text-xl font-bold text-success-700">42</p>
+              <p className="text-xl font-bold text-success-700">
+                <AnimatedCounter value={42} />
+              </p>
               <p className="text-[10px] text-gray-500 mt-0.5">Challenges Completed</p>
             </div>
           </div>

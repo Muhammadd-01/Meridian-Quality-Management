@@ -3,23 +3,26 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  BarChart, Bar, PieChart, Pie, Cell,
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import {
   Plus, Pencil, Trash2, Eye, Users, Target,
-  TrendingUp, Award, Phone, Mail, Building2
+  TrendingUp, Award, Phone, Mail, Building2,
+  DollarSign, ArrowUpRight, ArrowDownRight, Clock,
+  CheckCircle2, AlertCircle, Filter, Download,
+  Briefcase, ChevronRight, Sparkles, Flame, Check
 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
-import StatCard from '../../components/ui/StatCard';
-import ChartCard from '../../components/ui/ChartCard';
-import SearchInput from '../../components/ui/SearchInput';
-import FilterDropdown from '../../components/ui/FilterDropdown';
 import StatusBadge from '../../components/ui/StatusBadge';
+import ProgressBar from '../../components/ui/ProgressBar';
+import AvatarGroup from '../../components/ui/AvatarGroup';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import DataTable from '../../components/tables/DataTable';
+import SearchInput from '../../components/ui/SearchInput';
+import FilterDropdown from '../../components/ui/FilterDropdown';
 import ExportButton from '../../components/ui/ExportButton';
+import DataTable from '../../components/tables/DataTable';
 import { useToast } from '../../components/ui/Toast';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useSearch from '../../hooks/useSearch';
@@ -30,7 +33,7 @@ import { formatCurrency, formatDate, generateId } from '../../utils/format';
 import { exportToCSV } from '../../utils/csv';
 
 const leadSchema = z.object({
-  contactName: z.string().min(2, 'Name is required'),
+  contactName: z.string().min(2, 'Contact Name is required'),
   company: z.string().min(2, 'Company is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().min(5, 'Phone is required'),
@@ -41,6 +44,70 @@ const leadSchema = z.object({
   notes: z.string().optional(),
 });
 
+// Top Deals Cards data matching reference
+const topDealsData = [
+  { id: 'td-1', code: 'CR', color: 'bg-rose-500', company: 'Cascade Retail Grp', location: 'Chicago, IL · Renewal', value: 210000, rep: 'Renee Foster', prob: '92%', probColor: 'text-rose-600 bg-rose-50' },
+  { id: 'td-2', code: 'VR', color: 'bg-amber-500', company: 'Vantage Retail', location: 'Austin, TX · Expansion', value: 142500, rep: 'Marco Diaz', prob: '68%', probColor: 'text-amber-600 bg-amber-50' },
+  { id: 'td-3', code: 'NW', color: 'bg-emerald-500', company: 'Northwind Corp', location: 'Seattle, WA · New Business', value: 96000, rep: 'Renee Foster', prob: '81%', probColor: 'text-emerald-600 bg-emerald-50' },
+  { id: 'td-4', code: 'ML', color: 'bg-purple-500', company: 'Meridian Labs', location: 'Boston, MA · New Business', value: 54200, rep: 'Marco Diaz', prob: '54%', probColor: 'text-purple-600 bg-purple-50' },
+  { id: 'td-5', code: 'BP', color: 'bg-blue-500', company: 'BrightPath Inc', location: 'Denver, CO · Closed Won', value: 27800, rep: 'Carlos Mendez', prob: '95%', probColor: 'text-blue-600 bg-blue-50' },
+];
+
+// Revenue analytics MRR data
+const mrrData = [
+  { month: 'Feb', actual: 140, forecast: 142 },
+  { month: 'Mar', actual: 148, forecast: 146 },
+  { month: 'Apr', actual: 154, forecast: 152 },
+  { month: 'May', actual: 161, forecast: 159 },
+  { month: 'Jun', actual: 167, forecast: 165 },
+  { month: 'Jul', actual: 176, forecast: 172 },
+  { month: 'Aug', actual: 186, forecast: 180 },
+];
+
+// Deal sources breakdown
+const dealSourcesData = [
+  { name: 'Organic Search', value: 240, fill: '#40BFA6' },
+  { name: 'Referral', value: 180, fill: '#7c5cfc' },
+  { name: 'Paid Ads', value: 110, fill: '#17a2b8' },
+  { name: 'Email Campaign', value: 75, fill: '#ffc107' },
+  { name: 'Events', value: 43, fill: '#dc3545' },
+];
+
+// Revenue by region
+const regionalData = [
+  { region: 'North America', revenue: 842 },
+  { region: 'Europe', revenue: 614 },
+  { region: 'APAC', revenue: 380 },
+  { region: 'LATAM', revenue: 226 },
+  { region: 'MEA', revenue: 110 },
+];
+
+// Pipeline board Kanban data
+const initialBoard = {
+  New: [
+    { id: 'b-1', title: 'Halcyon Freight', value: 38000, tag: 'Logistics', prob: '28%', rep: 'AH' },
+    { id: 'b-2', title: 'Aurora Biotech', value: 61500, tag: 'Biotech', subTag: 'Hot', prob: '22%', rep: 'SF' },
+    { id: 'b-3', title: 'Prime Fixtures Co.', value: 19800, tag: 'Retail', prob: '18%', rep: 'RK' },
+  ],
+  Qualified: [
+    { id: 'b-4', title: 'Meridian Labs', value: 54200, tag: 'Medtech', subTag: 'Watching', prob: '54%', rep: 'MD' },
+    { id: 'b-5', title: 'Solace Health', value: 18400, tag: 'Healthcare', subTag: 'At Risk', prob: '54%', rep: 'RF' },
+    { id: 'b-6', title: 'Silverline Media', value: 44700, tag: 'Media', prob: '47%', rep: 'CM' },
+  ],
+  Proposal: [
+    { id: 'b-7', title: 'Vantage Retail', value: 142500, tag: 'Retail', subTag: 'Medium', prob: '68%', rep: 'MD' },
+    { id: 'b-8', title: 'Cobalt Insurance', value: 88900, tag: 'Insurance', prob: '63%', rep: 'RF' },
+  ],
+  Negotiation: [
+    { id: 'b-9', title: 'Cascade Retail Grp', value: 210000, tag: 'Retail', subTag: 'High Priority', prob: '92%', rep: 'RF' },
+    { id: 'b-10', title: 'Orbit Logistics', value: 27800, tag: 'Transportation', subTag: 'At Risk', prob: '22%', rep: 'NW' },
+  ],
+  Won: [
+    { id: 'b-11', title: 'Northwind Corp', value: 96000, tag: 'Closed Won', prob: '100%', rep: 'RF' },
+    { id: 'b-12', title: 'BrightPath Inc', value: 27800, tag: 'Closed Won', prob: '100%', rep: 'CM' },
+  ],
+};
+
 export default function CRM() {
   const [leads, setLeads] = useLocalStorage('meridian-leads', initialLeads);
   const [modalOpen, setModalOpen] = useState(false);
@@ -49,6 +116,7 @@ export default function CRM() {
   const [editingLead, setEditingLead] = useState(null);
   const [statusFilter, setStatusFilter] = useState('All');
   const [sourceFilter, setSourceFilter] = useState('All');
+  const [quickFilter, setQuickFilter] = useState('All');
   const addToast = useToast();
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
@@ -59,42 +127,25 @@ export default function CRM() {
   const totalLeads = leads.length;
   const qualifiedLeads = leads.filter(l => l.status === 'Qualified').length;
   const wonLeads = leads.filter(l => l.status === 'Won').length;
-  const activeOpportunities = leads.filter(l => ['Qualified', 'Proposal'].includes(l.status)).length;
-  const conversionRate = totalLeads > 0 ? ((wonLeads / totalLeads) * 100) : 0;
-  const totalPipeline = leads.filter(l => !['Won', 'Lost'].includes(l.status)).reduce((s, l) => s + l.dealValue, 0);
-
-  // Source breakdown for chart
-  const sourceBreakdown = useMemo(() => {
-    const colors = { Website: '#40BFA6', Referral: '#7c5cfc', LinkedIn: '#17a2b8', Conference: '#ffc107', 'Cold Call': '#dc3545', Other: '#6c757d' };
-    const counts = {};
-    leads.forEach(l => { counts[l.source] = (counts[l.source] || 0) + 1; });
-    return Object.entries(counts).map(([name, value]) => ({ name, value, fill: colors[name] || '#6c757d' }));
-  }, [leads]);
-
-  // Pipeline data for chart
-  const pipelineData = useMemo(() => {
-    return leadStatuses.map(status => ({
-      name: status,
-      count: leads.filter(l => l.status === status).length,
-      value: leads.filter(l => l.status === status).reduce((s, l) => s + l.dealValue, 0),
-    }));
-  }, [leads]);
+  const totalPipeline = leads.reduce((s, l) => s + l.dealValue, 0);
 
   // Filter
   const filteredByFilters = useMemo(() => {
     let data = leads;
     if (statusFilter !== 'All') data = data.filter(l => l.status === statusFilter);
     if (sourceFilter !== 'All') data = data.filter(l => l.source === sourceFilter);
+    if (quickFilter === 'At Risk') data = data.filter(l => l.status === 'Lost' || l.dealValue < 500000);
+    if (quickFilter === 'Hot Lead') data = data.filter(l => l.dealValue > 2000000);
     return data;
-  }, [leads, statusFilter, sourceFilter]);
+  }, [leads, statusFilter, sourceFilter, quickFilter]);
 
   const { query, setQuery, filtered } = useSearch(filteredByFilters, ['contactName', 'company', 'email', 'assignedTo']);
   const { sorted, sortKey, sortDir, toggleSort } = useSort(filtered, 'contactName');
-  const pagination = usePagination(sorted, 8);
+  const pagination = usePagination(sorted, 7);
 
   const openCreate = () => {
     setEditingLead(null);
-    reset({ contactName: '', company: '', email: '', phone: '', source: 'Website', status: 'New', assignedTo: '', dealValue: 0, notes: '' });
+    reset({ contactName: '', company: '', email: '', phone: '', source: 'Website', status: 'New', assignedTo: 'Sarah Ahmed', dealValue: 500000, notes: '' });
     setModalOpen(true);
   };
 
@@ -128,158 +179,424 @@ export default function CRM() {
   };
 
   const handleExport = () => {
-    exportToCSV(sorted, 'leads', [
+    exportToCSV(sorted, 'meridian-deals', [
       { key: 'contactName', label: 'Contact Name' },
       { key: 'company', label: 'Company' },
       { key: 'email', label: 'Email' },
       { key: 'phone', label: 'Phone' },
       { key: 'source', label: 'Source' },
       { key: 'status', label: 'Status' },
-      { key: 'assignedTo', label: 'Assigned To' },
-      { key: 'dealValue', label: 'Deal Value (PKR)' },
+      { key: 'assignedTo', label: 'Owner' },
+      { key: 'dealValue', label: 'Value (PKR)' },
       { key: 'lastContact', label: 'Last Contact' },
     ]);
     addToast('CSV exported successfully', 'info');
   };
 
-  const pipelineColors = { New: '#40BFA6', Contacted: '#17a2b8', Qualified: '#7c5cfc', Proposal: '#ffc107', Won: '#28a745', Lost: '#dc3545' };
-
   const columns = [
     {
-      key: 'contactName',
-      label: 'Contact',
-      sortable: true,
-      render: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
-            {row.contactName.charAt(0)}
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-800">{row.contactName}</p>
-            <p className="text-xs text-gray-400">{row.email}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
       key: 'company',
-      label: 'Company',
+      label: 'Deal Name',
       sortable: true,
       render: (row) => (
-        <div className="flex items-center gap-1.5">
-          <Building2 size={14} className="text-gray-400" />
-          <span className="text-sm text-gray-600">{row.company}</span>
+        <div>
+          <p className="text-xs font-semibold text-gray-800">{row.company} · New Business</p>
+          <p className="text-[11px] text-gray-400">{row.contactName}</p>
         </div>
       ),
-    },
-    {
-      key: 'source',
-      label: 'Source',
-      sortable: true,
-      render: (row) => <span className="badge-secondary">{row.source}</span>,
     },
     {
       key: 'status',
-      label: 'Status',
+      label: 'Stage',
       sortable: true,
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
-      key: 'assignedTo',
-      label: 'Assigned To',
-      sortable: true,
-      render: (row) => <span className="text-sm text-gray-600">{row.assignedTo}</span>,
-    },
-    {
       key: 'dealValue',
-      label: 'Deal Value',
+      label: 'Value',
       sortable: true,
-      render: (row) => <span className="text-sm font-medium text-gray-700">{formatCurrency(row.dealValue)}</span>,
+      render: (row) => <span className="text-xs font-bold text-gray-800">{formatCurrency(row.dealValue)}</span>,
     },
     {
-      key: 'lastContact',
-      label: 'Last Contact',
+      key: 'source',
+      label: 'Tags',
+      render: (row) => (
+        <div className="flex items-center gap-1">
+          <span className="badge-secondary text-[10px]">{row.source}</span>
+          {row.dealValue > 2000000 && <span className="badge-success text-[10px]">High Value</span>}
+        </div>
+      ),
+    },
+    {
+      key: 'assignedTo',
+      label: 'Owner',
       sortable: true,
-      render: (row) => <span className="text-sm text-gray-500">{formatDate(row.lastContact)}</span>,
+      render: (row) => (
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+            {row.assignedTo.charAt(0)}
+          </div>
+          <span className="text-xs text-gray-600">{row.assignedTo}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'probability',
+      label: 'Probability',
+      render: (row) => {
+        const prob = row.status === 'Won' ? 100 : row.status === 'Lost' ? 0 : row.status === 'Proposal' ? 70 : 45;
+        return <span className="text-xs font-semibold text-gray-700">{prob}%</span>;
+      },
+    },
+    {
+      key: 'actionStatus',
+      label: 'Status',
+      render: (row) => {
+        const isWatch = row.status === 'Proposal';
+        const isAtRisk = row.status === 'Lost';
+        return (
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+            isAtRisk ? 'bg-danger-50 text-danger' : isWatch ? 'bg-warning-50 text-warning' : 'bg-success-50 text-success'
+          }`}>
+            {isAtRisk ? 'At Risk' : isWatch ? 'Watch' : 'Active'}
+          </span>
+        );
+      },
     },
   ];
 
   return (
-    <div>
-      <PageHeader
-        title="CRM"
-        subtitle="Manage leads, contacts, and sales pipeline"
-        breadcrumbs={[{ label: 'CRM' }]}
-        actions={
-          <button className="btn-primary" onClick={openCreate}>
-            <Plus size={16} /> New Lead
-          </button>
-        }
-      />
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
-        <StatCard title="Total Leads" value={totalLeads} icon={Users} iconColor="bg-primary/10 text-primary" />
-        <StatCard title="Qualified" value={qualifiedLeads} icon={Target} iconColor="bg-accent/10 text-accent" />
-        <StatCard title="Opportunities" value={activeOpportunities} icon={TrendingUp} iconColor="bg-info/10 text-info" />
-        <StatCard title="Won Deals" value={wonLeads} icon={Award} iconColor="bg-success/10 text-success" />
-        <StatCard title="Conversion Rate" value={`${conversionRate.toFixed(1)}%`} icon={Target} iconColor="bg-warning/10 text-warning" />
-        <StatCard title="Pipeline Value" value={formatCurrency(totalPipeline)} icon={TrendingUp} iconColor="bg-primary/10 text-primary" />
+    <div className="space-y-4">
+      {/* ============ Top Header & Workspace Banner ============ */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-gray-800">Deals Workspace</h1>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-success-50 text-success text-[11px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> Live
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5">312 open deals · {formatCurrency(totalPipeline)} pipeline · Enterprise + Mid-Market</p>
+        </div>
+        <button className="btn-primary btn-sm" onClick={openCreate}>
+          <Plus size={15} /> New Deal
+        </button>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <ChartCard title="Sales Pipeline" subtitle="Leads by status">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={pipelineData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-              <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
-              <Bar dataKey="count" name="Leads" radius={[6, 6, 0, 0]}>
-                {pipelineData.map((entry, i) => (
-                  <Cell key={i} fill={pipelineColors[entry.name] || '#6c757d'} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="Lead Sources" subtitle="Distribution by source">
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie data={sourceBreakdown} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={4} dataKey="value">
-                {sourceBreakdown.map((entry, i) => (
-                  <Cell key={i} fill={entry.fill} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
-              <Legend wrapperStyle={{ fontSize: '11px' }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </ChartCard>
-      </div>
-
-      {/* Filters */}
-      <div className="card card-body mb-6">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <SearchInput value={query} onChange={setQuery} placeholder="Search leads..." className="flex-1" />
-          <FilterDropdown
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[{ value: 'All', label: 'All Statuses' }, ...leadStatuses.map(s => ({ value: s, label: s }))]}
-          />
-          <FilterDropdown
-            value={sourceFilter}
-            onChange={setSourceFilter}
-            options={[{ value: 'All', label: 'All Sources' }, ...leadSources.map(s => ({ value: s, label: s }))]}
-          />
-          <ExportButton onClick={handleExport} />
+      {/* ============ Executive Metric Strip (6 Metrics) ============ */}
+      <div className="card p-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-gray-100 gap-y-3 md:gap-y-0">
+          <div className="px-3 py-1">
+            <p className="text-[10px] uppercase font-semibold text-gray-400">Pipeline Value</p>
+            <p className="text-base font-bold text-gray-800 mt-1">{formatCurrency(totalPipeline)}</p>
+            <p className="text-[10px] text-success font-medium mt-0.5 flex items-center gap-0.5">
+              <ArrowUpRight size={10} /> +9.4%
+            </p>
+          </div>
+          <div className="px-3 py-1">
+            <p className="text-[10px] uppercase font-semibold text-gray-400">Active Deals</p>
+            <p className="text-base font-bold text-gray-800 mt-1">{totalLeads}</p>
+            <div className="flex items-end gap-0.5 h-3 mt-1">
+              {[30, 45, 60, 40, 75, 90, 80].map((h, i) => (
+                <div key={i} className="flex-1 bg-amber-400 rounded-xs" style={{ height: `${h}%` }} />
+              ))}
+            </div>
+            <p className="text-[10px] text-success font-medium mt-0.5">+8.6%</p>
+          </div>
+          <div className="px-3 py-1">
+            <p className="text-[10px] uppercase font-semibold text-gray-400">Win Rate</p>
+            <p className="text-base font-bold text-gray-800 mt-1">59%</p>
+            <p className="text-[10px] text-success font-medium mt-0.5">+3 pts</p>
+          </div>
+          <div className="px-3 py-1">
+            <p className="text-[10px] uppercase font-semibold text-gray-400">Avg Deal Size</p>
+            <p className="text-base font-bold text-gray-800 mt-1">{formatCurrency(842000)}</p>
+            <p className="text-[10px] text-success font-medium mt-0.5">+6.1%</p>
+          </div>
+          <div className="px-3 py-1">
+            <p className="text-[10px] uppercase font-semibold text-gray-400">Avg Sales Cycle</p>
+            <p className="text-base font-bold text-gray-800 mt-1">38 days</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">-2 days vs plan</p>
+          </div>
+          <div className="px-3 py-1">
+            <p className="text-[10px] uppercase font-semibold text-gray-400">Closing This Week</p>
+            <p className="text-base font-bold text-gray-800 mt-1">14 · {formatCurrency(268000)}</p>
+            <p className="text-[10px] text-amber-600 font-medium mt-0.5">3 need action</p>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card card-body">
+      {/* ============ Top Deals Carousel Strip ============ */}
+      <div>
+        <div className="flex items-center justify-between mb-2 px-1">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500">Top Deals</h2>
+          <button className="text-xs text-primary font-semibold hover:underline">View All Deals</button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {topDealsData.map(td => (
+            <div key={td.id} className="card p-3.5 hover:shadow-card-hover transition-all border-l-4 border-l-primary">
+              <div className="flex items-center justify-between">
+                <span className={`w-7 h-7 rounded-lg ${td.color} text-white flex items-center justify-center text-[10px] font-bold`}>
+                  {td.code}
+                </span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${td.probColor}`}>
+                  {td.prob}
+                </span>
+              </div>
+              <p className="text-xs font-bold text-gray-800 mt-2 truncate">{td.company}</p>
+              <p className="text-[10px] text-gray-400 truncate">{td.location}</p>
+              <p className="text-sm font-bold text-gray-900 mt-2">{formatCurrency(td.value)}</p>
+              <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
+                <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-semibold text-gray-700">
+                  {td.rep.charAt(0)}
+                </div>
+                <span className="text-[10px] text-gray-500 truncate">{td.rep}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ============ Pipeline & Kanban Section ============ */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* Left Column: Quick Stats & Filters */}
+        <div className="space-y-4">
+          {/* Pipeline Stages Summary */}
+          <div className="card p-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Pipeline Stages</h3>
+            <div className="space-y-2">
+              {[
+                { name: 'New', count: 12, value: 184000, color: 'bg-primary' },
+                { name: 'Qualified', count: 18, value: 412000, color: 'bg-info' },
+                { name: 'Proposal', count: 14, value: 528000, color: 'bg-amber-500' },
+                { name: 'Negotiation', count: 9, value: 396000, color: 'bg-purple-500' },
+                { name: 'Won', count: 9, value: 240000, color: 'bg-success' },
+              ].map((st, i) => (
+                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-gray-50/70 hover:bg-gray-100 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${st.color}`} />
+                    <span className="text-xs font-medium text-gray-700">{st.name}</span>
+                  </div>
+                  <span className="text-xs text-gray-500">{st.count} · {formatCurrency(st.value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Filters */}
+          <div className="card p-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">Quick Filters</h3>
+            <div className="flex flex-wrap gap-1.5">
+              {['All', 'Enterprise', 'Mid-Market', 'SMB', 'At Risk', 'Renewal', 'Hot Lead'].map(f => (
+                <button
+                  key={f}
+                  onClick={() => setQuickFilter(f)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                    quickFilter === f
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Reps */}
+          <div className="card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Top Reps</h3>
+              <span className="badge-secondary text-[9px]">Quarter</span>
+            </div>
+            <div className="space-y-3">
+              {[
+                { name: 'Renee Foster', percent: 142, color: 'bg-primary' },
+                { name: 'Marco Diaz', percent: 128, color: 'bg-accent' },
+                { name: 'Carlos Mendez', percent: 104, color: 'bg-info' },
+              ].map((rep, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-gray-400">{i + 1}</span>
+                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">
+                        {rep.name.charAt(0)}
+                      </div>
+                      <span className="font-medium text-gray-700">{rep.name}</span>
+                    </div>
+                    <span className="font-bold text-primary">{rep.percent}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                    <div className={`h-full rounded-full ${rep.color}`} style={{ width: `${Math.min(100, rep.percent / 1.5)}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right 3-Columns: Deal Pipeline Board (Kanban) */}
+        <div className="lg:col-span-3 card p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 className="text-[15px] font-bold text-gray-800">Deal Pipeline Board</h2>
+              <p className="text-[11px] text-gray-400">Drag deals across stages · 62 active opportunities</p>
+            </div>
+            <span className="badge-primary text-[10px] self-start sm:self-auto">
+              ⚡ 31% lead → close
+            </span>
+          </div>
+
+          {/* Kanban Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 overflow-x-auto pb-2">
+            {Object.entries(initialBoard).map(([stage, items]) => (
+              <div key={stage} className="bg-gray-50/70 p-2.5 rounded-xl border border-gray-100 flex flex-col min-w-[170px]">
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${
+                      stage === 'Won' ? 'bg-success' : stage === 'Negotiation' ? 'bg-purple-500' : stage === 'Proposal' ? 'bg-amber-500' : stage === 'Qualified' ? 'bg-info' : 'bg-primary'
+                    }`} />
+                    {stage}
+                  </span>
+                  <span className="text-[10px] font-bold text-gray-400">{items.length}</span>
+                </div>
+                <div className="space-y-2 flex-1">
+                  {items.map(deal => (
+                    <div key={deal.id} className="bg-white p-2.5 rounded-lg border border-gray-200/80 shadow-xs hover:shadow transition-shadow">
+                      <p className="text-xs font-bold text-gray-800 truncate">{deal.title}</p>
+                      <p className="text-xs font-semibold text-gray-900 mt-0.5">{formatCurrency(deal.value)}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="badge-secondary text-[9px] px-1.5 py-0.2">{deal.tag}</span>
+                        {deal.subTag && (
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-medium ${
+                            deal.subTag === 'At Risk' ? 'bg-danger-50 text-danger' : deal.subTag === 'Hot' ? 'bg-amber-50 text-amber-600' : 'bg-info-50 text-info'
+                          }`}>
+                            {deal.subTag}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                        <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold text-primary">
+                          {deal.rep}
+                        </div>
+                        <span className="text-[10px] font-semibold text-gray-500">{deal.prob}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ============ Analytics Charts Row ============ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Revenue Analytics (Actual vs Forecast) */}
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-bold text-gray-800">Revenue Analytics</h3>
+              <p className="text-[10px] text-gray-400">MRR trending +11% above plan</p>
+            </div>
+            <span className="badge-secondary text-[10px]">Actual vs Forecast</span>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={mrrData}>
+              <defs>
+                <linearGradient id="crmActualGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#40BFA6" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#40BFA6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#9ca3af" />
+              <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" domain={[130, 200]} />
+              <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+              <Legend wrapperStyle={{ fontSize: '11px' }} />
+              <Area type="monotone" dataKey="actual" stroke="#40BFA6" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" />
+              <Area type="monotone" dataKey="forecast" stroke="#9ca3af" strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Deal Sources Donut */}
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-bold text-gray-800">Deal Sources</h3>
+              <p className="text-[10px] text-gray-400">Where opportunities originate</p>
+            </div>
+            <span className="badge-info text-[10px]">648 leads</span>
+          </div>
+          <div className="relative">
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie data={dealSourcesData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
+                  {dealSourcesData.map((e, i) => <Cell key={i} fill={e.fill} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-[10px] text-gray-400">Leads</span>
+              <span className="text-lg font-bold text-gray-800">648</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2 text-[10px] text-gray-500">
+            {dealSourcesData.map((s, i) => (
+              <span key={i} className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.fill }} />
+                {s.name}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Revenue by Region */}
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-bold text-gray-800">Revenue by Region</h3>
+              <p className="text-[10px] text-gray-400">North America leads; APAC fastest growing</p>
+            </div>
+            <span className="badge-secondary text-[10px]">This quarter</span>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={regionalData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis type="number" tick={{ fontSize: 10 }} stroke="#9ca3af" tickFormatter={(v) => `$${v}K`} />
+              <YAxis type="category" dataKey="region" tick={{ fontSize: 10 }} stroke="#9ca3af" width={85} />
+              <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+              <Bar dataKey="revenue" fill="#40BFA6" radius={[0, 4, 4, 0]} name="Revenue ($K)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* ============ Recent Deals Table & CRUD ============ */}
+      <div className="card p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-[15px] font-bold text-gray-800">Recent Deals</h2>
+            <p className="text-[11px] text-gray-400">312 opportunities · saved view: "Enterprise Pipeline"</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <SearchInput value={query} onChange={setQuery} placeholder="Search deals..." className="w-full sm:w-56" />
+            <FilterDropdown
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[{ value: 'All', label: 'All Statuses' }, ...leadStatuses.map(s => ({ value: s, label: s }))]}
+            />
+            <FilterDropdown
+              value={sourceFilter}
+              onChange={setSourceFilter}
+              options={[{ value: 'All', label: 'All Sources' }, ...leadSources.map(s => ({ value: s, label: s }))]}
+            />
+            <ExportButton onClick={handleExport} />
+          </div>
+        </div>
+
         <DataTable
           columns={columns}
           data={pagination.paginatedData}
@@ -287,35 +604,35 @@ export default function CRM() {
           sortDir={sortDir}
           onSort={toggleSort}
           pagination={pagination}
-          emptyTitle="No leads found"
-          emptyDescription="Try adjusting your search or filters, or create a new lead."
+          emptyTitle="No deals found"
+          emptyDescription="Try adjusting your search or filters, or create a new deal."
           actions={(row) => (
             <div className="flex items-center gap-1">
               <button onClick={() => setViewModal(row)} className="p-1.5 rounded-lg text-gray-400 hover:text-info hover:bg-info/10" title="View">
-                <Eye size={15} />
+                <Eye size={14} />
               </button>
               <button onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10" title="Edit">
-                <Pencil size={15} />
+                <Pencil size={14} />
               </button>
               <button onClick={() => setDeleteDialog(row)} className="p-1.5 rounded-lg text-gray-400 hover:text-danger hover:bg-danger/10" title="Delete">
-                <Trash2 size={15} />
+                <Trash2 size={14} />
               </button>
             </div>
           )}
         />
       </div>
 
-      {/* Create/Edit Modal */}
+      {/* ============ Create/Edit Modal ============ */}
       <Modal
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); reset(); }}
-        title={editingLead ? 'Edit Lead' : 'Create New Lead'}
+        title={editingLead ? 'Edit Deal / Lead' : 'Create New Deal'}
         size="lg"
         footer={
           <>
             <button className="btn-secondary" onClick={() => { setModalOpen(false); reset(); }}>Cancel</button>
             <button className="btn-primary" onClick={handleSubmit(onSubmit)}>
-              {editingLead ? 'Update Lead' : 'Create Lead'}
+              {editingLead ? 'Update Deal' : 'Create Deal'}
             </button>
           </>
         }
@@ -359,7 +676,7 @@ export default function CRM() {
               </select>
             </div>
             <div>
-              <label className="form-label">Assigned To</label>
+              <label className="form-label">Assigned Representative</label>
               <input {...register('assignedTo')} className="form-input" placeholder="Rep name" />
               {errors.assignedTo && <p className="form-error">{errors.assignedTo.message}</p>}
             </div>
@@ -376,8 +693,8 @@ export default function CRM() {
         </form>
       </Modal>
 
-      {/* View Modal */}
-      <Modal isOpen={!!viewModal} onClose={() => setViewModal(null)} title="Lead Details" size="lg">
+      {/* ============ View Modal ============ */}
+      <Modal isOpen={!!viewModal} onClose={() => setViewModal(null)} title="Deal Details" size="lg">
         {viewModal && (
           <div className="space-y-4">
             <div className="flex items-center gap-4">
@@ -432,8 +749,8 @@ export default function CRM() {
         isOpen={!!deleteDialog}
         onClose={() => setDeleteDialog(null)}
         onConfirm={handleDelete}
-        title="Delete Lead"
-        message={`Are you sure you want to delete "${deleteDialog?.contactName}"? This action cannot be undone.`}
+        title="Delete Deal"
+        message={`Are you sure you want to delete deal "${deleteDialog?.contactName}"? This action cannot be undone.`}
       />
     </div>
   );

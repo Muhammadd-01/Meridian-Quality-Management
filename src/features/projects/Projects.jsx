@@ -664,6 +664,238 @@ export default function Projects() {
         </div>
       </div>
 
+      {/* ============ 10. Client Requests & Approvals ============ */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-[15px] font-bold text-gray-800">Client Requests & Approvals</h2>
+            <p className="text-[11px] text-gray-400 mt-0.5">Pending client feature and scope change requests</p>
+          </div>
+          <span className="badge-info">5 active</span>
+        </div>
+        <div className="overflow-x-auto -mx-1">
+          <table className="w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-gray-100 text-gray-400">
+                <th className="font-semibold pb-2">Client</th>
+                <th className="font-semibold pb-2">Project</th>
+                <th className="font-semibold pb-2">Request</th>
+                <th className="font-semibold pb-2">Priority</th>
+                <th className="font-semibold pb-2">Assigned To</th>
+                <th className="font-semibold pb-2">Deadline</th>
+                <th className="font-semibold pb-2">Approval</th>
+                <th className="font-semibold pb-2">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {[
+                { client: 'Nimbus Retail', project: 'Nimbus Checkout', request: 'Add Apple Pay support', priority: 'Medium', assigned: 'Amelia Hart', deadline: 'Aug 08', approval: 'Approved', status: 'In Progress' },
+                { client: 'Orion Partners', project: 'Orion Mobile App', request: 'Add biometric login', priority: 'High', assigned: 'Liam Novak', deadline: 'Jul 30', approval: 'Pending', status: 'Review' },
+                { client: 'Helios Group', project: 'Helios Rebrand', request: 'Extend QA sandbox window', priority: 'Critical', assigned: 'Sofia Fernandez', deadline: 'Jul 24', approval: 'Pending', status: 'Escalated' },
+                { client: 'Vega Holdings', project: 'Vega Partner Portal', request: 'Add SSO for enterprise clients', priority: 'Low', assigned: 'Rahul Khanna', deadline: 'Sep 15', approval: 'Not Submitted', status: 'Planning' },
+                { client: 'Apex Medical', project: 'Apex Lab Systems', request: 'ISO 17025 accreditation docs', priority: 'High', assigned: 'Dr. Kamran', deadline: 'Aug 18', approval: 'Approved', status: 'In Progress' },
+              ].map((r, i) => (
+                <tr key={i} className="hover:bg-gray-50/50">
+                  <td className="py-2.5 font-medium text-gray-800">{r.client}</td>
+                  <td className="py-2.5 text-gray-600">{r.project}</td>
+                  <td className="py-2.5 text-gray-600">{r.request}</td>
+                  <td className="py-2.5"><StatusBadge status={r.priority} /></td>
+                  <td className="py-2.5 text-gray-600">{r.assigned}</td>
+                  <td className="py-2.5 text-gray-500">{r.deadline}</td>
+                  <td className="py-2.5">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                      r.approval === 'Approved' ? 'bg-success-50 text-success' : r.approval === 'Pending' ? 'bg-warning-50 text-warning' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {r.approval}
+                    </span>
+                  </td>
+                  <td className="py-2.5"><StatusBadge status={r.status} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ============ 11. Sprint Board (Kanban Strip) ============ */}
+      <div className="card p-5">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-[15px] font-bold text-gray-800">Sprint 24 — Board</h2>
+            <p className="text-[11px] text-gray-400 mt-0.5">Nimbus Checkout Redesign · ends in 4 days · 10 tasks</p>
+          </div>
+          <span className="badge-primary">Sprint Active</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* To Do */}
+          <div className="rounded-xl p-3 bg-gray-50/80 border border-gray-100">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
+                <span className="w-2 h-2 rounded-full bg-gray-400" /> To Do
+              </span>
+              <span className="text-xs font-bold text-gray-400">3</span>
+            </div>
+            <div className="space-y-2.5">
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-danger text-[9px]">High</span>
+                  <span className="text-[10px] text-gray-400">Jul 25</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">Design empty-state illustrations</p>
+                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">Design team</span>
+                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold text-primary">AH</div>
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-warning text-[9px]">Medium</span>
+                  <span className="text-[10px] text-gray-400">Jul 27</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">Wire up saved-address autofill</p>
+                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">Frontend</span>
+                  <div className="w-5 h-5 rounded-full bg-info/20 flex items-center justify-center text-[9px] font-bold text-info">LN</div>
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-secondary text-[9px]">Low</span>
+                  <span className="text-[10px] text-gray-400">Jul 29</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">Draft release notes for v3.2</p>
+                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">Docs</span>
+                  <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-[9px] font-bold text-accent">SF</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* In Progress */}
+          <div className="rounded-xl p-3 bg-gray-50/80 border border-gray-100">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
+                <span className="w-2 h-2 rounded-full bg-info" /> In Progress
+              </span>
+              <span className="text-xs font-bold text-gray-400">3</span>
+            </div>
+            <div className="space-y-2.5">
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-danger text-[9px]">High</span>
+                  <span className="text-[10px] text-gray-400">Jul 23</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">Refactor checkout payment step</p>
+                <div className="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-info h-full rounded-full" style={{ width: '62%' }} />
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">62% done</span>
+                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold text-primary">MS</div>
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-warning text-[9px]">Medium</span>
+                  <span className="text-[10px] text-gray-400">Jul 24</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">Build shipment tracking widget</p>
+                <div className="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-info h-full rounded-full" style={{ width: '40%' }} />
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">40% done</span>
+                  <div className="w-5 h-5 rounded-full bg-warning/20 flex items-center justify-center text-[9px] font-bold text-warning">RK</div>
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-warning text-[9px]">Medium</span>
+                  <span className="text-[10px] text-gray-400">Jul 26</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">API contract for loyalty points</p>
+                <div className="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-info h-full rounded-full" style={{ width: '20%' }} />
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">20% done</span>
+                  <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center text-[9px] font-bold text-success">AH</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Review */}
+          <div className="rounded-xl p-3 bg-gray-50/80 border border-gray-100">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
+                <span className="w-2 h-2 rounded-full bg-warning" /> Review
+              </span>
+              <span className="text-xs font-bold text-gray-400">2</span>
+            </div>
+            <div className="space-y-2.5">
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-danger text-[9px]">High</span>
+                  <span className="badge-warning text-[9px]">In review</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">QA regression — multi-currency</p>
+                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">QA team</span>
+                  <div className="w-5 h-5 rounded-full bg-danger/20 flex items-center justify-center text-[9px] font-bold text-danger">LN</div>
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm hover:shadow transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="badge-secondary text-[9px]">Low</span>
+                  <span className="badge-warning text-[9px]">In review</span>
+                </div>
+                <p className="text-xs font-medium text-gray-800 mt-1.5">Copy review — onboarding emails</p>
+                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">Marketing</span>
+                  <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-[9px] font-bold text-accent">SF</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Done */}
+          <div className="rounded-xl p-3 bg-gray-50/80 border border-gray-100">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
+                <span className="w-2 h-2 rounded-full bg-success" /> Done
+              </span>
+              <span className="text-xs font-bold text-gray-400">2</span>
+            </div>
+            <div className="space-y-2.5">
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm opacity-80">
+                <div className="flex items-center justify-between">
+                  <span className="badge-success text-[9px]">Done</span>
+                  <span className="text-[10px] text-gray-400">Jul 20</span>
+                </div>
+                <p className="text-xs font-medium text-gray-400 line-through mt-1.5">Set up feature-flag rollout</p>
+                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">DevOps</span>
+                  <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center text-[9px] font-bold text-success">MS</div>
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded-lg border border-gray-200/80 shadow-sm opacity-80">
+                <div className="flex items-center justify-between">
+                  <span className="badge-success text-[9px]">Done</span>
+                  <span className="text-[10px] text-gray-400">Jul 19</span>
+                </div>
+                <p className="text-xs font-medium text-gray-400 line-through mt-1.5">Migrate cart service to v2 API</p>
+                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] text-gray-400">Backend</span>
+                  <div className="w-5 h-5 rounded-full bg-info/20 flex items-center justify-center text-[9px] font-bold text-info">RK</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ============ MODALS ============ */}
       {/* Create/Edit Modal */}
       <Modal

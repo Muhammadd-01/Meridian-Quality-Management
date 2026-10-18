@@ -1,21 +1,59 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
+import { Outlet, useLocation, Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import ScrollToTop from '../ui/ScrollToTop';
+import LoadingState from '../ui/LoadingState';
+import { useSettings } from '../../lib/settings';
+import { useColorMode, useSidebarStyle } from '../../lib/theme';
+import { useTrackRecentPage } from '../../lib/workspace';
+import { pageTitles, pageGroup } from '../../app/navigation';
+
+const groupLinks = {
+  Main: { label: 'Dashboards', to: '/dashboard' },
+  CRM: { label: 'CRM', to: '/crm' },
+  'Project Management': { label: 'Project Management', to: '/projects' },
+  'LMS Analytics': { label: 'LMS Analytics', to: '/lms-analytics' },
+  'Sales Analytics': { label: 'Sales Analytics', to: '/sales-analytics' },
+  Workspace: { label: 'Workspace' },
+};
+
+/** Title bar under the header: page name on the left, breadcrumb trail on the right. */
+function PageBar({ pathname }) {
+  const title = pageTitles[pathname] || 'Dashboard';
+  const group = groupLinks[pageGroup(pathname)] || groupLinks.Main;
+  const showGroup = group.to !== pathname;
+  return (
+    <div className="page-bar px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3 shrink-0">
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-gray-900 truncate">{title}</p>
+      <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs shrink-0">
+        {showGroup && (group.to
+          ? <Link to={group.to} className="font-semibold text-primary hover:text-primary-700 transition-colors">{group.label}</Link>
+          : <span className="font-semibold text-gray-500">{group.label}</span>)}
+        {showGroup && <ChevronRight size={12} className="text-gray-400" aria-hidden="true" />}
+        <span className="text-gray-600 font-medium" aria-current="page">{title}</span>
+      </nav>
+    </div>
+  );
+}
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const location = useLocation();
-  // Default to 'spruce' (exact DreamsCore reference website sidebar theme)
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('meridian-theme-v2');
-    if (saved) return saved;
-    localStorage.setItem('meridian-theme-v2', 'spruce');
-    return 'spruce';
-  });
+  const [sidebarStyle, setSidebarStyle] = useSidebarStyle();
+  const colorMode = useColorMode();
   const mainRef = useRef(null);
+  const [settings] = useSettings();
+  const reduceMotion = settings.preferences.reduceMotion;
+
+  useTrackRecentPage();
+
+  // In-app reduced-motion preference (the OS preference is honoured in CSS too)
+  useEffect(() => {
+    document.documentElement.classList.toggle('reduce-motion', !!reduceMotion);
+  }, [reduceMotion]);
 
   // Ensure any selected page immediately starts from the top
   useEffect(() => {
@@ -28,51 +66,58 @@ export default function AppLayout() {
     document.body.scrollTop = 0;
   }, [location.pathname, location.search]);
 
-  const handleToggleTheme = () => {
-    setTheme(prev => {
-      const next = prev === 'spruce' ? 'light' : 'spruce';
-      localStorage.setItem('meridian-theme-v2', next);
-      return next;
-    });
-  };
+  // Close the mobile drawer on navigation and on Escape.
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
 
-  const handleSetTheme = (newTheme) => {
-    setTheme(newTheme);
-    localStorage.setItem('meridian-theme-v2', newTheme);
-  };
+  useEffect(() => {
+    if (!mobileSidebarOpen) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setMobileSidebarOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [mobileSidebarOpen]);
+
+  // Dark mode always uses the dark sidebar.
+  const effectiveSidebar = colorMode.resolved === 'dark' ? 'spruce' : sidebarStyle;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f7f8f7]">
+    <div className="flex h-screen overflow-hidden bg-surface-canvas">
+      <a href="#main-content" className="sr-only-focusable fixed top-2 left-2 z-[80] btn-primary btn-sm">Skip to content</a>
       {/* Mobile overlay */}
       {mobileSidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-black/45 backdrop-blur-[2px] lg:hidden animate-fade-in"
           onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar (Reference Spruce #14201c by default, direct headings, no dropdowns) */}
       <Sidebar
         isOpen={sidebarOpen}
         mobileOpen={mobileSidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onMobileClose={() => setMobileSidebarOpen(false)}
-        theme={theme}
-        onThemeToggle={handleToggleTheme}
+        theme={effectiveSidebar}
       />
 
       {/* Main content area */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
-        sidebarOpen ? 'lg:ml-[260px]' : 'lg:ml-[72px]'
+      <div className={`flex-1 flex flex-col min-w-0 transition-[margin] duration-300 ease-spring ${
+        sidebarOpen ? 'lg:ml-[256px]' : 'lg:ml-[72px]'
       }`}>
         <Topbar
           onMenuClick={() => setMobileSidebarOpen(true)}
-          sidebarOpen={sidebarOpen}
-          theme={theme}
-          onThemeChange={handleSetTheme}
+          colorMode={colorMode}
+          sidebarStyle={sidebarStyle}
+          onSidebarStyleChange={setSidebarStyle}
         />
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth bg-[#f7f8f7]">
-          <Outlet />
+        <main ref={mainRef} id="main-content" tabIndex={-1} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden scroll-smooth outline-none">
+          <PageBar pathname={location.pathname} />
+          <div key={location.pathname} className="page-enter flex-1 p-4 lg:p-6">
+            <Suspense fallback={<LoadingState text="Loading page…" />}>
+              <Outlet />
+            </Suspense>
+          </div>
         </main>
         {/* Floating Scroll To Top button */}
         <ScrollToTop targetRef={mainRef} />

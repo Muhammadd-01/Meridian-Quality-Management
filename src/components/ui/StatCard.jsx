@@ -1,8 +1,17 @@
 import React from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
+import InfoTip from './InfoTip';
 
-export default function StatCard({ title, value, change, changeType = 'increase', icon: Icon, iconColor = 'bg-primary/10 text-primary', subtitle }) {
+/**
+ * KPI card. Optional props:
+ *  - info: explanation of how the metric is calculated (shown as a tooltip)
+ *  - to: route to open when the card is clicked (filtered report / module)
+ *  - changeType: 'increase' | 'decrease' | 'neutral'
+ *  - positiveIsGood: set false for metrics where a rise is bad (e.g. bounce rate)
+ */
+export default function StatCard({ title, value, change, changeType = 'increase', icon: Icon, iconColor = 'bg-primary/10 text-primary', subtitle, info, to, positiveIsGood = true, footer }) {
   // Check if value is numeric or formatted string
   const renderValue = () => {
     if (typeof value === 'number') {
@@ -30,34 +39,48 @@ export default function StatCard({ title, value, change, changeType = 'increase'
     return value;
   };
 
-  return (
-    <div className="card card-body flex flex-col hover:shadow-card-hover transition-all duration-300">
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{title}</p>
-          <h3 className="text-2xl font-bold text-gray-800 mt-1.5">{renderValue()}</h3>
-          {change !== undefined && (
-            <div className="flex items-center gap-1.5 mt-2">
-              {changeType === 'increase' ? (
-                <span className="inline-flex items-center gap-0.5 text-xs font-medium text-success">
-                  <TrendingUp size={12} /> {change}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-0.5 text-xs font-medium text-danger">
-                  <TrendingDown size={12} /> {change}
-                </span>
-              )}
-              {subtitle && <span className="text-xs text-gray-400">{subtitle}</span>}
-            </div>
-          )}
-          {!change && subtitle && <p className="text-xs text-gray-400 mt-1.5">{subtitle}</p>}
-        </div>
-        {Icon && (
-          <div className={`grid place-items-center w-11 h-11 rounded-xl ${iconColor} transition-transform duration-300 hover:scale-110`}>
-            <Icon size={20} />
+  const good = changeType === 'neutral' ? null : (changeType === 'increase') === positiveIsGood;
+  const changeColor = good === null ? 'text-gray-500' : good ? 'text-success' : 'text-danger';
+  const ChangeIcon = changeType === 'neutral' ? Minus : changeType === 'increase' ? TrendingUp : TrendingDown;
+
+  const body = (
+    <div className="flex items-start justify-between">
+      <div className="flex-1 min-w-0">
+        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.06em] flex items-center gap-1">
+          {title}
+          {info && <InfoTip text={info} />}
+        </p>
+        <h3 className="font-display text-[26px] leading-8 font-extrabold tracking-tight text-gray-900 mt-1.5 tabular-nums">{renderValue()}</h3>
+        {change !== undefined && change !== null && change !== '' && (
+          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+            <span className={`inline-flex items-center gap-0.5 text-xs font-bold ${changeColor}`}>
+              <ChangeIcon size={12} aria-hidden="true" />
+              <span className="sr-only">{changeType === 'increase' ? 'Up' : changeType === 'decrease' ? 'Down' : 'No change'} </span>
+              {change}
+            </span>
+            {subtitle && <span className="text-xs text-gray-400">{subtitle}</span>}
           </div>
         )}
+        {!change && subtitle && <p className="text-xs text-gray-400 mt-1.5">{subtitle}</p>}
+        {footer}
       </div>
+      {Icon && (
+        <div className={`icon-tile ${iconColor}`} aria-hidden="true">
+          <Icon size={17} />
+        </div>
+      )}
     </div>
   );
+
+  const className = 'card card-lift card-body flex flex-col relative overflow-hidden group';
+
+  if (to) {
+    return (
+      <Link to={to} className={`${className} card-interactive focus-visible:outline-none`} aria-label={`${title}: open details`}>
+        {body}
+      </Link>
+    );
+  }
+
+  return <div className={className}>{body}</div>;
 }

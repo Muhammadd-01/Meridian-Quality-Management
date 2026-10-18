@@ -11,15 +11,15 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import ProgressBar from '../../../components/ui/ProgressBar';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import Pagination from '../../../components/ui/Pagination';
 import { initialSegments } from '../../../data/crmData';
 import { formatCurrency, formatNumber, formatDate, generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 export default function CustomerSegments() {
   const [segments, setSegments] = useLocalStorage('meridian-customer-segments', initialSegments);
@@ -68,6 +68,9 @@ export default function CustomerSegments() {
     });
     setModalOpen(true);
   };
+
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
 
   const handleOpenEdit = (seg) => {
     setEditSegment(seg);
@@ -128,23 +131,6 @@ export default function CustomerSegments() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      segments,
-      'meridian_customer_segments',
-      [
-        { key: 'name', label: 'Segment Name' },
-        { key: 'criteria', label: 'Criteria' },
-        { key: 'customerCount', label: 'Customer Count' },
-        { key: 'shareOfBase', label: 'Share (%)' },
-        { key: 'avgValue', label: 'Avg Value (PKR)' },
-        { key: 'status', label: 'Status' },
-        { key: 'updatedAt', label: 'Updated' },
-      ]
-    );
-    addToast('Customer segments exported to CSV!', 'info');
-  };
-
   // KPIs
   const totalAccounts = segments.reduce((sum, s) => sum + (s.customerCount || 0), 0);
   const highestShare = [...segments].sort((a, b) => b.shareOfBase - a.shareOfBase)[0];
@@ -161,7 +147,7 @@ export default function CustomerSegments() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="segments" records={segments} setRecords={setSegments} filtered={filteredSegments} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Add Segment
             </button>
@@ -335,16 +321,16 @@ export default function CustomerSegments() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="customerSegments-submit-form" className="btn-primary">
               {editSegment ? 'Save Changes' : 'Create Segment'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="customerSegments-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="form-label">Segment Name *</label>
-            <input
+            <label htmlFor="customerSegments-field-1" className="form-label">Segment Name *</label>
+            <input id="customerSegments-field-1"
               type="text"
               required
               className="form-input"
@@ -355,8 +341,8 @@ export default function CustomerSegments() {
           </div>
 
           <div>
-            <label className="form-label">Description</label>
-            <textarea
+            <label htmlFor="customerSegments-field-2" className="form-label">Description</label>
+            <textarea id="customerSegments-field-2"
               rows={2}
               className="form-input"
               value={formData.description}
@@ -367,8 +353,8 @@ export default function CustomerSegments() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Criteria Rule *</label>
-              <input
+              <label htmlFor="customerSegments-field-3" className="form-label">Criteria Rule *</label>
+              <input id="customerSegments-field-3"
                 type="text"
                 required
                 className="form-input"
@@ -378,8 +364,8 @@ export default function CustomerSegments() {
               />
             </div>
             <div>
-              <label className="form-label">Status</label>
-              <select
+              <label htmlFor="customerSegments-field-4" className="form-label">Status</label>
+              <select id="customerSegments-field-4"
                 className="form-select"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -392,8 +378,8 @@ export default function CustomerSegments() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Accounts</label>
-              <input
+              <label htmlFor="customerSegments-field-5" className="form-label">Accounts</label>
+              <input id="customerSegments-field-5"
                 type="number"
                 min="0"
                 className="form-input"
@@ -402,8 +388,8 @@ export default function CustomerSegments() {
               />
             </div>
             <div>
-              <label className="form-label">Share (%)</label>
-              <input
+              <label htmlFor="customerSegments-field-6" className="form-label">Share (%)</label>
+              <input id="customerSegments-field-6"
                 type="number"
                 step="0.1"
                 min="0"
@@ -414,8 +400,8 @@ export default function CustomerSegments() {
               />
             </div>
             <div>
-              <label className="form-label">Avg Value (PKR)</label>
-              <input
+              <label htmlFor="customerSegments-field-7" className="form-label">Avg Value (PKR)</label>
+              <input id="customerSegments-field-7"
                 type="number"
                 min="0"
                 className="form-input"
@@ -426,8 +412,8 @@ export default function CustomerSegments() {
           </div>
 
           <div>
-            <label className="form-label">Tags (comma separated)</label>
-            <input
+            <label htmlFor="customerSegments-field-8" className="form-label">Tags (comma separated)</label>
+            <input id="customerSegments-field-8"
               type="text"
               className="form-input"
               value={formData.tags}

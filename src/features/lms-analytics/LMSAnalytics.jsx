@@ -29,7 +29,7 @@ import { enrollmentTrends } from '../../data/dashboard';
 import { formatNumber, formatPercent, formatCurrency } from '../../utils/format';
 import { exportToCSV } from '../../utils/csv';
 
-const COLORS = ['#40BFA6', '#7c5cfc', '#17a2b8', '#ffc107', '#dc3545', '#28a745'];
+const COLORS = ['#24997c', '#6174bc', '#3e7ead', '#dc9a2c', '#d0504c', '#1e9e6b'];
 
 // Gamification top performers
 const topPerformers = [
@@ -48,9 +48,9 @@ const instructorPerfData = [
 
 // Assessment distribution
 const assessmentDist = [
-  { name: 'Passed', value: 67.2, fill: '#28a745' },
-  { name: 'Retaken', value: 21.6, fill: '#ffc107' },
-  { name: 'Failed', value: 11.2, fill: '#dc3545' },
+  { name: 'Passed', value: 67.2, fill: '#1e9e6b' },
+  { name: 'Retaken', value: 21.6, fill: '#dc9a2c' },
+  { name: 'Failed', value: 11.2, fill: '#d0504c' },
 ];
 
 // Revenue intelligence data
@@ -253,7 +253,7 @@ export default function LMSAnalytics() {
               <div className="relative w-20 h-20 shrink-0">
                 <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                   <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="#40BFA6" strokeWidth="8" strokeDasharray={`${68 * 2.64} ${(100 - 68) * 2.64}`} strokeLinecap="round" />
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#24997c" strokeWidth="8" strokeDasharray={`${68 * 2.64} ${(100 - 68) * 2.64}`} strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-base font-bold">68%</span>
@@ -412,8 +412,8 @@ export default function LMSAnalytics() {
               <YAxis tick={{ fontSize: 10 }} stroke="#9ca3af" domain={[0, 100]} />
               <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
               <Legend wrapperStyle={{ fontSize: '10px' }} />
-              <Bar dataKey="hours" fill="#40BFA6" name="Hours" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="satisfaction" fill="#7c5cfc" name="Satisfaction %" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="hours" fill="#24997c" name="Hours" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="satisfaction" fill="#6174bc" name="Satisfaction %" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -528,9 +528,9 @@ export default function LMSAnalytics() {
               <YAxis tick={{ fontSize: 10 }} stroke="#9ca3af" tickFormatter={(v) => `$${v}K`} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
               <Legend wrapperStyle={{ fontSize: '10px' }} />
-              <Bar dataKey="subscription" stackId="a" fill="#40BFA6" name="Subscription" />
-              <Bar dataKey="corporate" stackId="a" fill="#7c5cfc" name="Corporate" />
-              <Bar dataKey="certification" stackId="a" fill="#17a2b8" name="Certification" />
+              <Bar dataKey="subscription" stackId="a" fill="#24997c" name="Subscription" />
+              <Bar dataKey="corporate" stackId="a" fill="#6174bc" name="Corporate" />
+              <Bar dataKey="certification" stackId="a" fill="#3e7ead" name="Certification" />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -11,16 +11,17 @@ import FilterDropdown from '../../../components/ui/FilterDropdown';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
+import useCollection from '../../../hooks/useCollection';
+import WeeklySummary from './WeeklySummary';
 import { initialTimesheets } from '../../../data/projectManagementData';
-import { initialProjects } from '../../../data/projects';
 import { formatDate, generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 export default function Timesheets() {
   const [timesheets, setTimesheets] = useLocalStorage('meridian-timesheets', initialTimesheets);
@@ -30,6 +31,13 @@ export default function Timesheets() {
   const [editTimesheet, setEditTimesheet] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const addToast = useToast();
+  const [projects] = useCollection('projects');
+
+  // Project options: live project records plus project names already used on entries.
+  const projectOptions = useMemo(
+    () => Array.from(new Set([...projects.map(p => p.name), ...timesheets.map(t => t.project)].filter(Boolean))).sort(),
+    [projects, timesheets]
+  );
 
   // Search
   const { query, setQuery, filtered: searchFiltered } = useSearch(timesheets, ['employee', 'project', 'task', 'description']);
@@ -49,7 +57,7 @@ export default function Timesheets() {
   // Form State
   const [formData, setFormData] = useState({
     employee: 'Sarah Ahmed',
-    project: initialProjects[0]?.name || 'ISO 9001 Implementation',
+    project: projectOptions[0] || 'ISO 9001 Implementation',
     task: 'Measurement Traceability Check',
     date: '2026-10-15',
     startTime: '09:00 AM',
@@ -64,7 +72,7 @@ export default function Timesheets() {
     setEditTimesheet(null);
     setFormData({
       employee: 'Sarah Ahmed',
-      project: initialProjects[0]?.name || 'ISO 9001 Implementation',
+      project: projectOptions[0] || 'ISO 9001 Implementation',
       task: 'Audit Documentation Review',
       date: new Date().toISOString().split('T')[0],
       startTime: '09:00 AM',
@@ -76,6 +84,9 @@ export default function Timesheets() {
     });
     setModalOpen(true);
   };
+
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
 
   const handleOpenEdit = (ts) => {
     setEditTimesheet(ts);
@@ -128,24 +139,6 @@ export default function Timesheets() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      timesheets,
-      'meridian_timesheets_log',
-      [
-        { key: 'employee', label: 'Employee' },
-        { key: 'project', label: 'Project' },
-        { key: 'task', label: 'Task' },
-        { key: 'date', label: 'Date' },
-        { key: 'hours', label: 'Hours' },
-        { key: 'status', label: 'Status' },
-        { key: 'approvedBy', label: 'Approved By' },
-        { key: 'description', label: 'Description' },
-      ]
-    );
-    addToast('Timesheets log exported to CSV!', 'info');
-  };
-
   // KPIs
   const totalHours = timesheets.reduce((sum, ts) => sum + (ts.hours || 0), 0);
   const approvedHours = timesheets.filter(ts => ts.status === 'Approved').reduce((sum, ts) => sum + (ts.hours || 0), 0);
@@ -163,7 +156,7 @@ export default function Timesheets() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="timesheets" records={timesheets} setRecords={setTimesheets} filtered={filteredTimesheets} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Log Hours
             </button>
@@ -219,7 +212,7 @@ export default function Timesheets() {
               onChange={setProjectFilter}
               options={[
                 { value: 'All', label: 'All Projects' },
-                ...initialProjects.map(p => ({ value: p.name, label: p.name }))
+                ...projectOptions.map(name => ({ value: name, label: name }))
               ]}
             />
             <FilterDropdown
@@ -235,6 +228,9 @@ export default function Timesheets() {
           </div>
         </div>
       </div>
+
+      {/* Weekly summary (respects search and filters) */}
+      <WeeklySummary entries={filteredTimesheets} />
 
       {/* Timesheets Table */}
       <div className="card mb-6 overflow-hidden">
@@ -346,17 +342,17 @@ export default function Timesheets() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="timesheets-submit-form" className="btn-primary">
               {editTimesheet ? 'Update Record' : 'Submit Hours'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="timesheets-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Consultant *</label>
-              <input
+              <label htmlFor="timesheets-field-1" className="form-label">Consultant *</label>
+              <input id="timesheets-field-1"
                 type="text"
                 required
                 className="form-input"
@@ -365,8 +361,8 @@ export default function Timesheets() {
               />
             </div>
             <div>
-              <label className="form-label">Date *</label>
-              <input
+              <label htmlFor="timesheets-field-2" className="form-label">Date *</label>
+              <input id="timesheets-field-2"
                 type="date"
                 required
                 className="form-input"
@@ -377,21 +373,21 @@ export default function Timesheets() {
           </div>
 
           <div>
-            <label className="form-label">Project *</label>
-            <select
+            <label htmlFor="timesheets-field-3" className="form-label">Project *</label>
+            <select id="timesheets-field-3"
               className="form-select"
               value={formData.project}
               onChange={(e) => setFormData({ ...formData, project: e.target.value })}
             >
-              {initialProjects.map(p => (
-                <option key={p.id} value={p.name}>{p.name}</option>
+              {projectOptions.map(name => (
+                <option key={name} value={name}>{name}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="form-label">Task Deliverable *</label>
-            <input
+            <label htmlFor="timesheets-field-4" className="form-label">Task Deliverable *</label>
+            <input id="timesheets-field-4"
               type="text"
               required
               className="form-input"
@@ -403,8 +399,8 @@ export default function Timesheets() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Start Time</label>
-              <input
+              <label htmlFor="timesheets-field-5" className="form-label">Start Time</label>
+              <input id="timesheets-field-5"
                 type="text"
                 className="form-input"
                 value={formData.startTime}
@@ -413,8 +409,8 @@ export default function Timesheets() {
               />
             </div>
             <div>
-              <label className="form-label">End Time</label>
-              <input
+              <label htmlFor="timesheets-field-6" className="form-label">End Time</label>
+              <input id="timesheets-field-6"
                 type="text"
                 className="form-input"
                 value={formData.endTime}
@@ -423,8 +419,8 @@ export default function Timesheets() {
               />
             </div>
             <div>
-              <label className="form-label">Hours *</label>
-              <input
+              <label htmlFor="timesheets-field-7" className="form-label">Hours *</label>
+              <input id="timesheets-field-7"
                 type="number"
                 step="0.5"
                 min="0.5"
@@ -438,8 +434,8 @@ export default function Timesheets() {
           </div>
 
           <div>
-            <label className="form-label">Work Description *</label>
-            <textarea
+            <label htmlFor="timesheets-field-8" className="form-label">Work Description *</label>
+            <textarea id="timesheets-field-8"
               rows={3}
               required
               className="form-input"

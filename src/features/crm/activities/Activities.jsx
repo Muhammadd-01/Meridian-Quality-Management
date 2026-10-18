@@ -11,15 +11,15 @@ import FilterDropdown from '../../../components/ui/FilterDropdown';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import { initialActivities } from '../../../data/crmData';
 import { generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 const activityTypeIcons = {
   Meeting: { icon: Users, color: 'bg-primary/10 text-primary border-primary/20' },
@@ -83,6 +83,9 @@ export default function Activities() {
     setModalOpen(true);
   };
 
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
+
   const handleOpenEdit = (act) => {
     setEditActivity(act);
     setFormData({ ...act });
@@ -122,25 +125,6 @@ export default function Activities() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      activities,
-      'meridian_crm_activities',
-      [
-        { key: 'title', label: 'Title' },
-        { key: 'type', label: 'Type' },
-        { key: 'company', label: 'Company' },
-        { key: 'contact', label: 'Contact' },
-        { key: 'assignedTo', label: 'Assigned To' },
-        { key: 'dateTime', label: 'Date/Time' },
-        { key: 'priority', label: 'Priority' },
-        { key: 'status', label: 'Status' },
-        { key: 'notes', label: 'Notes' },
-      ]
-    );
-    addToast('Activities log exported to CSV!', 'info');
-  };
-
   // KPIs
   const scheduledCount = activities.filter(a => a.status === 'Scheduled').length;
   const completedCount = activities.filter(a => a.status === 'Completed').length;
@@ -157,7 +141,7 @@ export default function Activities() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="activities" records={activities} setRecords={setActivities} filtered={filteredActivities} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Log Activity
             </button>
@@ -350,16 +334,16 @@ export default function Activities() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="activities-submit-form" className="btn-primary">
               {editActivity ? 'Save Changes' : 'Schedule Activity'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="activities-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="form-label">Subject / Title *</label>
-            <input
+            <label htmlFor="activities-field-1" className="form-label">Subject / Title *</label>
+            <input id="activities-field-1"
               type="text"
               required
               className="form-input"
@@ -371,8 +355,8 @@ export default function Activities() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Type</label>
-              <select
+              <label htmlFor="activities-field-2" className="form-label">Type</label>
+              <select id="activities-field-2"
                 className="form-select"
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
@@ -384,8 +368,8 @@ export default function Activities() {
               </select>
             </div>
             <div>
-              <label className="form-label">Priority</label>
-              <select
+              <label htmlFor="activities-field-3" className="form-label">Priority</label>
+              <select id="activities-field-3"
                 className="form-select"
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
@@ -400,8 +384,8 @@ export default function Activities() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Company / Account *</label>
-              <input
+              <label htmlFor="activities-field-4" className="form-label">Company / Account *</label>
+              <input id="activities-field-4"
                 type="text"
                 required
                 className="form-input"
@@ -411,8 +395,8 @@ export default function Activities() {
               />
             </div>
             <div>
-              <label className="form-label">Contact Person</label>
-              <input
+              <label htmlFor="activities-field-5" className="form-label">Contact Person</label>
+              <input id="activities-field-5"
                 type="text"
                 className="form-input"
                 value={formData.contact}
@@ -424,8 +408,8 @@ export default function Activities() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Date & Time</label>
-              <input
+              <label htmlFor="activities-field-6" className="form-label">Date & Time</label>
+              <input id="activities-field-6"
                 type="text"
                 className="form-input"
                 value={formData.dateTime}
@@ -434,8 +418,8 @@ export default function Activities() {
               />
             </div>
             <div>
-              <label className="form-label">Assigned Consultant</label>
-              <input
+              <label htmlFor="activities-field-7" className="form-label">Assigned Consultant</label>
+              <input id="activities-field-7"
                 type="text"
                 className="form-input"
                 value={formData.assignedTo}
@@ -446,8 +430,8 @@ export default function Activities() {
           </div>
 
           <div>
-            <label className="form-label">Status</label>
-            <select
+            <label htmlFor="activities-field-8" className="form-label">Status</label>
+            <select id="activities-field-8"
               className="form-select"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -459,8 +443,8 @@ export default function Activities() {
           </div>
 
           <div>
-            <label className="form-label">Meeting Notes / Agenda</label>
-            <textarea
+            <label htmlFor="activities-field-9" className="form-label">Meeting Notes / Agenda</label>
+            <textarea id="activities-field-9"
               rows={3}
               className="form-input"
               value={formData.notes}

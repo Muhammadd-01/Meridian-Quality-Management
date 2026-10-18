@@ -2,8 +2,10 @@ import React, { useState, useMemo } from 'react';
 import {
   DollarSign, Plus, Pencil, Trash2, Eye, Download, CheckCircle2,
   TrendingUp, Award, Clock, ArrowRight, Building2, User,
-  Filter, Search, Layers, ChevronRight
+  Filter, Search, Layers, ChevronRight, XCircle
 } from 'lucide-react';
+
+const LOST_REASONS = ['Price / budget', 'Chose a competitor', 'No decision / stalled', 'Timing', 'Scope mismatch', 'Other'];
 import PageHeader from '../../../components/ui/PageHeader';
 import StatCard from '../../../components/ui/StatCard';
 import SearchInput from '../../../components/ui/SearchInput';
@@ -12,15 +14,15 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import ProgressBar from '../../../components/ui/ProgressBar';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import { initialFullDeals } from '../../../data/salesAnalyticsData';
 import { formatCurrency, formatDate, generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 const stages = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'];
 
@@ -31,6 +33,9 @@ export default function Deals() {
   const [editDeal, setEditDeal] = useState(null);
   const [viewDeal, setViewDeal] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [outcomeDeal, setOutcomeDeal] = useState(null); // { deal, outcome: 'won' | 'lost' }
+  const [lostReason, setLostReason] = useState(LOST_REASONS[0]);
+  const [lostNote, setLostNote] = useState('');
   const addToast = useToast();
 
   // Search
@@ -78,6 +83,9 @@ export default function Deals() {
     setModalOpen(true);
   };
 
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
+
   const handleOpenEdit = (deal) => {
     setEditDeal(deal);
     setFormData({
@@ -119,6 +127,21 @@ export default function Deals() {
     setModalOpen(false);
   };
 
+  // Record a won/lost outcome. Lost deals keep a reason for win/loss analysis.
+  const handleRecordOutcome = (e) => {
+    e?.preventDefault?.();
+    if (!outcomeDeal) return;
+    const { deal, outcome } = outcomeDeal;
+    const closedAt = new Date().toISOString().slice(0, 10);
+    setDeals(prev => prev.map(d => (d.id === deal.id
+      ? outcome === 'won'
+        ? { ...d, stage: 'Closed Won', status: 'Won', probability: 100, closedAt, lostReason: undefined, lostNote: undefined }
+        : { ...d, stage: 'Closed Lost', status: 'Lost', probability: 0, closedAt, lostReason, lostNote: lostNote.trim() }
+      : d)));
+    addToast(outcome === 'won' ? `"${deal.name}" marked as won.` : `"${deal.name}" marked as lost (${lostReason}).`, 'success');
+    setOutcomeDeal(null);
+  };
+
   const handleAdvanceStage = (deal) => {
     const curIdx = stages.indexOf(deal.stage);
     if (curIdx < stages.length - 2) {
@@ -142,24 +165,6 @@ export default function Deals() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      deals,
-      'meridian_sales_deals',
-      [
-        { key: 'name', label: 'Deal Name' },
-        { key: 'company', label: 'Company' },
-        { key: 'contact', label: 'Contact' },
-        { key: 'owner', label: 'Owner' },
-        { key: 'value', label: 'Value (PKR)' },
-        { key: 'stage', label: 'Stage' },
-        { key: 'probability', label: 'Probability (%)' },
-        { key: 'expectedClose', label: 'Close Date' },
-      ]
-    );
-    addToast('Deals exported to CSV!', 'info');
-  };
-
   // KPIs
   const totalValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
   const weightedPipeline = deals.reduce((sum, d) => sum + ((d.value || 0) * (d.probability || 0) / 100), 0);
@@ -177,7 +182,7 @@ export default function Deals() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="deals" records={deals} setRecords={setDeals} filtered={filteredDeals} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Add Deal
             </button>
@@ -267,7 +272,12 @@ export default function Deals() {
                       {formatCurrency(d.value)}
                     </span>
                   </td>
-                  <td><StatusBadge status={d.stage} /></td>
+                  <td>
+                    <StatusBadge status={d.stage} />
+                    {d.stage === 'Closed Lost' && d.lostReason && (
+                      <p className="text-2xs text-gray-500 mt-0.5" title={d.lostNote || undefined}>{d.lostReason}</p>
+                    )}
+                  </td>
                   <td className="w-28">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-gray-700 w-8">{d.probability}%</span>
@@ -283,14 +293,36 @@ export default function Deals() {
                           onClick={() => handleAdvanceStage(d)}
                           className="p-1 text-primary hover:bg-primary/10 rounded"
                           title="Advance Stage"
+                          aria-label={`Advance ${d.name} to the next stage`}
                         >
                           <ChevronRight size={15} />
                         </button>
+                      )}
+                      {d.stage !== 'Closed Won' && d.stage !== 'Closed Lost' && (
+                        <>
+                          <button
+                            onClick={() => setOutcomeDeal({ deal: d, outcome: 'won' })}
+                            className="p-1 text-success hover:bg-success/10 rounded"
+                            title="Mark Won"
+                            aria-label={`Mark ${d.name} as won`}
+                          >
+                            <CheckCircle2 size={14} />
+                          </button>
+                          <button
+                            onClick={() => { setLostReason(LOST_REASONS[0]); setLostNote(''); setOutcomeDeal({ deal: d, outcome: 'lost' }); }}
+                            className="p-1 text-gray-400 hover:text-danger hover:bg-danger/10 rounded"
+                            title="Mark Lost"
+                            aria-label={`Mark ${d.name} as lost`}
+                          >
+                            <XCircle size={14} />
+                          </button>
+                        </>
                       )}
                       <button
                         onClick={() => setViewDeal(d)}
                         className="p-1 text-gray-400 hover:text-primary rounded"
                         title="View Details"
+                        aria-label={`View ${d.name}`}
                       >
                         <Eye size={14} />
                       </button>
@@ -298,6 +330,7 @@ export default function Deals() {
                         onClick={() => handleOpenEdit(d)}
                         className="p-1 text-gray-400 hover:text-info rounded"
                         title="Edit Deal"
+                        aria-label={`Edit ${d.name}`}
                       >
                         <Pencil size={14} />
                       </button>
@@ -305,6 +338,7 @@ export default function Deals() {
                         onClick={() => setDeleteConfirm(d)}
                         className="p-1 text-gray-400 hover:text-danger rounded"
                         title="Delete Deal"
+                        aria-label={`Delete ${d.name}`}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -336,16 +370,16 @@ export default function Deals() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="deals-submit-form" className="btn-primary">
               {editDeal ? 'Save Changes' : 'Create Deal'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="deals-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="form-label">Deal Title *</label>
-            <input
+            <label htmlFor="deals-field-1" className="form-label">Deal Title *</label>
+            <input id="deals-field-1"
               type="text"
               required
               className="form-input"
@@ -357,8 +391,8 @@ export default function Deals() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Client Company *</label>
-              <input
+              <label htmlFor="deals-field-2" className="form-label">Client Company *</label>
+              <input id="deals-field-2"
                 type="text"
                 required
                 className="form-input"
@@ -367,8 +401,8 @@ export default function Deals() {
               />
             </div>
             <div>
-              <label className="form-label">Contact Person</label>
-              <input
+              <label htmlFor="deals-field-3" className="form-label">Contact Person</label>
+              <input id="deals-field-3"
                 type="text"
                 className="form-input"
                 value={formData.contact}
@@ -379,8 +413,8 @@ export default function Deals() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Contract Value (PKR)</label>
-              <input
+              <label htmlFor="deals-field-4" className="form-label">Contract Value (PKR)</label>
+              <input id="deals-field-4"
                 type="number"
                 min="0"
                 className="form-input"
@@ -389,8 +423,8 @@ export default function Deals() {
               />
             </div>
             <div>
-              <label className="form-label">Stage</label>
-              <select
+              <label htmlFor="deals-field-5" className="form-label">Stage</label>
+              <select id="deals-field-5"
                 className="form-select"
                 value={formData.stage}
                 onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
@@ -401,8 +435,8 @@ export default function Deals() {
               </select>
             </div>
             <div>
-              <label className="form-label">Probability (%)</label>
-              <input
+              <label htmlFor="deals-field-6" className="form-label">Probability (%)</label>
+              <input id="deals-field-6"
                 type="number"
                 min="0"
                 max="100"
@@ -415,8 +449,8 @@ export default function Deals() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Deal Owner</label>
-              <input
+              <label htmlFor="deals-field-7" className="form-label">Deal Owner</label>
+              <input id="deals-field-7"
                 type="text"
                 className="form-input"
                 value={formData.owner}
@@ -424,8 +458,8 @@ export default function Deals() {
               />
             </div>
             <div>
-              <label className="form-label">Expected Close Date</label>
-              <input
+              <label htmlFor="deals-field-8" className="form-label">Expected Close Date</label>
+              <input id="deals-field-8"
                 type="date"
                 className="form-input"
                 value={formData.expectedClose}
@@ -435,8 +469,8 @@ export default function Deals() {
           </div>
 
           <div>
-            <label className="form-label">Tags (comma separated)</label>
-            <input
+            <label htmlFor="deals-field-9" className="form-label">Tags (comma separated)</label>
+            <input id="deals-field-9"
               type="text"
               className="form-input"
               value={formData.tags}
@@ -445,8 +479,8 @@ export default function Deals() {
           </div>
 
           <div>
-            <label className="form-label">Notes & Scope</label>
-            <textarea
+            <label htmlFor="deals-field-10" className="form-label">Notes & Scope</label>
+            <textarea id="deals-field-10"
               rows={2}
               className="form-input"
               value={formData.notes}
@@ -497,12 +531,56 @@ export default function Deals() {
             </div>
 
             <div className="text-xs">
+              {viewDeal.stage === 'Closed Lost' && viewDeal.lostReason && (
+                <p className="mb-2 p-2.5 rounded-lg bg-danger-50 text-danger-600">
+                  <strong>Lost reason:</strong> {viewDeal.lostReason}{viewDeal.lostNote ? ` — ${viewDeal.lostNote}` : ''}
+                </p>
+              )}
               <span className="text-gray-400 block mb-1">Scope & Key Notes:</span>
               <p className="text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-100">{viewDeal.notes || 'No notes logged.'}</p>
             </div>
           </div>
         </Modal>
       )}
+
+      {/* Won / Lost outcome */}
+      <Modal
+        isOpen={!!outcomeDeal}
+        onClose={() => setOutcomeDeal(null)}
+        title={outcomeDeal?.outcome === 'won' ? 'Mark deal as won' : 'Mark deal as lost'}
+        size="sm"
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setOutcomeDeal(null)}>Cancel</button>
+            <button type="submit" form="deal-outcome-form" className={outcomeDeal?.outcome === 'won' ? 'btn-primary' : 'btn-danger'}>
+              {outcomeDeal?.outcome === 'won' ? 'Mark Won' : 'Mark Lost'}
+            </button>
+          </>
+        }
+      >
+        <form id="deal-outcome-form" onSubmit={handleRecordOutcome} className="space-y-3">
+          <p className="text-sm text-gray-600">
+            <strong>{outcomeDeal?.deal.name}</strong> · {formatCurrency(outcomeDeal?.deal.value || 0)}
+          </p>
+          {outcomeDeal?.outcome === 'lost' && (
+            <>
+              <div>
+                <label htmlFor="lost-reason" className="form-label">Lost reason *</label>
+                <select id="lost-reason" className="form-select" value={lostReason} onChange={(e) => setLostReason(e.target.value)} required>
+                  {LOST_REASONS.map(r => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="lost-note" className="form-label">Details</label>
+                <textarea id="lost-note" rows={3} className="form-input" value={lostNote} onChange={(e) => setLostNote(e.target.value)} placeholder="What happened? (optional)" />
+              </div>
+            </>
+          )}
+          {outcomeDeal?.outcome === 'won' && (
+            <p className="text-xs text-gray-500">The deal moves to Closed Won with 100% probability and counts toward won revenue.</p>
+          )}
+        </form>
+      </Modal>
 
       {/* Delete Confirmation */}
       <ConfirmDialog

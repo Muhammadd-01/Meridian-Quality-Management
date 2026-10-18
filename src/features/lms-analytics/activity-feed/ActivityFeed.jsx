@@ -18,7 +18,7 @@ import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import { initialLmsActivityFeed } from '../../../data/lmsData';
 import { initialCourses } from '../../../data/courses';
-import { generateId } from '../../../utils/format';
+import { generateId, formatRelative } from '../../../utils/format';
 import { exportToCSV } from '../../../utils/csv';
 
 const eventIcons = {
@@ -33,6 +33,8 @@ const eventIcons = {
 export default function ActivityFeed() {
   const [feed, setFeed] = useLocalStorage('meridian-lms-activity-feed', initialLmsActivityFeed);
   const [typeFilter, setTypeFilter] = useState('All');
+  const [learnerFilter, setLearnerFilter] = useState('All');
+  const [courseFilter, setCourseFilter] = useState('All');
   const [modalOpen, setModalOpen] = useState(false);
   const addToast = useToast();
 
@@ -40,10 +42,14 @@ export default function ActivityFeed() {
   const { query, setQuery, filtered: searchFiltered } = useSearch(feed, ['user', 'course', 'event', 'type']);
 
   // Filter
-  const filteredFeed = useMemo(() => {
-    if (typeFilter === 'All') return searchFiltered;
-    return searchFiltered.filter(item => item.type === typeFilter);
-  }, [searchFiltered, typeFilter]);
+  const learnerOptions = useMemo(() => Array.from(new Set(feed.map(i => i.user).filter(Boolean))).sort(), [feed]);
+  const courseOptions = useMemo(() => Array.from(new Set(feed.map(i => i.course).filter(Boolean))).sort(), [feed]);
+
+  const filteredFeed = useMemo(() => searchFiltered.filter(item =>
+    (typeFilter === 'All' || item.type === typeFilter)
+    && (learnerFilter === 'All' || item.user === learnerFilter)
+    && (courseFilter === 'All' || item.course === courseFilter)
+  ), [searchFiltered, typeFilter, learnerFilter, courseFilter]);
 
   // Pagination
   const pagination = usePagination(filteredFeed, 8);
@@ -64,10 +70,11 @@ export default function ActivityFeed() {
       ...formData,
       userAvatar: initials,
       time: 'Just now',
+      at: new Date().toISOString(),
       typeColor: 'bg-primary-50 text-primary',
     };
     setFeed(prev => [newEvent, ...prev]);
-    addToast('Learning milestone event broadcasted!', 'success');
+    addToast('Learning event added to the feed.', 'success');
     setModalOpen(false);
   };
 
@@ -152,7 +159,17 @@ export default function ActivityFeed() {
               placeholder="Search learner, course, milestone..."
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <FilterDropdown
+              value={learnerFilter}
+              onChange={setLearnerFilter}
+              options={[{ value: 'All', label: 'All Learners' }, ...learnerOptions.map(u => ({ value: u, label: u }))]}
+            />
+            <FilterDropdown
+              value={courseFilter}
+              onChange={setCourseFilter}
+              options={[{ value: 'All', label: 'All Courses' }, ...courseOptions.map(c => ({ value: c, label: c }))]}
+            />
             <FilterDropdown
               value={typeFilter}
               onChange={setTypeFilter}
@@ -193,7 +210,7 @@ export default function ActivityFeed() {
                     <span className="text-2xs text-gray-400">•</span>
                     <span className="text-2xs text-gray-500 font-medium">{item.course}</span>
                   </div>
-                  <span className="text-2xs text-gray-400 font-medium">{item.time}</span>
+                  <span className="text-2xs text-gray-400 font-medium">{item.at ? formatRelative(item.at) : item.time}</span>
                 </div>
 
                 <p className="text-sm font-semibold text-gray-800 mt-1">
@@ -230,14 +247,14 @@ export default function ActivityFeed() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleCreateEvent}>Broadcast</button>
+            <button type="submit" form="activityFeed-createEvent-form" className="btn-primary">Broadcast</button>
           </>
         }
       >
-        <form onSubmit={handleCreateEvent} className="space-y-4">
+        <form id="activityFeed-createEvent-form" onSubmit={handleCreateEvent} className="space-y-4">
           <div>
-            <label className="form-label">Learner Name *</label>
-            <input
+            <label htmlFor="activityFeed-field-1" className="form-label">Learner Name *</label>
+            <input id="activityFeed-field-1"
               type="text"
               required
               className="form-input"
@@ -247,8 +264,8 @@ export default function ActivityFeed() {
           </div>
 
           <div>
-            <label className="form-label">Course Subject *</label>
-            <select
+            <label htmlFor="activityFeed-field-2" className="form-label">Course Subject *</label>
+            <select id="activityFeed-field-2"
               className="form-select"
               value={formData.course}
               onChange={(e) => setFormData({ ...formData, course: e.target.value })}
@@ -260,8 +277,8 @@ export default function ActivityFeed() {
           </div>
 
           <div>
-            <label className="form-label">Event Type</label>
-            <select
+            <label htmlFor="activityFeed-field-3" className="form-label">Event Type</label>
+            <select id="activityFeed-field-3"
               className="form-select"
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value })}
@@ -275,8 +292,8 @@ export default function ActivityFeed() {
           </div>
 
           <div>
-            <label className="form-label">Milestone Description *</label>
-            <textarea
+            <label htmlFor="activityFeed-field-4" className="form-label">Milestone Description *</label>
+            <textarea id="activityFeed-field-4"
               rows={3}
               required
               className="form-input"

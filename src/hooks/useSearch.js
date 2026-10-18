@@ -1,7 +1,10 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export default function useSearch(data, searchKeys) {
-  const [query, setQuery] = useState('');
+  // Global search links open pages with ?q=<term>; use it as the initial query.
+  const [params] = useSearchParams();
+  const [query, setQuery] = useState(() => params.get('q') || '');
 
   const filtered = useMemo(() => {
     if (!query.trim()) return data;

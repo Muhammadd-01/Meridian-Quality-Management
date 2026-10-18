@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   CheckSquare, Plus, Pencil, Trash2, Eye, Download, CheckCircle2,
   Clock, AlertTriangle, Filter, Search, Calendar, User, Briefcase,
-  Layers, ArrowRight
+  Layers, ArrowRight, ListChecks, MessageSquare
 } from 'lucide-react';
 import PageHeader from '../../../components/ui/PageHeader';
 import StatCard from '../../../components/ui/StatCard';
@@ -12,16 +12,25 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import ProgressBar from '../../../components/ui/ProgressBar';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import { initialTasks } from '../../../data/projectManagementData';
-import { initialProjects } from '../../../data/projects';
+import useCollection from '../../../hooks/useCollection';
 import { formatDate, generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
+import { ENTITIES } from '../../../data/entities';
+import TaskDetailModal from './TaskDetailModal';
+
+// Flat-file exports add subtask/comment summaries; full detail is kept on the record.
+const taskExportFields = [
+  ...ENTITIES.tasks.fields,
+  { key: 'subtasks', label: 'Subtasks', accessor: r => (r.subtasks || []).map(st => `${st.done ? '[x]' : '[ ]'} ${st.title}`).join('; ') },
+  { key: 'commentCount', label: 'Comments', accessor: r => (r.comments || []).length },
+];
 
 export default function Tasks() {
   const [tasks, setTasks] = useLocalStorage('meridian-tasks', initialTasks);
@@ -31,7 +40,21 @@ export default function Tasks() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editTask, setEditTask] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [detailTaskId, setDetailTaskId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [bulkStatus, setBulkStatus] = useState('Completed');
+  const [bulkConfirm, setBulkConfirm] = useState(null); // 'status' | 'delete'
+  const [projects] = useCollection('projects');
   const addToast = useToast();
+
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const isOverdue = (t) => t.status !== 'Completed' && t.dueDate && t.dueDate < todayKey;
+
+  // Project options: live project records plus any project names already used on tasks.
+  const projectOptions = useMemo(
+    () => Array.from(new Set([...projects.map(p => p.name), ...tasks.map(t => t.project)].filter(Boolean))).sort(),
+    [projects, tasks]
+  );
 
   // Search
   const { query, setQuery, filtered: searchFiltered } = useSearch(tasks, ['title', 'description', 'assignedTo', 'project']);
@@ -39,7 +62,8 @@ export default function Tasks() {
   // Filters
   const filteredTasks = useMemo(() => {
     return searchFiltered.filter(t => {
-      const matchStatus = statusFilter === 'All' || t.status.toLowerCase() === statusFilter.toLowerCase();
+      const matchStatus = statusFilter === 'All'
+        || (statusFilter === 'Overdue' ? isOverdue(t) : t.status.toLowerCase() === statusFilter.toLowerCase());
       const matchPriority = priorityFilter === 'All' || t.priority.toLowerCase() === priorityFilter.toLowerCase();
       const matchProject = projectFilter === 'All' || t.project === projectFilter;
       return matchStatus && matchPriority && matchProject;
@@ -53,7 +77,7 @@ export default function Tasks() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    project: initialProjects[0]?.name || 'ISO 9001 Implementation',
+    project: projectOptions[0] || 'ISO 9001 Implementation',
     assignedTo: 'Ali Khan',
     priority: 'High',
     status: 'In Progress',
@@ -69,7 +93,7 @@ export default function Tasks() {
     setFormData({
       title: '',
       description: '',
-      project: initialProjects[0]?.name || 'ISO 9001 Implementation',
+      project: projectOptions[0] || 'ISO 9001 Implementation',
       assignedTo: 'Ali Khan',
       priority: 'High',
       status: 'In Progress',
@@ -81,6 +105,9 @@ export default function Tasks() {
     });
     setModalOpen(true);
   };
+
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
 
   const handleOpenEdit = (task) => {
     setEditTask(task);
@@ -137,30 +164,17 @@ export default function Tasks() {
     addToast(isCompleted ? 'Task marked in progress.' : 'Task completed! 🎉', 'success');
   };
 
+  // Subtask / comment edits from the detail view are saved straight onto the task record.
+  const detailTask = tasks.find(t => t.id === detailTaskId) || null;
+  const handleDetailUpdate = (patch) => {
+    setTasks(prev => prev.map(t => (t.id === detailTaskId ? { ...t, ...patch } : t)));
+  };
+
   const handleDelete = () => {
     if (!deleteConfirm) return;
     setTasks(prev => prev.filter(t => t.id !== deleteConfirm.id));
     addToast('Task removed.', 'success');
     setDeleteConfirm(null);
-  };
-
-  const handleExport = () => {
-    exportToCSV(
-      tasks,
-      'meridian_project_tasks',
-      [
-        { key: 'title', label: 'Task Title' },
-        { key: 'project', label: 'Project' },
-        { key: 'assignedTo', label: 'Assignee' },
-        { key: 'priority', label: 'Priority' },
-        { key: 'status', label: 'Status' },
-        { key: 'progress', label: 'Progress (%)' },
-        { key: 'loggedHours', label: 'Logged (hrs)' },
-        { key: 'estimatedHours', label: 'Estimated (hrs)' },
-        { key: 'dueDate', label: 'Due Date' },
-      ]
-    );
-    addToast('Tasks exported to CSV!', 'info');
   };
 
   // KPIs
@@ -179,7 +193,7 @@ export default function Tasks() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="tasks" records={tasks} setRecords={setTasks} filtered={filteredTasks} exportFields={taskExportFields} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Create Task
             </button>
@@ -235,7 +249,7 @@ export default function Tasks() {
               onChange={setProjectFilter}
               options={[
                 { value: 'All', label: 'All Projects' },
-                ...initialProjects.map(p => ({ value: p.name, label: p.name }))
+                ...projectOptions.map(name => ({ value: name, label: name }))
               ]}
             />
             <FilterDropdown
@@ -248,6 +262,7 @@ export default function Tasks() {
                 { value: 'To Do', label: 'To Do' },
                 { value: 'Completed', label: 'Completed' },
                 { value: 'Backlog', label: 'Backlog' },
+                { value: 'Overdue', label: 'Overdue (any open status)' },
               ]}
             />
             <FilterDropdown
@@ -265,12 +280,41 @@ export default function Tasks() {
         </div>
       </div>
 
+      {/* Bulk actions */}
+      {selectedIds.size > 0 && (
+        <div className="card px-4 py-3 mb-3 flex flex-wrap items-center gap-3 bg-primary-50 border-primary-100" role="region" aria-label="Bulk actions">
+          <span className="text-sm font-semibold text-primary">{selectedIds.size} selected</span>
+          <label className="flex items-center gap-2 text-xs text-gray-600">
+            Set status
+            <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} className="form-select !py-1.5 text-xs !w-auto">
+              {['Backlog', 'To Do', 'In Progress', 'Review', 'Completed'].map(st => <option key={st}>{st}</option>)}
+            </select>
+          </label>
+          <button type="button" className="btn-primary btn-sm" onClick={() => setBulkConfirm('status')}>Apply</button>
+          <button type="button" className="btn-outline btn-sm text-danger" onClick={() => setBulkConfirm('delete')}><Trash2 size={13} aria-hidden="true" /> Delete</button>
+          <button type="button" className="text-xs text-gray-500 hover:underline ml-auto" onClick={() => setSelectedIds(new Set())}>Clear selection</button>
+        </div>
+      )}
+
       {/* Tasks Table */}
       <div className="card mb-6 overflow-hidden">
         <div className="table-container">
           <table className="data-table">
             <thead>
               <tr>
+                <th className="w-10">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all tasks on this page"
+                    className="accent-[#187f65]"
+                    checked={pagination.paginatedData.length > 0 && pagination.paginatedData.every(t => selectedIds.has(t.id))}
+                    onChange={(e) => setSelectedIds(prev => {
+                      const next = new Set(prev);
+                      pagination.paginatedData.forEach(t => (e.target.checked ? next.add(t.id) : next.delete(t.id)));
+                      return next;
+                    })}
+                  />
+                </th>
                 <th className="w-10">Done</th>
                 <th>Task Title & Scope</th>
                 <th>Parent Project</th>
@@ -287,7 +331,20 @@ export default function Tasks() {
                 const isDone = task.status === 'Completed';
 
                 return (
-                  <tr key={task.id} className={isDone ? 'bg-gray-50/50 opacity-80' : ''}>
+                  <tr key={task.id} className={`${isDone ? 'bg-gray-50/50 opacity-80' : ''} ${selectedIds.has(task.id) ? 'is-selected' : ''}`}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${task.title}`}
+                        className="accent-[#187f65]"
+                        checked={selectedIds.has(task.id)}
+                        onChange={() => setSelectedIds(prev => {
+                          const next = new Set(prev);
+                          if (next.has(task.id)) next.delete(task.id); else next.add(task.id);
+                          return next;
+                        })}
+                      />
+                    </td>
                     <td>
                       <button
                         onClick={() => handleToggleComplete(task)}
@@ -297,6 +354,8 @@ export default function Tasks() {
                             : 'border-gray-300 hover:border-primary text-transparent'
                         }`}
                         title={isDone ? 'Mark Incomplete' : 'Mark Completed'}
+                        aria-label={isDone ? `Mark ${task.title} incomplete` : `Mark ${task.title} completed`}
+                        aria-pressed={isDone}
                       >
                         <CheckCircle2 size={14} className={isDone ? 'opacity-100' : 'opacity-0'} />
                       </button>
@@ -306,6 +365,20 @@ export default function Tasks() {
                         {task.title}
                       </p>
                       <p className="text-2xs text-gray-500 line-clamp-1 mt-0.5">{task.description}</p>
+                      {((task.subtasks || []).length > 0 || (task.comments || []).length > 0) && (
+                        <p className="flex items-center gap-2.5 mt-1 text-2xs text-gray-400">
+                          {(task.subtasks || []).length > 0 && (
+                            <span className="inline-flex items-center gap-0.5" title="Subtasks done">
+                              <ListChecks size={11} aria-hidden="true" /> {task.subtasks.filter(st => st.done).length}/{task.subtasks.length}
+                            </span>
+                          )}
+                          {(task.comments || []).length > 0 && (
+                            <span className="inline-flex items-center gap-0.5" title="Comments">
+                              <MessageSquare size={11} aria-hidden="true" /> {task.comments.length}
+                            </span>
+                          )}
+                        </p>
+                      )}
                     </td>
                     <td>
                       <span className="badge-secondary text-2xs truncate block max-w-[140px]">
@@ -330,16 +403,31 @@ export default function Tasks() {
                       </span>
                     </td>
                     <td>
-                      <span className="text-xs text-gray-600 font-medium">
+                      <span className={`text-xs font-medium ${isOverdue(task) ? 'text-danger' : 'text-gray-600'}`}>
                         {formatDate(task.dueDate)}
                       </span>
+                      {isOverdue(task) && (
+                        <span className="badge-danger text-2xs ml-1.5 inline-flex items-center gap-0.5">
+                          <AlertTriangle size={10} aria-hidden="true" /> Overdue
+                        </span>
+                      )}
                     </td>
                     <td>
                       <div className="flex items-center gap-1">
                         <button
+                          type="button"
+                          onClick={() => setDetailTaskId(task.id)}
+                          className="p-1.5 text-gray-500 hover:text-primary rounded-lg hover:bg-gray-100"
+                          title="View details, subtasks & comments"
+                          aria-label={`View ${task.title}`}
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
                           onClick={() => handleOpenEdit(task)}
                           className="p-1.5 text-gray-500 hover:text-info rounded-lg hover:bg-gray-100"
                           title="Edit Task"
+                          aria-label={`Edit ${task.title}`}
                         >
                           <Pencil size={14} />
                         </button>
@@ -347,6 +435,7 @@ export default function Tasks() {
                           onClick={() => setDeleteConfirm(task)}
                           className="p-1.5 text-gray-500 hover:text-danger rounded-lg hover:bg-gray-100"
                           title="Delete Task"
+                          aria-label={`Delete ${task.title}`}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -368,6 +457,34 @@ export default function Tasks() {
         totalItems={pagination.totalItems}
         startIndex={pagination.startIndex}
         endIndex={pagination.endIndex}
+        pageSize={pagination.pageSize}
+        onPageSizeChange={pagination.setPageSize}
+      />
+
+      {/* Bulk action confirmation */}
+      <ConfirmDialog
+        isOpen={!!bulkConfirm}
+        onClose={() => setBulkConfirm(null)}
+        onConfirm={() => {
+          const count = selectedIds.size;
+          if (bulkConfirm === 'delete') {
+            setTasks(prev => prev.filter(t => !selectedIds.has(t.id)));
+            addToast(`${count} task(s) deleted.`, 'success');
+          } else {
+            setTasks(prev => prev.map(t => (selectedIds.has(t.id)
+              ? { ...t, status: bulkStatus, progress: bulkStatus === 'Completed' ? 100 : t.progress }
+              : t)));
+            addToast(`${count} task(s) set to ${bulkStatus}.`, 'success');
+          }
+          setSelectedIds(new Set());
+          setBulkConfirm(null);
+        }}
+        title={bulkConfirm === 'delete' ? 'Delete selected tasks' : 'Update task status'}
+        message={bulkConfirm === 'delete'
+          ? `Permanently delete ${selectedIds.size} selected task(s)? This cannot be undone.`
+          : `Set ${selectedIds.size} selected task(s) to “${bulkStatus}”?`}
+        confirmLabel={bulkConfirm === 'delete' ? 'Delete' : 'Update'}
+        variant={bulkConfirm === 'delete' ? 'danger' : 'primary'}
       />
 
       {/* Add / Edit Task Modal */}
@@ -379,16 +496,16 @@ export default function Tasks() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="tasks-submit-form" className="btn-primary">
               {editTask ? 'Update Task' : 'Save Task'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="tasks-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="form-label">Task Title *</label>
-            <input
+            <label htmlFor="tasks-field-1" className="form-label">Task Title *</label>
+            <input id="tasks-field-1"
               type="text"
               required
               className="form-input"
@@ -399,8 +516,8 @@ export default function Tasks() {
           </div>
 
           <div>
-            <label className="form-label">Task Description</label>
-            <textarea
+            <label htmlFor="tasks-field-2" className="form-label">Task Description</label>
+            <textarea id="tasks-field-2"
               rows={2}
               className="form-input"
               value={formData.description}
@@ -411,20 +528,20 @@ export default function Tasks() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Parent Project *</label>
-              <select
+              <label htmlFor="tasks-field-3" className="form-label">Parent Project *</label>
+              <select id="tasks-field-3"
                 className="form-select"
                 value={formData.project}
                 onChange={(e) => setFormData({ ...formData, project: e.target.value })}
               >
-                {initialProjects.map(p => (
-                  <option key={p.id} value={p.name}>{p.name}</option>
+                {projectOptions.map(name => (
+                  <option key={name} value={name}>{name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="form-label">Assignee *</label>
-              <input
+              <label htmlFor="tasks-field-4" className="form-label">Assignee *</label>
+              <input id="tasks-field-4"
                 type="text"
                 required
                 className="form-input"
@@ -437,8 +554,8 @@ export default function Tasks() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Priority</label>
-              <select
+              <label htmlFor="tasks-field-5" className="form-label">Priority</label>
+              <select id="tasks-field-5"
                 className="form-select"
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
@@ -450,8 +567,8 @@ export default function Tasks() {
               </select>
             </div>
             <div>
-              <label className="form-label">Status</label>
-              <select
+              <label htmlFor="tasks-field-6" className="form-label">Status</label>
+              <select id="tasks-field-6"
                 className="form-select"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -464,8 +581,8 @@ export default function Tasks() {
               </select>
             </div>
             <div>
-              <label className="form-label">Progress ({formData.progress}%)</label>
-              <input
+              <label htmlFor="tasks-field-7" className="form-label">Progress ({formData.progress}%)</label>
+              <input id="tasks-field-7"
                 type="number"
                 min="0"
                 max="100"
@@ -478,8 +595,8 @@ export default function Tasks() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
-              <label className="form-label">Estimated (hrs)</label>
-              <input
+              <label htmlFor="tasks-field-8" className="form-label">Estimated (hrs)</label>
+              <input id="tasks-field-8"
                 type="number"
                 min="0"
                 className="form-input"
@@ -488,8 +605,8 @@ export default function Tasks() {
               />
             </div>
             <div>
-              <label className="form-label">Logged (hrs)</label>
-              <input
+              <label htmlFor="tasks-field-9" className="form-label">Logged (hrs)</label>
+              <input id="tasks-field-9"
                 type="number"
                 min="0"
                 className="form-input"
@@ -498,8 +615,8 @@ export default function Tasks() {
               />
             </div>
             <div>
-              <label className="form-label">Start Date</label>
-              <input
+              <label htmlFor="tasks-field-10" className="form-label">Start Date</label>
+              <input id="tasks-field-10"
                 type="date"
                 className="form-input"
                 value={formData.startDate}
@@ -507,8 +624,8 @@ export default function Tasks() {
               />
             </div>
             <div>
-              <label className="form-label">Due Date</label>
-              <input
+              <label htmlFor="tasks-field-11" className="form-label">Due Date</label>
+              <input id="tasks-field-11"
                 type="date"
                 className="form-input"
                 value={formData.dueDate}
@@ -518,6 +635,16 @@ export default function Tasks() {
           </div>
         </form>
       </Modal>
+
+      {/* Task detail: subtasks & comments */}
+      {detailTask && (
+        <TaskDetailModal
+          task={detailTask}
+          onClose={() => setDetailTaskId(null)}
+          onUpdate={handleDetailUpdate}
+          onEdit={() => { setDetailTaskId(null); handleOpenEdit(detailTask); }}
+        />
+      )}
 
       {/* Delete Confirmation */}
       <ConfirmDialog

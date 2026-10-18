@@ -10,12 +10,14 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import ProgressBar from '../../../components/ui/ProgressBar';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
+import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { initialFullDeals } from '../../../data/salesAnalyticsData';
 import { formatCurrency, formatDate, generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 const PIPELINE_STAGES = [
   { id: 'Lead', label: 'Lead', color: 'border-t-blue-500' },
@@ -30,19 +32,30 @@ export default function Pipeline() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editDeal, setEditDeal] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [urlParams] = useSearchParams();
+  // Global search links open this page with ?q=<deal name>
+  const [searchQuery, setSearchQuery] = useState(() => urlParams.get('q') || '');
+  const [ownerFilter, setOwnerFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [closeFrom, setCloseFrom] = useState('');
+  const [closeTo, setCloseTo] = useState('');
+  const [dragOverStage, setDragOverStage] = useState(null);
   const addToast = useToast();
 
-  // Search filter
+  const owners = useMemo(() => Array.from(new Set(deals.map(d => d.owner).filter(Boolean))).sort(), [deals]);
+
+  // Search + filters (owner, status, expected close date)
   const filteredDeals = useMemo(() => {
-    if (!searchQuery.trim()) return deals;
-    const q = searchQuery.toLowerCase();
-    return deals.filter(d =>
-      d.name?.toLowerCase().includes(q) ||
-      d.company?.toLowerCase().includes(q) ||
-      d.contact?.toLowerCase().includes(q)
-    );
-  }, [deals, searchQuery]);
+    const q = searchQuery.trim().toLowerCase();
+    return deals.filter(d => {
+      if (q && !(d.name?.toLowerCase().includes(q) || d.company?.toLowerCase().includes(q) || d.contact?.toLowerCase().includes(q))) return false;
+      if (ownerFilter !== 'All' && d.owner !== ownerFilter) return false;
+      if (statusFilter !== 'All' && d.status !== statusFilter) return false;
+      if (closeFrom && (!d.expectedClose || d.expectedClose < closeFrom)) return false;
+      if (closeTo && (!d.expectedClose || d.expectedClose > closeTo)) return false;
+      return true;
+    });
+  }, [deals, searchQuery, ownerFilter, statusFilter, closeFrom, closeTo]);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -72,6 +85,9 @@ export default function Pipeline() {
     });
     setModalOpen(true);
   };
+
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', () => handleOpenAdd('Lead'));
 
   const handleOpenEdit = (deal) => {
     setEditDeal(deal);
@@ -138,6 +154,18 @@ export default function Pipeline() {
     }
   };
 
+  // Drag-and-drop: drop a deal card on another stage column.
+  const handleDropOnStage = (dealId, targetStage) => {
+    const deal = deals.find(d => d.id === dealId);
+    if (!deal || deal.stage === targetStage) return;
+    const targetIdx = PIPELINE_STAGES.findIndex(s => s.id === targetStage);
+    const targetProb = targetStage === 'Closed Won' ? 100 : Math.min(95, Math.max(10, (targetIdx + 1) * 20));
+    setDeals(prev => prev.map(d => (d.id === dealId
+      ? { ...d, stage: targetStage, probability: targetProb, status: targetStage === 'Closed Won' ? 'Won' : 'Active' }
+      : d)));
+    addToast(`Moved to ${targetStage}!`, 'info');
+  };
+
   const handleDelete = () => {
     if (!deleteConfirm) return;
     setDeals(prev => prev.filter(d => d.id !== deleteConfirm.id));
@@ -145,27 +173,24 @@ export default function Pipeline() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      deals,
-      'meridian_sales_pipeline',
-      [
-        { key: 'name', label: 'Deal Name' },
-        { key: 'company', label: 'Company' },
-        { key: 'stage', label: 'Pipeline Stage' },
-        { key: 'value', label: 'Value (PKR)' },
-        { key: 'probability', label: 'Probability (%)' },
-        { key: 'owner', label: 'Owner' },
-      ]
-    );
-    addToast('Pipeline exported to CSV!', 'info');
-  };
+  // KPIs (calculated on the filtered view)
+  const openDeals = filteredDeals.filter(d => !String(d.stage).startsWith('Closed'));
+  const lostDeals = filteredDeals.filter(d => d.stage === 'Closed Lost');
+  const totalPipeline = openDeals.reduce((sum, d) => sum + (d.value || 0), 0);
+  const weightedPipeline = openDeals.reduce((sum, d) => sum + (d.value || 0) * (d.probability || 0) / 100, 0);
+  const wonTotal = filteredDeals.filter(d => d.stage === 'Closed Won').reduce((sum, d) => sum + (d.value || 0), 0);
+  const wonCount = filteredDeals.filter(d => d.stage === 'Closed Won').length;
+  const lostTotal = lostDeals.reduce((sum, d) => sum + (d.value || 0), 0);
+  const decided = wonCount + lostDeals.length;
+  const winRate = decided ? Math.round((wonCount / decided) * 100) : 0;
 
-  // KPIs
-  const totalPipeline = deals.reduce((sum, d) => sum + (d.value || 0), 0);
-  const wonTotal = deals.filter(d => d.stage === 'Closed Won').reduce((sum, d) => sum + (d.value || 0), 0);
-  const wonCount = deals.filter(d => d.stage === 'Closed Won').length;
-  const winRate = deals.length ? Math.round((wonCount / deals.length) * 100) : 0;
+  // Stage conversion: share of (non-lost) deals that reached each stage or beyond.
+  const nonLost = filteredDeals.filter(d => d.stage !== 'Closed Lost');
+  const stageReach = PIPELINE_STAGES.map((st, idx) => {
+    const reached = nonLost.filter(d => PIPELINE_STAGES.findIndex(s => s.id === d.stage) >= idx).length;
+    return { stage: st.label, reached, pct: nonLost.length ? Math.round((reached / nonLost.length) * 100) : 0 };
+  });
+  const filtersActive = ownerFilter !== 'All' || statusFilter !== 'All' || closeFrom || closeTo || searchQuery;
 
   return (
     <div>
@@ -178,7 +203,7 @@ export default function Pipeline() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="deals" records={deals} filtered={filteredDeals} exportOnly />
             <button onClick={() => handleOpenAdd('Lead')} className="btn-primary">
               <Plus size={16} /> Add Opportunity
             </button>
@@ -189,11 +214,12 @@ export default function Pipeline() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
-          title="Total Pipeline Value"
+          title="Open Pipeline Value"
           value={formatCurrency(totalPipeline)}
-          subtitle="All active stages"
+          subtitle={`${formatCurrency(Math.round(weightedPipeline))} weighted`}
           icon={DollarSign}
           iconColor="bg-primary/10 text-primary"
+          info="Σ value of deals not yet Closed Won/Lost. Weighted = Σ value × probability ÷ 100."
         />
         <StatCard
           title="Won Contract Value"
@@ -204,33 +230,64 @@ export default function Pipeline() {
         />
         <StatCard
           title="Active Opportunities"
-          value={deals.length}
-          subtitle="Across 5 stages"
+          value={openDeals.length}
+          subtitle={`${lostDeals.length} lost · ${formatCurrency(lostTotal)}`}
           icon={Layers}
           iconColor="bg-info/10 text-info"
         />
         <StatCard
-          title="Stage Velocity"
+          title="Win Rate"
           value={`${winRate}%`}
-          subtitle="Win conversion rate"
+          subtitle={`${wonCount} won of ${decided} closed`}
           icon={GitBranch}
           iconColor="bg-accent/10 text-accent"
+          info="Closed Won ÷ (Closed Won + Closed Lost). Open deals are excluded."
         />
       </div>
 
-      {/* Search Bar */}
-      <div className="card p-3.5 mb-6">
-        <div className="flex items-center justify-between gap-3">
+      {/* Search & Filters */}
+      <div className="card p-3.5 mb-4">
+        <div className="flex flex-wrap items-end gap-3">
           <input
             type="text"
-            className="form-input text-xs w-full sm:w-80"
+            className="form-input text-xs w-full sm:w-64"
             placeholder="Quick search pipeline deals..."
+            aria-label="Search pipeline deals"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <span className="text-2xs text-gray-400 font-medium hidden sm:block">
-            Showing {filteredDeals.length} opportunities
+          <select className="form-select text-xs !w-auto" aria-label="Filter by owner" value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)}>
+            <option value="All">All owners</option>
+            {owners.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <select className="form-select text-xs !w-auto" aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="All">All statuses</option>
+            {['Active', 'At Risk', 'Won', 'Lost'].map(st => <option key={st} value={st}>{st}</option>)}
+          </select>
+          <label className="text-[11px] text-gray-500">Close from<input type="date" className="form-input !py-1.5 text-xs mt-0.5 !w-36" value={closeFrom} onChange={(e) => setCloseFrom(e.target.value)} /></label>
+          <label className="text-[11px] text-gray-500">to<input type="date" className="form-input !py-1.5 text-xs mt-0.5 !w-36" value={closeTo} onChange={(e) => setCloseTo(e.target.value)} /></label>
+          {filtersActive && (
+            <button type="button" className="btn-secondary btn-sm" onClick={() => { setSearchQuery(''); setOwnerFilter('All'); setStatusFilter('All'); setCloseFrom(''); setCloseTo(''); }}>Reset</button>
+          )}
+          <span className="text-2xs text-gray-400 font-medium ml-auto">
+            Showing {filteredDeals.length} of {deals.length} opportunities
           </span>
+        </div>
+      </div>
+
+      {/* Stage conversion */}
+      <div className="card p-3.5 mb-6">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+          Stage conversion <span className="normal-case font-normal tracking-normal">· share of open and won deals that reached each stage (lost deals excluded — their last stage is not recorded)</span>
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          {stageReach.map(s => (
+            <div key={s.stage}>
+              <div className="flex justify-between text-xs mb-1"><span className="text-gray-600">{s.stage}</span><span className="font-semibold tabular-nums">{s.pct}%</span></div>
+              <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden"><div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${s.pct}%` }} /></div>
+              <p className="text-[10px] text-gray-400 mt-0.5">{s.reached} deal(s)</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -243,7 +300,11 @@ export default function Pipeline() {
           return (
             <div
               key={stage.id}
-              className={`bg-gray-50/80 rounded-xl p-3 border border-gray-200 border-t-4 ${stage.color} flex flex-col min-h-[500px]`}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (dragOverStage !== stage.id) setDragOverStage(stage.id); }}
+              onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverStage(null); }}
+              onDrop={(e) => { e.preventDefault(); setDragOverStage(null); handleDropOnStage(e.dataTransfer.getData('text/plain'), stage.id); }}
+              aria-label={`${stage.label} stage, ${stageDeals.length} deals`}
+              className={`bg-gray-50/80 rounded-xl p-3 border border-gray-200 border-t-4 ${stage.color} flex flex-col min-h-[500px] transition-colors ${dragOverStage === stage.id ? 'ring-2 ring-primary/40 bg-primary/5' : ''}`}
             >
               {/* Column Header */}
               <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200/80">
@@ -263,12 +324,17 @@ export default function Pipeline() {
                 {stageDeals.map(deal => (
                   <div
                     key={deal.id}
-                    className="card p-3.5 hover:shadow-card transition-all bg-white flex flex-col justify-between group"
+                    draggable
+                    onDragStart={(e) => { e.dataTransfer.setData('text/plain', deal.id); e.dataTransfer.effectAllowed = 'move'; }}
+                    onDragEnd={() => setDragOverStage(null)}
+                    className="card p-3.5 hover:shadow-card transition-all bg-white flex flex-col justify-between group cursor-grab active:cursor-grabbing"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-1 mb-1.5">
                         <h4 className="text-xs font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-2">
-                          {deal.name}
+                          <Link to={`/sales-analytics/deals?q=${encodeURIComponent(deal.name)}`} className="hover:underline" draggable={false}>
+                            {deal.name}
+                          </Link>
                         </h4>
                       </div>
 
@@ -299,6 +365,7 @@ export default function Pipeline() {
                           onClick={() => handleMoveStage(deal, -1)}
                           className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded disabled:opacity-20"
                           title="Move to previous stage"
+                          aria-label={`Move ${deal.name} to previous stage`}
                         >
                           <ArrowLeft size={13} />
                         </button>
@@ -307,6 +374,7 @@ export default function Pipeline() {
                           onClick={() => handleMoveStage(deal, 1)}
                           className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded disabled:opacity-20"
                           title="Move to next stage"
+                          aria-label={`Move ${deal.name} to next stage`}
                         >
                           <ArrowRight size={13} />
                         </button>
@@ -317,6 +385,7 @@ export default function Pipeline() {
                           onClick={() => handleOpenEdit(deal)}
                           className="p-1 text-gray-400 hover:text-info rounded"
                           title="Edit"
+                          aria-label={`Edit ${deal.name}`}
                         >
                           <Pencil size={13} />
                         </button>
@@ -324,6 +393,7 @@ export default function Pipeline() {
                           onClick={() => setDeleteConfirm(deal)}
                           className="p-1 text-gray-400 hover:text-danger rounded"
                           title="Delete"
+                          aria-label={`Delete ${deal.name}`}
                         >
                           <Trash2 size={13} />
                         </button>
@@ -354,14 +424,14 @@ export default function Pipeline() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>Save Opportunity</button>
+            <button type="submit" form="pipeline-submit-form" className="btn-primary">Save Opportunity</button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="pipeline-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="form-label">Opportunity Name *</label>
-            <input
+            <label htmlFor="pipeline-field-1" className="form-label">Opportunity Name *</label>
+            <input id="pipeline-field-1"
               type="text"
               required
               className="form-input"
@@ -373,8 +443,8 @@ export default function Pipeline() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Account Company *</label>
-              <input
+              <label htmlFor="pipeline-field-2" className="form-label">Account Company *</label>
+              <input id="pipeline-field-2"
                 type="text"
                 required
                 className="form-input"
@@ -383,8 +453,8 @@ export default function Pipeline() {
               />
             </div>
             <div>
-              <label className="form-label">Key Contact</label>
-              <input
+              <label htmlFor="pipeline-field-3" className="form-label">Key Contact</label>
+              <input id="pipeline-field-3"
                 type="text"
                 className="form-input"
                 value={formData.contact}
@@ -395,8 +465,8 @@ export default function Pipeline() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Value (PKR) *</label>
-              <input
+              <label htmlFor="pipeline-field-4" className="form-label">Value (PKR) *</label>
+              <input id="pipeline-field-4"
                 type="number"
                 min="0"
                 required
@@ -406,8 +476,8 @@ export default function Pipeline() {
               />
             </div>
             <div>
-              <label className="form-label">Stage</label>
-              <select
+              <label htmlFor="pipeline-field-5" className="form-label">Stage</label>
+              <select id="pipeline-field-5"
                 className="form-select"
                 value={formData.stage}
                 onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
@@ -418,8 +488,8 @@ export default function Pipeline() {
               </select>
             </div>
             <div>
-              <label className="form-label">Probability (%)</label>
-              <input
+              <label htmlFor="pipeline-field-6" className="form-label">Probability (%)</label>
+              <input id="pipeline-field-6"
                 type="number"
                 min="0"
                 max="100"
@@ -431,8 +501,8 @@ export default function Pipeline() {
           </div>
 
           <div>
-            <label className="form-label">Tags (comma separated)</label>
-            <input
+            <label htmlFor="pipeline-field-7" className="form-label">Tags (comma separated)</label>
+            <input id="pipeline-field-7"
               type="text"
               className="form-input"
               value={formData.tags}

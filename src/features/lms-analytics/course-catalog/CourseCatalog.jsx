@@ -12,15 +12,15 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import ProgressBar from '../../../components/ui/ProgressBar';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import { initialCourses } from '../../../data/courses';
 import { formatDate, generateId, formatNumber } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 export default function CourseCatalog() {
   const [courses, setCourses] = useLocalStorage('meridian-courses', initialCourses);
@@ -78,6 +78,9 @@ export default function CourseCatalog() {
     setModalOpen(true);
   };
 
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
+
   const handleOpenEdit = (course) => {
     setEditCourse(course);
     setFormData({ ...course });
@@ -123,24 +126,6 @@ export default function CourseCatalog() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      courses,
-      'meridian_course_catalog',
-      [
-        { key: 'name', label: 'Course Name' },
-        { key: 'category', label: 'Category' },
-        { key: 'instructor', label: 'Instructor' },
-        { key: 'duration', label: 'Duration' },
-        { key: 'enrolledLearners', label: 'Enrolled' },
-        { key: 'completionRate', label: 'Completion (%)' },
-        { key: 'avgScore', label: 'Avg Score' },
-        { key: 'status', label: 'Status' },
-      ]
-    );
-    addToast('Course catalog exported to CSV!', 'info');
-  };
-
   // KPIs
   const totalLearners = courses.reduce((sum, c) => sum + (c.enrolledLearners || 0), 0);
   const avgCompletion = courses.length ? Math.round(courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / courses.length) : 0;
@@ -157,7 +142,7 @@ export default function CourseCatalog() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="courses" records={courses} setRecords={setCourses} filtered={filteredCourses} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Add Course
             </button>
@@ -345,16 +330,16 @@ export default function CourseCatalog() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="courseCatalog-submit-form" className="btn-primary">
               {editCourse ? 'Save Changes' : 'Publish Course'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="courseCatalog-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="form-label">Course Title *</label>
-            <input
+            <label htmlFor="courseCatalog-field-1" className="form-label">Course Title *</label>
+            <input id="courseCatalog-field-1"
               type="text"
               required
               className="form-input"
@@ -366,8 +351,8 @@ export default function CourseCatalog() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Instructor *</label>
-              <input
+              <label htmlFor="courseCatalog-field-2" className="form-label">Instructor *</label>
+              <input id="courseCatalog-field-2"
                 type="text"
                 required
                 className="form-input"
@@ -376,8 +361,8 @@ export default function CourseCatalog() {
               />
             </div>
             <div>
-              <label className="form-label">Category</label>
-              <select
+              <label htmlFor="courseCatalog-field-3" className="form-label">Category</label>
+              <select id="courseCatalog-field-3"
                 className="form-select"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -394,8 +379,8 @@ export default function CourseCatalog() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Duration</label>
-              <input
+              <label htmlFor="courseCatalog-field-4" className="form-label">Duration</label>
+              <input id="courseCatalog-field-4"
                 type="text"
                 className="form-input"
                 value={formData.duration}
@@ -404,8 +389,8 @@ export default function CourseCatalog() {
               />
             </div>
             <div>
-              <label className="form-label">Status</label>
-              <select
+              <label htmlFor="courseCatalog-field-5" className="form-label">Status</label>
+              <select id="courseCatalog-field-5"
                 className="form-select"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -419,8 +404,8 @@ export default function CourseCatalog() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Enrolled</label>
-              <input
+              <label htmlFor="courseCatalog-field-6" className="form-label">Enrolled</label>
+              <input id="courseCatalog-field-6"
                 type="number"
                 min="0"
                 className="form-input"
@@ -429,8 +414,8 @@ export default function CourseCatalog() {
               />
             </div>
             <div>
-              <label className="form-label">Completion %</label>
-              <input
+              <label htmlFor="courseCatalog-field-7" className="form-label">Completion %</label>
+              <input id="courseCatalog-field-7"
                 type="number"
                 min="0"
                 max="100"
@@ -440,8 +425,8 @@ export default function CourseCatalog() {
               />
             </div>
             <div>
-              <label className="form-label">Avg Score</label>
-              <input
+              <label htmlFor="courseCatalog-field-8" className="form-label">Avg Score</label>
+              <input id="courseCatalog-field-8"
                 type="number"
                 min="0"
                 max="100"

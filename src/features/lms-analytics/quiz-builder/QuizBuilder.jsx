@@ -12,6 +12,7 @@ import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import ExportButton from '../../../components/ui/ExportButton';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import useQuickAction from '../../../hooks/useQuickAction';
 import { initialQuizzes } from '../../../data/lmsData';
 import { initialCourses } from '../../../data/courses';
 import { generateId } from '../../../utils/format';
@@ -28,6 +29,9 @@ export default function QuizBuilder() {
   const [userAnswers, setUserAnswers] = useState({});
   const [quizScore, setQuizScore] = useState(null);
   const addToast = useToast();
+
+  // Quick Create menu / command palette open the new-quiz form via ?action=new
+  useQuickAction('new', () => setNewQuizModal(true));
 
   const currentQuiz = quizzes.find(q => q.id === activeQuizId) || quizzes[0];
 
@@ -79,6 +83,31 @@ export default function QuizBuilder() {
     let opts = qFormData.options;
     if (qFormData.type === 'true-false') {
       opts = ['True', 'False'];
+    }
+
+    // Answer validation: the answer key must be gradable.
+    const answer = String(qFormData.correctAnswer || '').trim();
+    if (qFormData.type === 'multiple-choice') {
+      const trimmed = opts.map(o => String(o).trim());
+      if (trimmed.some(o => !o)) {
+        addToast('Fill in every answer option.', 'error');
+        return;
+      }
+      if (new Set(trimmed.map(o => o.toLowerCase())).size !== trimmed.length) {
+        addToast('Answer options must be different from each other.', 'error');
+        return;
+      }
+      if (!trimmed.some(o => o.toLowerCase() === answer.toLowerCase())) {
+        addToast('The correct answer must exactly match one of the options.', 'error');
+        return;
+      }
+      opts = trimmed;
+    } else if (qFormData.type === 'short-answer') {
+      if (!answer) {
+        addToast('Enter the expected short answer.', 'error');
+        return;
+      }
+      opts = [];
     }
 
     if (editQuestion) {
@@ -134,6 +163,18 @@ export default function QuizBuilder() {
 
   const handleTogglePublish = () => {
     const nextStatus = currentQuiz.status === 'Published' ? 'Draft' : 'Published';
+    if (nextStatus === 'Published') {
+      const questions = currentQuiz.questions || [];
+      if (!questions.length) {
+        addToast('Add at least one question before publishing.', 'error');
+        return;
+      }
+      const missingKey = questions.find(q => !String(q.correctAnswer || '').trim());
+      if (missingKey) {
+        addToast('Every question needs a correct answer before publishing.', 'error');
+        return;
+      }
+    }
     setQuizzes(prev =>
       prev.map(qz =>
         qz.id === currentQuiz.id ? { ...qz, status: nextStatus } : qz
@@ -213,7 +254,7 @@ export default function QuizBuilder() {
           { label: 'Quiz Builder' },
         ]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ExportButton onClick={handleExport} label="Export Questions" />
             <button onClick={handleStartPractice} className="btn-outline">
               <Play size={15} /> Preview Assessment
@@ -405,18 +446,25 @@ export default function QuizBuilder() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setQuestionModal(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSaveQuestion}>Save Question</button>
+            <button type="submit" form="quizBuilder-saveQuestion-form" className="btn-primary">Save Question</button>
           </>
         }
       >
-        <form onSubmit={handleSaveQuestion} className="space-y-4">
+        <form id="quizBuilder-saveQuestion-form" onSubmit={handleSaveQuestion} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Question Type</label>
-              <select
+              <label htmlFor="quizBuilder-field-1" className="form-label">Question Type</label>
+              <select id="quizBuilder-field-1"
                 className="form-select"
                 value={qFormData.type}
-                onChange={(e) => setQFormData({ ...qFormData, type: e.target.value })}
+                onChange={(e) => {
+                  const type = e.target.value;
+                  // Multiple choice always needs four option slots (e.g. when switching from short answer).
+                  const options = type === 'multiple-choice' && (qFormData.options || []).length < 4
+                    ? [...(qFormData.options || []), '', '', '', ''].slice(0, 4)
+                    : qFormData.options;
+                  setQFormData({ ...qFormData, type, options });
+                }}
               >
                 <option value="multiple-choice">Multiple Choice</option>
                 <option value="true-false">True / False</option>
@@ -424,8 +472,8 @@ export default function QuizBuilder() {
               </select>
             </div>
             <div>
-              <label className="form-label">Points</label>
-              <input
+              <label htmlFor="quizBuilder-field-2" className="form-label">Points</label>
+              <input id="quizBuilder-field-2"
                 type="number"
                 min="1"
                 className="form-input"
@@ -436,8 +484,8 @@ export default function QuizBuilder() {
           </div>
 
           <div>
-            <label className="form-label">Question Text *</label>
-            <textarea
+            <label htmlFor="quizBuilder-field-3" className="form-label">Question Text *</label>
+            <textarea id="quizBuilder-field-3"
               rows={3}
               required
               className="form-input"
@@ -479,6 +527,16 @@ export default function QuizBuilder() {
                 <option value="True">True</option>
                 <option value="False">False</option>
               </select>
+            ) : qFormData.type === 'multiple-choice' ? (
+              <select
+                className="form-select"
+                required
+                value={qFormData.options.some(o => o === qFormData.correctAnswer) ? qFormData.correctAnswer : ''}
+                onChange={(e) => setQFormData({ ...qFormData, correctAnswer: e.target.value })}
+              >
+                <option value="" disabled>Select the correct option</option>
+                {qFormData.options.filter(o => String(o).trim()).map((o, i) => <option key={i} value={o}>{o}</option>)}
+              </select>
             ) : (
               <input
                 type="text"
@@ -502,14 +560,14 @@ export default function QuizBuilder() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setNewQuizModal(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleCreateQuiz}>Create Quiz</button>
+            <button type="submit" form="quizBuilder-createQuiz-form" className="btn-primary">Create Quiz</button>
           </>
         }
       >
-        <form onSubmit={handleCreateQuiz} className="space-y-4">
+        <form id="quizBuilder-createQuiz-form" onSubmit={handleCreateQuiz} className="space-y-4">
           <div>
-            <label className="form-label">Quiz Title *</label>
-            <input
+            <label htmlFor="quizBuilder-field-4" className="form-label">Quiz Title *</label>
+            <input id="quizBuilder-field-4"
               type="text"
               required
               className="form-input"
@@ -519,8 +577,8 @@ export default function QuizBuilder() {
             />
           </div>
           <div>
-            <label className="form-label">Course</label>
-            <select
+            <label htmlFor="quizBuilder-field-5" className="form-label">Course</label>
+            <select id="quizBuilder-field-5"
               className="form-select"
               value={quizFormData.course}
               onChange={(e) => setQuizFormData({ ...quizFormData, course: e.target.value })}
@@ -532,8 +590,8 @@ export default function QuizBuilder() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Pass Threshold (%)</label>
-              <input
+              <label htmlFor="quizBuilder-field-6" className="form-label">Pass Threshold (%)</label>
+              <input id="quizBuilder-field-6"
                 type="number"
                 min="50"
                 max="100"
@@ -543,8 +601,8 @@ export default function QuizBuilder() {
               />
             </div>
             <div>
-              <label className="form-label">Time Limit (mins)</label>
-              <input
+              <label htmlFor="quizBuilder-field-7" className="form-label">Time Limit (mins)</label>
+              <input id="quizBuilder-field-7"
                 type="number"
                 min="5"
                 className="form-input"
@@ -554,8 +612,8 @@ export default function QuizBuilder() {
             </div>
           </div>
           <div>
-            <label className="form-label">Description</label>
-            <textarea
+            <label htmlFor="quizBuilder-field-8" className="form-label">Description</label>
+            <textarea id="quizBuilder-field-8"
               rows={2}
               className="form-input"
               value={quizFormData.description}
@@ -609,8 +667,19 @@ export default function QuizBuilder() {
                 <p className="text-xs font-bold text-gray-500 uppercase mb-1">Question {idx + 1} ({q.points || 5} pts)</p>
                 <p className="text-sm font-semibold text-gray-900 mb-3">{q.question}</p>
 
+                {q.type === 'short-answer' ? (
+                  <input
+                    type="text"
+                    className="form-input text-sm"
+                    aria-label={`Answer for question ${idx + 1}`}
+                    value={userAnswers[q.id] || ''}
+                    onChange={(e) => setUserAnswers({ ...userAnswers, [q.id]: e.target.value })}
+                    placeholder="Type your answer"
+                    disabled={!!quizScore}
+                  />
+                ) : (
                 <div className="space-y-2">
-                  {(q.options || ['True', 'False']).map((opt, optIdx) => (
+                  {(q.options?.length ? q.options : ['True', 'False']).map((opt, optIdx) => (
                     <label
                       key={optIdx}
                       className={`flex items-center gap-3 p-3 rounded-lg border text-xs cursor-pointer transition-colors ${
@@ -629,6 +698,7 @@ export default function QuizBuilder() {
                     </label>
                   ))}
                 </div>
+                )}
               </div>
             ))}
           </div>

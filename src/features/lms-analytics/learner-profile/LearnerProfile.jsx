@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   UserCheck, Award, BookOpen, Clock, CheckCircle2,
   Mail, Building2, Calendar, FileText, Download, ChevronDown,
@@ -13,36 +13,97 @@ import Modal from '../../../components/ui/Modal';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
 import { initialLearners } from '../../../data/lmsData';
-import { formatDate } from '../../../utils/format';
+import { formatDate, generateId } from '../../../utils/format';
 import { exportToCSV } from '../../../utils/csv';
+import useCollection from '../../../hooks/useCollection';
+import { EnrolledCourses, CompletionHistory, QuizTimeline, enrollmentsFor, todayKey } from './LearnerCourses';
+
+const activityDate = () => new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
 
 export default function LearnerProfile() {
   const [learners, setLearners] = useLocalStorage('meridian-learners', initialLearners);
   const [selectedLearnerId, setSelectedLearnerId] = useState(learners[0]?.id || 'lrn-001');
   const [assignModal, setAssignModal] = useState(false);
-  const [newCourseName, setNewCourseName] = useState('ISO 14001 Environmental');
+  const [newCourseName, setNewCourseName] = useState('');
+  const [assignTarget, setAssignTarget] = useState('');
+  const [assignNotes, setAssignNotes] = useState('');
+  const [assignError, setAssignError] = useState('');
+  const [courses] = useCollection('courses');
   const addToast = useToast();
 
   const currentLearner = learners.find(l => l.id === selectedLearnerId) || learners[0];
+  const enrolledNames = useMemo(
+    () => new Set(enrollmentsFor(currentLearner).map(e => e.course.toLowerCase())),
+    [currentLearner]
+  );
+  const assignableCourses = courses.filter(c => c.name && !enrolledNames.has(c.name.toLowerCase()));
+
+  // Applies a change to the selected learner, materialising enrollments so profile-derived ones are kept.
+  const updateLearner = (fn) => {
+    setLearners(prev => prev.map(l => (l.id === currentLearner.id ? fn({ ...l, enrollments: enrollmentsFor(l) }) : l)));
+  };
+
+  const openAssign = () => {
+    setNewCourseName(assignableCourses[0]?.name || '');
+    setAssignTarget('');
+    setAssignNotes('');
+    setAssignError('');
+    setAssignModal(true);
+  };
 
   const handleAssignCourse = (e) => {
     e.preventDefault();
-    setLearners(prev =>
-      prev.map(l =>
-        l.id === currentLearner.id
-          ? {
-              ...l,
-              enrolledCount: (l.enrolledCount || 0) + 1,
-              recentActivities: [
-                { action: `Enrolled in ${newCourseName}`, date: 'Just now' },
-                ...(l.recentActivities || [])
-              ]
-            }
-          : l
-      )
-    );
+    if (!newCourseName) { setAssignError('Select a course.'); return; }
+    if (enrolledNames.has(newCourseName.toLowerCase())) { setAssignError(`${currentLearner.name} is already enrolled in ${newCourseName}.`); return; }
+    if (assignTarget && assignTarget < todayKey()) { setAssignError('Target completion date cannot be in the past.'); return; }
+    updateLearner(l => ({
+      ...l,
+      enrollments: [
+        ...l.enrollments,
+        { id: `enr-${generateId()}`, course: newCourseName, progress: 0, status: 'In Progress', enrolledAt: todayKey(), targetDate: assignTarget, completedAt: null, notes: assignNotes.trim() },
+      ],
+      currentCourse: l.currentCourse || newCourseName,
+      currentCourseProgress: l.currentCourse ? l.currentCourseProgress : 0,
+      enrolledCount: (l.enrolledCount || 0) + 1,
+      recentActivities: [
+        { action: `Enrolled in ${newCourseName}`, date: activityDate() },
+        ...(l.recentActivities || [])
+      ]
+    }));
     addToast(`Assigned ${newCourseName} to ${currentLearner.name}!`, 'success');
     setAssignModal(false);
+  };
+
+  const handleComplete = (enrollment) => {
+    updateLearner(l => {
+      const enrollments = l.enrollments.map(en => (en.id === enrollment.id
+        ? { ...en, progress: 100, status: 'Completed', completedAt: todayKey() }
+        : en));
+      const next = enrollments.find(en => en.status !== 'Completed');
+      const wasCurrent = l.currentCourse === enrollment.course;
+      return {
+        ...l,
+        enrollments,
+        completedCount: (l.completedCount || 0) + 1,
+        currentCourse: wasCurrent ? (next?.course || '') : l.currentCourse,
+        currentCourseProgress: wasCurrent ? (next?.progress || 0) : l.currentCourseProgress,
+        recentActivities: [
+          { action: `Completed course: ${enrollment.course}`, date: activityDate() },
+          ...(l.recentActivities || [])
+        ],
+      };
+    });
+    addToast(`${enrollment.course} marked complete.`, 'success');
+  };
+
+  const handleProgress = (enrollment, value) => {
+    if (value >= 100) { handleComplete(enrollment); return; }
+    updateLearner(l => ({
+      ...l,
+      enrollments: l.enrollments.map(en => (en.id === enrollment.id ? { ...en, progress: value } : en)),
+      currentCourseProgress: l.currentCourse === enrollment.course ? value : l.currentCourseProgress,
+    }));
+    addToast(`${enrollment.course} progress set to ${value}%.`, 'success');
   };
 
   const handleExportTranscript = () => {
@@ -69,10 +130,12 @@ export default function LearnerProfile() {
           { label: 'Learner Profile' },
         ]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Learner Selector */}
             <div className="relative">
+              <label htmlFor="learnerProfile-select-learner" className="sr-only">Select learner</label>
               <select
+                id="learnerProfile-select-learner"
                 value={selectedLearnerId}
                 onChange={(e) => setSelectedLearnerId(e.target.value)}
                 className="form-select text-sm font-medium pr-8"
@@ -85,7 +148,7 @@ export default function LearnerProfile() {
               </select>
             </div>
             <ExportButton onClick={handleExportTranscript} label="Export Transcript" />
-            <button onClick={() => setAssignModal(true)} className="btn-primary">
+            <button type="button" onClick={openAssign} className="btn-primary">
               <BookOpen size={16} /> Assign Course
             </button>
           </div>
@@ -169,6 +232,14 @@ export default function LearnerProfile() {
         />
       </div>
 
+      {/* Enrolled courses & completion history */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
+          <EnrolledCourses learner={currentLearner} onProgress={handleProgress} onComplete={handleComplete} />
+        </div>
+        <CompletionHistory learner={currentLearner} />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Left Column: Active Track Progress & Accomplishments */}
         <div className="space-y-6">
@@ -177,6 +248,9 @@ export default function LearnerProfile() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
               Currently In Progress
             </h3>
+            {!currentLearner.currentCourse ? (
+              <p className="text-xs text-gray-400">No course in progress.</p>
+            ) : (
             <div className="p-4 bg-primary/5 rounded-xl border border-primary/15">
               <div className="flex items-start justify-between gap-2 mb-2">
                 <span className="badge-primary text-2xs uppercase">Quality Standards</span>
@@ -188,6 +262,7 @@ export default function LearnerProfile() {
               <ProgressBar value={currentLearner.currentCourseProgress} size="sm" showLabel={false} />
               <p className="text-2xs text-gray-500 mt-2">Next milestone: Final clause review & mock audit exam</p>
             </div>
+            )}
 
             {/* Active Tracks */}
             <div className="mt-4">
@@ -222,7 +297,8 @@ export default function LearnerProfile() {
         </div>
 
         {/* Right Column: Quiz & Assessment History */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
+          <QuizTimeline learner={currentLearner} />
           <div className="card overflow-hidden">
             <div className="card-header">
               <h3 className="text-sm font-semibold text-gray-800">
@@ -277,33 +353,37 @@ export default function LearnerProfile() {
         size="md"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setAssignModal(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleAssignCourse}>Confirm Assignment</button>
+            <button type="button" className="btn-secondary" onClick={() => setAssignModal(false)}>Cancel</button>
+            <button type="submit" form="learnerProfile-assignCourse-form" className="btn-primary" disabled={!assignableCourses.length}>Confirm Assignment</button>
           </>
         }
       >
-        <form onSubmit={handleAssignCourse} className="space-y-4">
+        <form id="learnerProfile-assignCourse-form" onSubmit={handleAssignCourse} className="space-y-4">
+          {assignError && <p role="alert" className="form-error">{assignError}</p>}
           <div>
-            <label className="form-label">Select Course *</label>
-            <select
-              className="form-select"
-              value={newCourseName}
-              onChange={(e) => setNewCourseName(e.target.value)}
-            >
-              <option value="ISO 14001 Environmental Management">ISO 14001 Environmental Management</option>
-              <option value="Six Sigma Green Belt Certification">Six Sigma Green Belt Certification</option>
-              <option value="GMP for Pharmaceuticals 2026">GMP for Pharmaceuticals 2026</option>
-              <option value="FMEA Risk Priority Workshop">FMEA Risk Priority Workshop</option>
-              <option value="Root Cause Analysis Masterclass">Root Cause Analysis Masterclass</option>
-            </select>
+            <label htmlFor="learnerProfile-field-1" className="form-label">Select Course *</label>
+            {assignableCourses.length ? (
+              <select id="learnerProfile-field-1"
+                className="form-select"
+                required
+                value={newCourseName}
+                onChange={(e) => { setNewCourseName(e.target.value); setAssignError(''); }}
+              >
+                {assignableCourses.map(c => (
+                  <option key={c.id} value={c.name}>{c.name}{c.status === 'Draft' ? ' (Draft)' : ''}</option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-xs text-gray-500">This learner is already enrolled in every course in the catalog.</p>
+            )}
           </div>
           <div>
-            <label className="form-label">Target Completion Timeline</label>
-            <input type="date" className="form-input" defaultValue="2026-12-15" />
+            <label htmlFor="learnerProfile-field-2" className="form-label">Target Completion Date</label>
+            <input id="learnerProfile-field-2" type="date" className="form-input" min={todayKey()} value={assignTarget} onChange={(e) => { setAssignTarget(e.target.value); setAssignError(''); }} />
           </div>
           <div>
-            <label className="form-label">Manager Notes</label>
-            <textarea rows={2} className="form-input" placeholder="Mandatory for upcoming ISO recertification..." />
+            <label htmlFor="learnerProfile-field-3" className="form-label">Manager Notes</label>
+            <textarea id="learnerProfile-field-3" rows={2} className="form-input" value={assignNotes} onChange={(e) => setAssignNotes(e.target.value)} placeholder="Mandatory for upcoming ISO recertification..." />
           </div>
         </form>
       </Modal>

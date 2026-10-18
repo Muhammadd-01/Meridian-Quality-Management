@@ -22,7 +22,16 @@ export default function AnimatedCounter({
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
+    const reduced =
+      (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) ||
+      document.documentElement.classList.contains('reduce-motion');
+    if (reduced) {
+      setDisplayValue(target);
+      return undefined;
+    }
+
     let startTimestamp = null;
+    let frame = 0;
     const startVal = 0;
 
     const step = (timestamp) => {
@@ -34,13 +43,14 @@ export default function AnimatedCounter({
       setDisplayValue(current);
 
       if (progress < 1) {
-        window.requestAnimationFrame(step);
+        frame = window.requestAnimationFrame(step);
       } else {
         setDisplayValue(target);
       }
     };
 
-    window.requestAnimationFrame(step);
+    frame = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(frame);
   }, [target, duration]);
 
   if (formatter) {

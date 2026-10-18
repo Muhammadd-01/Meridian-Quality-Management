@@ -11,15 +11,16 @@ import FilterDropdown from '../../../components/ui/FilterDropdown';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
+import CompanyRelations from './CompanyRelations';
 import { initialCompanies } from '../../../data/crmData';
 import { formatCurrency, formatNumber, generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 export default function Companies() {
   const [companies, setCompanies] = useLocalStorage('meridian-companies', initialCompanies);
@@ -86,6 +87,9 @@ export default function Companies() {
     setModalOpen(true);
   };
 
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
+
   const handleOpenEdit = (comp) => {
     setEditCompany(comp);
     setFormData({ ...comp });
@@ -136,24 +140,6 @@ export default function Companies() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      companies,
-      'meridian_companies',
-      [
-        { key: 'name', label: 'Company Name' },
-        { key: 'industry', label: 'Industry' },
-        { key: 'relationship', label: 'Relationship' },
-        { key: 'contactPerson', label: 'Contact Person' },
-        { key: 'email', label: 'Email' },
-        { key: 'phone', label: 'Phone' },
-        { key: 'location', label: 'Location' },
-        { key: 'totalSpent', label: 'Total Value (PKR)' },
-      ]
-    );
-    addToast('Companies directory exported to CSV!', 'info');
-  };
-
   // KPIs
   const totalSpend = companies.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
   const customerCount = companies.filter(c => c.relationship === 'Customer').length;
@@ -170,7 +156,7 @@ export default function Companies() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="companies" records={companies} setRecords={setCompanies} filtered={filteredCompanies} />
             <div className="hidden sm:flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
               <button
                 onClick={() => setViewMode('grid')}
@@ -449,17 +435,17 @@ export default function Companies() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="companies-submit-form" className="btn-primary">
               {editCompany ? 'Update Company' : 'Save Organization'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="companies-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Company Name *</label>
-              <input
+              <label htmlFor="companies-field-1" className="form-label">Company Name *</label>
+              <input id="companies-field-1"
                 type="text"
                 required
                 className="form-input"
@@ -469,8 +455,8 @@ export default function Companies() {
               />
             </div>
             <div>
-              <label className="form-label">Industry *</label>
-              <input
+              <label htmlFor="companies-field-2" className="form-label">Industry *</label>
+              <input id="companies-field-2"
                 type="text"
                 required
                 className="form-input"
@@ -483,8 +469,8 @@ export default function Companies() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Relationship</label>
-              <select
+              <label htmlFor="companies-field-3" className="form-label">Relationship</label>
+              <select id="companies-field-3"
                 className="form-select"
                 value={formData.relationship}
                 onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
@@ -496,8 +482,8 @@ export default function Companies() {
               </select>
             </div>
             <div>
-              <label className="form-label">Category</label>
-              <select
+              <label htmlFor="companies-field-4" className="form-label">Category</label>
+              <select id="companies-field-4"
                 className="form-select"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -508,8 +494,8 @@ export default function Companies() {
               </select>
             </div>
             <div>
-              <label className="form-label">Total Spend (PKR)</label>
-              <input
+              <label htmlFor="companies-field-5" className="form-label">Total Spend (PKR)</label>
+              <input id="companies-field-5"
                 type="number"
                 min="0"
                 className="form-input"
@@ -521,8 +507,8 @@ export default function Companies() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Primary Contact Person</label>
-              <input
+              <label htmlFor="companies-field-6" className="form-label">Primary Contact Person</label>
+              <input id="companies-field-6"
                 type="text"
                 className="form-input"
                 value={formData.contactPerson}
@@ -531,8 +517,8 @@ export default function Companies() {
               />
             </div>
             <div>
-              <label className="form-label">Contact Role</label>
-              <input
+              <label htmlFor="companies-field-7" className="form-label">Contact Role</label>
+              <input id="companies-field-7"
                 type="text"
                 className="form-input"
                 value={formData.contactRole}
@@ -544,8 +530,8 @@ export default function Companies() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Email</label>
-              <input
+              <label htmlFor="companies-field-8" className="form-label">Email</label>
+              <input id="companies-field-8"
                 type="email"
                 className="form-input"
                 value={formData.email}
@@ -554,8 +540,8 @@ export default function Companies() {
               />
             </div>
             <div>
-              <label className="form-label">Phone</label>
-              <input
+              <label htmlFor="companies-field-9" className="form-label">Phone</label>
+              <input id="companies-field-9"
                 type="text"
                 className="form-input"
                 value={formData.phone}
@@ -567,8 +553,8 @@ export default function Companies() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Location (City, State/Province)</label>
-              <input
+              <label htmlFor="companies-field-10" className="form-label">Location (City, State/Province)</label>
+              <input id="companies-field-10"
                 type="text"
                 className="form-input"
                 value={formData.location}
@@ -577,8 +563,8 @@ export default function Companies() {
               />
             </div>
             <div>
-              <label className="form-label">Country</label>
-              <input
+              <label htmlFor="companies-field-11" className="form-label">Country</label>
+              <input id="companies-field-11"
                 type="text"
                 className="form-input"
                 value={formData.country}
@@ -596,7 +582,7 @@ export default function Companies() {
           isOpen={!!viewCompany}
           onClose={() => setViewCompany(null)}
           title={viewCompany.name}
-          size="md"
+          size="lg"
           footer={
             <button className="btn-secondary" onClick={() => setViewCompany(null)}>Close</button>
           }
@@ -643,6 +629,8 @@ export default function Companies() {
               </div>
               <span className="badge-primary">{viewCompany.activeDeals} Active Deals</span>
             </div>
+
+            <CompanyRelations company={viewCompany} />
           </div>
         </Modal>
       )}

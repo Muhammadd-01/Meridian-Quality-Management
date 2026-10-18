@@ -11,15 +11,14 @@ import FilterDropdown from '../../../components/ui/FilterDropdown';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import { initialCommunications } from '../../../data/crmData';
 import { generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 export default function CallsEmails() {
   const [comms, setComms] = useLocalStorage('meridian-calls-emails', initialCommunications);
@@ -109,7 +108,7 @@ export default function CallsEmails() {
       }),
     };
     setComms(prev => [newEmail, ...prev]);
-    addToast('Email dispatched and logged successfully!', 'success');
+    addToast('Email logged to the communication history. It was not sent — no email service is configured.', 'info', 5000);
     setComposeEmailModal(false);
   };
 
@@ -118,25 +117,6 @@ export default function CallsEmails() {
     setComms(prev => prev.filter(c => c.id !== deleteConfirm.id));
     addToast('Communication record removed.', 'success');
     setDeleteConfirm(null);
-  };
-
-  const handleExport = () => {
-    exportToCSV(
-      comms,
-      'meridian_calls_emails_log',
-      [
-        { key: 'type', label: 'Channel' },
-        { key: 'direction', label: 'Direction' },
-        { key: 'contact', label: 'Contact' },
-        { key: 'company', label: 'Company' },
-        { key: 'subject', label: 'Subject' },
-        { key: 'duration', label: 'Duration' },
-        { key: 'owner', label: 'Owner' },
-        { key: 'status', label: 'Status' },
-        { key: 'dateTime', label: 'Timestamp' },
-      ]
-    );
-    addToast('Communication records exported to CSV!', 'info');
   };
 
   // KPIs
@@ -155,13 +135,13 @@ export default function CallsEmails() {
           { label: 'Calls & Emails' },
         ]}
         actions={
-          <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+          <div className="flex flex-wrap items-center gap-2">
+            <DataTransferActions entityType="communications" records={comms} setRecords={setComms} filtered={filteredComms} />
             <button onClick={() => setLogCallModal(true)} className="btn-outline">
               <Phone size={15} /> Log Call
             </button>
             <button onClick={() => setComposeEmailModal(true)} className="btn-primary">
-              <Send size={15} /> Compose Email
+              <Send size={15} /> Log Email
             </button>
           </div>
         }
@@ -375,15 +355,15 @@ export default function CallsEmails() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setLogCallModal(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSaveCall}>Save Log</button>
+            <button type="submit" form="callsEmails-saveCall-form" className="btn-primary">Save Log</button>
           </>
         }
       >
-        <form onSubmit={handleSaveCall} className="space-y-4">
+        <form id="callsEmails-saveCall-form" onSubmit={handleSaveCall} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Contact Person *</label>
-              <input
+              <label htmlFor="callsEmails-field-1" className="form-label">Contact Person *</label>
+              <input id="callsEmails-field-1"
                 type="text"
                 required
                 className="form-input"
@@ -393,8 +373,8 @@ export default function CallsEmails() {
               />
             </div>
             <div>
-              <label className="form-label">Organization *</label>
-              <input
+              <label htmlFor="callsEmails-field-2" className="form-label">Organization *</label>
+              <input id="callsEmails-field-2"
                 type="text"
                 required
                 className="form-input"
@@ -407,8 +387,8 @@ export default function CallsEmails() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Direction</label>
-              <select
+              <label htmlFor="callsEmails-field-3" className="form-label">Direction</label>
+              <select id="callsEmails-field-3"
                 className="form-select"
                 value={callData.direction}
                 onChange={(e) => setCallData({ ...callData, direction: e.target.value })}
@@ -418,8 +398,8 @@ export default function CallsEmails() {
               </select>
             </div>
             <div>
-              <label className="form-label">Call Duration</label>
-              <input
+              <label htmlFor="callsEmails-field-4" className="form-label">Call Duration</label>
+              <input id="callsEmails-field-4"
                 type="text"
                 className="form-input"
                 value={callData.duration}
@@ -428,8 +408,8 @@ export default function CallsEmails() {
               />
             </div>
             <div>
-              <label className="form-label">Outcome Status</label>
-              <select
+              <label htmlFor="callsEmails-field-5" className="form-label">Outcome Status</label>
+              <select id="callsEmails-field-5"
                 className="form-select"
                 value={callData.status}
                 onChange={(e) => setCallData({ ...callData, status: e.target.value })}
@@ -442,8 +422,8 @@ export default function CallsEmails() {
           </div>
 
           <div>
-            <label className="form-label">Call Purpose / Subject *</label>
-            <input
+            <label htmlFor="callsEmails-field-6" className="form-label">Call Purpose / Subject *</label>
+            <input id="callsEmails-field-6"
               type="text"
               required
               className="form-input"
@@ -454,8 +434,8 @@ export default function CallsEmails() {
           </div>
 
           <div>
-            <label className="form-label">Consultant Notes & Follow-ups</label>
-            <textarea
+            <label htmlFor="callsEmails-field-7" className="form-label">Consultant Notes & Follow-ups</label>
+            <textarea id="callsEmails-field-7"
               rows={3}
               className="form-input"
               value={callData.notes}
@@ -470,22 +450,25 @@ export default function CallsEmails() {
       <Modal
         isOpen={composeEmailModal}
         onClose={() => setComposeEmailModal(false)}
-        title="Compose Official Advisory Email"
+        title="Log Advisory Email"
         size="lg"
         footer={
           <>
             <button className="btn-secondary" onClick={() => setComposeEmailModal(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSendEmail}>
-              <Send size={15} /> Send & Log
+            <button type="submit" form="callsEmails-sendEmail-form" className="btn-primary">
+              <Send size={15} /> Save to History
             </button>
           </>
         }
       >
-        <form onSubmit={handleSendEmail} className="space-y-4">
+        <form id="callsEmails-sendEmail-form" onSubmit={handleSendEmail} className="space-y-4">
+          <p className="text-xs text-gray-500 bg-gray-50 border border-gray-100 rounded-lg p-2.5" role="note">
+            This records an email in the communication history. Meridian has no email service configured, so nothing is delivered.
+          </p>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Recipient Contact *</label>
-              <input
+              <label htmlFor="callsEmails-field-8" className="form-label">Recipient Contact *</label>
+              <input id="callsEmails-field-8"
                 type="text"
                 required
                 className="form-input"
@@ -495,8 +478,8 @@ export default function CallsEmails() {
               />
             </div>
             <div>
-              <label className="form-label">Client Company *</label>
-              <input
+              <label htmlFor="callsEmails-field-9" className="form-label">Client Company *</label>
+              <input id="callsEmails-field-9"
                 type="text"
                 required
                 className="form-input"
@@ -508,8 +491,8 @@ export default function CallsEmails() {
           </div>
 
           <div>
-            <label className="form-label">Email Subject *</label>
-            <input
+            <label htmlFor="callsEmails-field-10" className="form-label">Email Subject *</label>
+            <input id="callsEmails-field-10"
               type="text"
               required
               className="form-input"
@@ -520,8 +503,8 @@ export default function CallsEmails() {
           </div>
 
           <div>
-            <label className="form-label">Message Body *</label>
-            <textarea
+            <label htmlFor="callsEmails-field-11" className="form-label">Message Body *</label>
+            <textarea id="callsEmails-field-11"
               rows={6}
               required
               className="form-input font-sans text-sm"

@@ -12,15 +12,15 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import ProgressBar from '../../../components/ui/ProgressBar';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import { initialTeamMembers } from '../../../data/projectManagementData';
 import { formatDate, generateId } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 export default function Team() {
   const [team, setTeam] = useLocalStorage('meridian-team', initialTeamMembers);
@@ -76,6 +76,9 @@ export default function Team() {
     setModalOpen(true);
   };
 
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
+
   const handleOpenEdit = (m) => {
     setEditMember(m);
     setFormData({ ...m });
@@ -125,25 +128,6 @@ export default function Team() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = () => {
-    exportToCSV(
-      team,
-      'meridian_quality_team',
-      [
-        { key: 'name', label: 'Name' },
-        { key: 'role', label: 'Role' },
-        { key: 'department', label: 'Department' },
-        { key: 'email', label: 'Email' },
-        { key: 'phone', label: 'Phone' },
-        { key: 'assignedProjects', label: 'Projects' },
-        { key: 'activeTasks', label: 'Tasks' },
-        { key: 'workload', label: 'Workload (%)' },
-        { key: 'status', label: 'Status' },
-      ]
-    );
-    addToast('Team roster exported to CSV!', 'info');
-  };
-
   // KPIs
   const activeMembers = team.filter(m => m.status === 'Active').length;
   const avgWorkload = team.length ? Math.round(team.reduce((acc, m) => acc + (m.workload || 0), 0) / team.length) : 0;
@@ -160,7 +144,7 @@ export default function Team() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="team" records={team} setRecords={setTeam} filtered={filteredTeam} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Add Team Member
             </button>
@@ -347,16 +331,16 @@ export default function Team() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="team-submit-form" className="btn-primary">
               {editMember ? 'Save Changes' : 'Add Member'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="team-submit-form" onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="form-label">Full Name *</label>
-            <input
+            <label htmlFor="team-field-1" className="form-label">Full Name *</label>
+            <input id="team-field-1"
               type="text"
               required
               className="form-input"
@@ -368,8 +352,8 @@ export default function Team() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Role Title *</label>
-              <input
+              <label htmlFor="team-field-2" className="form-label">Role Title *</label>
+              <input id="team-field-2"
                 type="text"
                 required
                 className="form-input"
@@ -379,8 +363,8 @@ export default function Team() {
               />
             </div>
             <div>
-              <label className="form-label">Department</label>
-              <select
+              <label htmlFor="team-field-3" className="form-label">Department</label>
+              <select id="team-field-3"
                 className="form-select"
                 value={formData.department}
                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
@@ -395,8 +379,8 @@ export default function Team() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Email Address *</label>
-              <input
+              <label htmlFor="team-field-4" className="form-label">Email Address *</label>
+              <input id="team-field-4"
                 type="email"
                 required
                 className="form-input"
@@ -406,8 +390,8 @@ export default function Team() {
               />
             </div>
             <div>
-              <label className="form-label">Phone Number</label>
-              <input
+              <label htmlFor="team-field-5" className="form-label">Phone Number</label>
+              <input id="team-field-5"
                 type="text"
                 className="form-input"
                 value={formData.phone}
@@ -419,8 +403,8 @@ export default function Team() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Assigned Projects</label>
-              <input
+              <label htmlFor="team-field-6" className="form-label">Assigned Projects</label>
+              <input id="team-field-6"
                 type="number"
                 min="0"
                 className="form-input"
@@ -429,8 +413,8 @@ export default function Team() {
               />
             </div>
             <div>
-              <label className="form-label">Active Tasks</label>
-              <input
+              <label htmlFor="team-field-7" className="form-label">Active Tasks</label>
+              <input id="team-field-7"
                 type="number"
                 min="0"
                 className="form-input"
@@ -439,8 +423,8 @@ export default function Team() {
               />
             </div>
             <div>
-              <label className="form-label">Workload (%)</label>
-              <input
+              <label htmlFor="team-field-8" className="form-label">Workload (%)</label>
+              <input id="team-field-8"
                 type="number"
                 min="0"
                 max="100"
@@ -452,8 +436,8 @@ export default function Team() {
           </div>
 
           <div>
-            <label className="form-label">Status</label>
-            <select
+            <label htmlFor="team-field-9" className="form-label">Status</label>
+            <select id="team-field-9"
               className="form-select"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}

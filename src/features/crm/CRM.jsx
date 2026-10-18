@@ -67,11 +67,11 @@ const mrrData = [
 
 // Deal sources breakdown
 const dealSourcesData = [
-  { name: 'Organic Search', value: 240, fill: '#40BFA6' },
-  { name: 'Referral', value: 180, fill: '#7c5cfc' },
-  { name: 'Paid Ads', value: 110, fill: '#17a2b8' },
-  { name: 'Email Campaign', value: 75, fill: '#ffc107' },
-  { name: 'Events', value: 43, fill: '#dc3545' },
+  { name: 'Organic Search', value: 240, fill: '#24997c' },
+  { name: 'Referral', value: 180, fill: '#6174bc' },
+  { name: 'Paid Ads', value: 110, fill: '#3e7ead' },
+  { name: 'Email Campaign', value: 75, fill: '#dc9a2c' },
+  { name: 'Events', value: 43, fill: '#d0504c' },
 ];
 
 // Revenue by region
@@ -518,8 +518,8 @@ export default function CRM() {
             <AreaChart data={mrrData}>
               <defs>
                 <linearGradient id="crmActualGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#40BFA6" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#40BFA6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#24997c" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#24997c" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -527,7 +527,7 @@ export default function CRM() {
               <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" domain={[130, 200]} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Area type="monotone" dataKey="actual" stroke="#40BFA6" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" isAnimationActive={true} animationDuration={1400} />
+              <Area type="monotone" dataKey="actual" stroke="#24997c" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" isAnimationActive={true} animationDuration={1400} />
               <Area type="monotone" dataKey="forecast" stroke="#9ca3af" strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" isAnimationActive={true} animationDuration={1400} />
             </AreaChart>
           </ResponsiveContainer>
@@ -581,7 +581,7 @@ export default function CRM() {
               <XAxis type="number" tick={{ fontSize: 10 }} stroke="#9ca3af" tickFormatter={(v) => `$${v}K`} />
               <YAxis type="category" dataKey="region" tick={{ fontSize: 10 }} stroke="#9ca3af" width={85} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
-              <Bar dataKey="revenue" fill="#40BFA6" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
+              <Bar dataKey="revenue" fill="#24997c" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -653,55 +653,55 @@ export default function CRM() {
         <form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="form-label">Contact Name</label>
-              <input {...register('contactName')} className="form-input" placeholder="Full name" />
+              <label htmlFor="crm-field-1" className="form-label">Contact Name</label>
+              <input id="crm-field-1" {...register('contactName')} className="form-input" placeholder="Full name" />
               {errors.contactName && <p className="form-error">{errors.contactName.message}</p>}
             </div>
             <div>
-              <label className="form-label">Company</label>
-              <input {...register('company')} className="form-input" placeholder="Company name" />
+              <label htmlFor="crm-field-2" className="form-label">Company</label>
+              <input id="crm-field-2" {...register('company')} className="form-input" placeholder="Company name" />
               {errors.company && <p className="form-error">{errors.company.message}</p>}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="form-label">Email</label>
-              <input {...register('email')} type="email" className="form-input" placeholder="email@company.pk" />
+              <label htmlFor="crm-field-3" className="form-label">Email</label>
+              <input id="crm-field-3" {...register('email')} type="email" className="form-input" placeholder="email@company.pk" />
               {errors.email && <p className="form-error">{errors.email.message}</p>}
             </div>
             <div>
-              <label className="form-label">Phone</label>
-              <input {...register('phone')} className="form-input" placeholder="+92-XXX-XXXXXXX" />
+              <label htmlFor="crm-field-4" className="form-label">Phone</label>
+              <input id="crm-field-4" {...register('phone')} className="form-input" placeholder="+92-XXX-XXXXXXX" />
               {errors.phone && <p className="form-error">{errors.phone.message}</p>}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="form-label">Source</label>
-              <select {...register('source')} className="form-select">
+              <label htmlFor="crm-field-5" className="form-label">Source</label>
+              <select id="crm-field-5" {...register('source')} className="form-select">
                 {leadSources.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label className="form-label">Status</label>
-              <select {...register('status')} className="form-select">
+              <label htmlFor="crm-field-6" className="form-label">Status</label>
+              <select id="crm-field-6" {...register('status')} className="form-select">
                 {leadStatuses.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label className="form-label">Assigned Representative</label>
-              <input {...register('assignedTo')} className="form-input" placeholder="Rep name" />
+              <label htmlFor="crm-field-7" className="form-label">Assigned Representative</label>
+              <input id="crm-field-7" {...register('assignedTo')} className="form-input" placeholder="Rep name" />
               {errors.assignedTo && <p className="form-error">{errors.assignedTo.message}</p>}
             </div>
           </div>
           <div>
-            <label className="form-label">Deal Value (PKR)</label>
-            <input {...register('dealValue')} type="number" className="form-input" placeholder="0" />
+            <label htmlFor="crm-field-8" className="form-label">Deal Value (PKR)</label>
+            <input id="crm-field-8" {...register('dealValue')} type="number" className="form-input" placeholder="0" />
             {errors.dealValue && <p className="form-error">{errors.dealValue.message}</p>}
           </div>
           <div>
-            <label className="form-label">Notes</label>
-            <textarea {...register('notes')} className="form-input" rows={3} placeholder="Additional notes..." />
+            <label htmlFor="crm-field-9" className="form-label">Notes</label>
+            <textarea id="crm-field-9" {...register('notes')} className="form-input" rows={3} placeholder="Additional notes..." />
           </div>
         </form>
       </Modal>

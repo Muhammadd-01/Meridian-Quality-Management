@@ -1,31 +1,42 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 export default function usePagination(data, itemsPerPage = 10) {
   const [currentPage, setCurrentPage] = useState(1);
+  // A user-chosen page size (via Pagination's selector) overrides the default.
+  const [customPageSize, setCustomPageSize] = useState(null);
+  const pageSize = customPageSize ?? itemsPerPage;
 
-  const totalPages = Math.max(1, Math.ceil(data.length / itemsPerPage));
-  
+  const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+  const page = Math.min(currentPage, totalPages);
+
   const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return data.slice(start, start + itemsPerPage);
-  }, [data, currentPage, itemsPerPage]);
+    const start = (page - 1) * pageSize;
+    return data.slice(start, start + pageSize);
+  }, [data, page, pageSize]);
 
-  const goToPage = (page) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  const goToPage = (target) => {
+    setCurrentPage(Math.max(1, Math.min(target, totalPages)));
   };
 
-  // Reset to page 1 when data changes
-  useMemo(() => {
+  const setPageSize = (size) => {
+    setCustomPageSize(Number(size) || itemsPerPage);
+    setCurrentPage(1);
+  };
+
+  // Reset to page 1 when the data shrinks below the current page
+  useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
-  }, [totalPages]);
+  }, [currentPage, totalPages]);
 
   return {
-    currentPage,
+    currentPage: page,
     totalPages,
     paginatedData,
     goToPage,
+    pageSize,
+    setPageSize,
     totalItems: data.length,
-    startIndex: (currentPage - 1) * itemsPerPage + 1,
-    endIndex: Math.min(currentPage * itemsPerPage, data.length),
+    startIndex: data.length === 0 ? 0 : (page - 1) * pageSize + 1,
+    endIndex: Math.min(page * pageSize, data.length),
   };
 }

@@ -2,8 +2,10 @@ import React, { useState, useMemo } from 'react';
 import {
   Target, Plus, Pencil, Trash2, Eye, Download, CheckCircle2,
   DollarSign, TrendingUp, Mail, Phone, Building2, User,
-  ArrowRight, ShieldCheck, Filter, Search, Award
+  ArrowRight, ShieldCheck, Filter, Search, Award, GitBranch, AlertTriangle
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { addDays, format } from 'date-fns';
 import PageHeader from '../../../components/ui/PageHeader';
 import StatCard from '../../../components/ui/StatCard';
 import SearchInput from '../../../components/ui/SearchInput';
@@ -11,15 +13,18 @@ import FilterDropdown from '../../../components/ui/FilterDropdown';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
-import ExportButton from '../../../components/ui/ExportButton';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
 import useLocalStorage from '../../../hooks/useLocalStorage';
+import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
+import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
+import useCollection from '../../../hooks/useCollection';
+import InfoTip from '../../../components/ui/InfoTip';
+import { scoreLead, findDuplicateLeads, LEAD_SCORING_RULES } from '../../../utils/leadScoring';
 import { initialLeads, leadSources, leadStatuses } from '../../../data/leads';
 import { formatCurrency, formatDate, generateId, formatNumber } from '../../../utils/format';
-import { exportToCSV } from '../../../utils/csv';
 
 export default function Leads() {
   const [leads, setLeads] = useLocalStorage('meridian-leads', initialLeads);
@@ -29,7 +34,14 @@ export default function Leads() {
   const [editLead, setEditLead] = useState(null);
   const [viewLead, setViewLead] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [convertTarget, setConvertTarget] = useState(null);
+  const [duplicateMatches, setDuplicateMatches] = useState([]);
+  const [allowDuplicate, setAllowDuplicate] = useState(false);
+  const [deals, setDeals] = useCollection('deals');
   const addToast = useToast();
+
+  const gradeStyles = { Hot: 'badge-danger', Warm: 'badge-warning', Cold: 'badge-info' };
+  const scoringHelp = `Rule-based score (0-100). ${LEAD_SCORING_RULES.map(r => `${r.factor}: ${r.points}`).join('. ')}. Hot >= 70, Warm >= 45.`;
 
   // Search
   const { query, setQuery, filtered: searchFiltered } = useSearch(leads, ['contactName', 'company', 'email', 'phone', 'notes', 'assignedTo']);
@@ -74,17 +86,30 @@ export default function Leads() {
       lastContact: new Date().toISOString().split('T')[0],
       notes: 'Initial inquiry regarding ISO quality consulting.',
     });
+    setDuplicateMatches([]);
+    setAllowDuplicate(false);
     setModalOpen(true);
   };
+
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenAdd);
 
   const handleOpenEdit = (l) => {
     setEditLead(l);
     setFormData({ ...l });
+    setDuplicateMatches([]);
+    setAllowDuplicate(false);
     setModalOpen(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Duplicate detection: same email, or same contact name at the same company.
+    const dups = findDuplicateLeads(formData, leads, editLead?.id);
+    if (dups.length && !allowDuplicate) {
+      setDuplicateMatches(dups);
+      return;
+    }
     if (editLead) {
       setLeads(prev =>
         prev.map(l =>
@@ -113,30 +138,40 @@ export default function Leads() {
     addToast(`Lead "${lead.contactName}" successfully marked as WON! 🎉`, 'success');
   };
 
+  // Lead -> deal conversion: creates a deal in the shared Deals/Pipeline collection
+  // and links it back to the lead so it cannot be converted twice.
+  const handleConvertToDeal = () => {
+    const lead = convertTarget;
+    if (!lead) return;
+    const dealId = `deal-${generateId()}`;
+    const deal = {
+      id: dealId,
+      name: `${lead.company} — ${lead.contactName}`,
+      company: lead.company,
+      contact: lead.contactName,
+      owner: lead.assignedTo,
+      value: Number(lead.dealValue) || 0,
+      stage: 'Qualified',
+      probability: 40,
+      expectedClose: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
+      status: 'Active',
+      tags: ['From lead', lead.source].filter(Boolean),
+      notes: lead.notes || '',
+      sourceLeadId: lead.id,
+    };
+    setDeals(prev => [deal, ...prev]);
+    setLeads(prev => prev.map(l => (l.id === lead.id
+      ? { ...l, status: ['New', 'Contacted'].includes(l.status) ? 'Qualified' : l.status, convertedDealId: dealId }
+      : l)));
+    setConvertTarget(null);
+    addToast(`Deal created for ${lead.company}. Find it in Deals and the Pipeline.`, 'success', 4000);
+  };
+
   const handleDelete = () => {
     if (!deleteConfirm) return;
     setLeads(prev => prev.filter(l => l.id !== deleteConfirm.id));
     addToast('Lead removed.', 'success');
     setDeleteConfirm(null);
-  };
-
-  const handleExport = () => {
-    exportToCSV(
-      leads,
-      'meridian_sales_leads',
-      [
-        { key: 'contactName', label: 'Contact Name' },
-        { key: 'company', label: 'Company' },
-        { key: 'email', label: 'Email' },
-        { key: 'phone', label: 'Phone' },
-        { key: 'source', label: 'Lead Source' },
-        { key: 'status', label: 'Status' },
-        { key: 'assignedTo', label: 'Assigned Consultant' },
-        { key: 'dealValue', label: 'Potential Value (PKR)' },
-        { key: 'lastContact', label: 'Last Contact' },
-      ]
-    );
-    addToast('Leads exported to CSV!', 'info');
   };
 
   // KPIs
@@ -156,7 +191,7 @@ export default function Leads() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <ExportButton onClick={handleExport} />
+            <DataTransferActions entityType="leads" records={leads} setRecords={setLeads} filtered={filteredLeads} />
             <button onClick={handleOpenAdd} className="btn-primary">
               <Plus size={16} /> Add Lead
             </button>
@@ -239,6 +274,7 @@ export default function Leads() {
                 <th>Opportunity Value</th>
                 <th>Consultant Owner</th>
                 <th>Status</th>
+                <th><span className="inline-flex items-center gap-1">Score <InfoTip text={scoringHelp} /></span></th>
                 <th>Last Touch</th>
                 <th className="w-28">Actions</th>
               </tr>
@@ -271,14 +307,45 @@ export default function Leads() {
                   </td>
                   <td><span className="text-xs text-gray-700">{l.assignedTo}</span></td>
                   <td><StatusBadge status={l.status} /></td>
+                  <td>
+                    {(() => {
+                      const { score, grade } = scoreLead(l);
+                      return (
+                        <span className="inline-flex items-center gap-1.5" title={`Lead score ${score}/100 (${grade})`}>
+                          <span className="text-xs font-bold text-gray-800 tabular-nums">{score}</span>
+                          <span className={`${gradeStyles[grade]} text-2xs`}>{grade}</span>
+                        </span>
+                      );
+                    })()}
+                  </td>
                   <td><span className="text-2xs text-gray-500">{formatDate(l.lastContact)}</span></td>
                   <td>
                     <div className="flex items-center gap-1">
+                      {l.convertedDealId ? (
+                        <Link
+                          to={`/sales-analytics/deals?q=${encodeURIComponent(deals.find(d => d.id === l.convertedDealId)?.name || l.company)}`}
+                          className="p-1 text-primary hover:bg-primary/10 rounded"
+                          title="View converted deal"
+                          aria-label={`View deal converted from ${l.contactName}`}
+                        >
+                          <GitBranch size={14} />
+                        </Link>
+                      ) : l.status !== 'Lost' && (
+                        <button
+                          onClick={() => setConvertTarget(l)}
+                          className="p-1 text-gray-400 hover:text-primary hover:bg-primary/10 rounded"
+                          title="Convert to deal"
+                          aria-label={`Convert ${l.contactName} to a deal`}
+                        >
+                          <GitBranch size={14} />
+                        </button>
+                      )}
                       {l.status !== 'Won' && (
                         <button
                           onClick={() => handleConvertToWon(l)}
                           className="p-1 text-success hover:bg-success/10 rounded"
                           title="Convert to Won"
+                          aria-label={`Mark ${l.contactName} as won`}
                         >
                           <CheckCircle2 size={15} />
                         </button>
@@ -287,6 +354,7 @@ export default function Leads() {
                         onClick={() => setViewLead(l)}
                         className="p-1 text-gray-400 hover:text-primary rounded"
                         title="View Details"
+                        aria-label={`View ${l.contactName}`}
                       >
                         <Eye size={14} />
                       </button>
@@ -294,6 +362,7 @@ export default function Leads() {
                         onClick={() => handleOpenEdit(l)}
                         className="p-1 text-gray-400 hover:text-info rounded"
                         title="Edit Lead"
+                        aria-label={`Edit ${l.contactName}`}
                       >
                         <Pencil size={14} />
                       </button>
@@ -301,6 +370,7 @@ export default function Leads() {
                         onClick={() => setDeleteConfirm(l)}
                         className="p-1 text-gray-400 hover:text-danger rounded"
                         title="Delete Lead"
+                        aria-label={`Delete ${l.contactName}`}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -321,6 +391,8 @@ export default function Leads() {
         totalItems={pagination.totalItems}
         startIndex={pagination.startIndex}
         endIndex={pagination.endIndex}
+        pageSize={pagination.pageSize}
+        onPageSizeChange={pagination.setPageSize}
       />
 
       {/* Add / Edit Modal */}
@@ -332,17 +404,31 @@ export default function Leads() {
         footer={
           <>
             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button className="btn-primary" onClick={handleSubmit}>
+            <button type="submit" form="leads-submit-form" className="btn-primary">
               {editLead ? 'Save Changes' : 'Create Lead'}
             </button>
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="leads-submit-form" onSubmit={handleSubmit} className="space-y-4">
+          {duplicateMatches.length > 0 && (
+            <div role="alert" className="p-3 rounded-lg border border-accent-200 bg-accent-50 text-xs text-secondary-700 space-y-2">
+              <p className="flex items-center gap-1.5 font-semibold text-accent-600">
+                <AlertTriangle size={14} aria-hidden="true" /> Possible duplicate — {duplicateMatches.length} existing lead(s) match
+              </p>
+              <ul className="list-disc pl-5">
+                {duplicateMatches.map(d => <li key={d.id}>{d.contactName} · {d.company} · {d.email} ({d.status})</li>)}
+              </ul>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={allowDuplicate} onChange={(e) => setAllowDuplicate(e.target.checked)} className="accent-[#187f65]" />
+                This is a different lead — save anyway
+              </label>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Contact Name *</label>
-              <input
+              <label htmlFor="leads-field-1" className="form-label">Contact Name *</label>
+              <input id="leads-field-1"
                 type="text"
                 required
                 className="form-input"
@@ -352,8 +438,8 @@ export default function Leads() {
               />
             </div>
             <div>
-              <label className="form-label">Company / Account *</label>
-              <input
+              <label htmlFor="leads-field-2" className="form-label">Company / Account *</label>
+              <input id="leads-field-2"
                 type="text"
                 required
                 className="form-input"
@@ -366,8 +452,8 @@ export default function Leads() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Email *</label>
-              <input
+              <label htmlFor="leads-field-3" className="form-label">Email *</label>
+              <input id="leads-field-3"
                 type="email"
                 required
                 className="form-input"
@@ -376,8 +462,8 @@ export default function Leads() {
               />
             </div>
             <div>
-              <label className="form-label">Phone</label>
-              <input
+              <label htmlFor="leads-field-4" className="form-label">Phone</label>
+              <input id="leads-field-4"
                 type="text"
                 className="form-input"
                 value={formData.phone}
@@ -388,8 +474,8 @@ export default function Leads() {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="form-label">Lead Source</label>
-              <select
+              <label htmlFor="leads-field-5" className="form-label">Lead Source</label>
+              <select id="leads-field-5"
                 className="form-select"
                 value={formData.source}
                 onChange={(e) => setFormData({ ...formData, source: e.target.value })}
@@ -400,8 +486,8 @@ export default function Leads() {
               </select>
             </div>
             <div>
-              <label className="form-label">Pipeline Status</label>
-              <select
+              <label htmlFor="leads-field-6" className="form-label">Pipeline Status</label>
+              <select id="leads-field-6"
                 className="form-select"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -412,8 +498,8 @@ export default function Leads() {
               </select>
             </div>
             <div>
-              <label className="form-label">Value (PKR)</label>
-              <input
+              <label htmlFor="leads-field-7" className="form-label">Value (PKR)</label>
+              <input id="leads-field-7"
                 type="number"
                 min="0"
                 className="form-input"
@@ -425,8 +511,8 @@ export default function Leads() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Assigned Consultant</label>
-              <input
+              <label htmlFor="leads-field-8" className="form-label">Assigned Consultant</label>
+              <input id="leads-field-8"
                 type="text"
                 className="form-input"
                 value={formData.assignedTo}
@@ -434,8 +520,8 @@ export default function Leads() {
               />
             </div>
             <div>
-              <label className="form-label">Last Contact</label>
-              <input
+              <label htmlFor="leads-field-9" className="form-label">Last Contact</label>
+              <input id="leads-field-9"
                 type="date"
                 className="form-input"
                 value={formData.lastContact}
@@ -445,8 +531,8 @@ export default function Leads() {
           </div>
 
           <div>
-            <label className="form-label">Discovery Notes</label>
-            <textarea
+            <label htmlFor="leads-field-10" className="form-label">Discovery Notes</label>
+            <textarea id="leads-field-10"
               rows={2}
               className="form-input"
               value={formData.notes}
@@ -504,6 +590,23 @@ export default function Leads() {
               <span className="text-2xs text-gray-400">Last contact: {formatDate(viewLead.lastContact)}</span>
             </div>
 
+            {(() => {
+              const { score, grade, breakdown } = scoreLead(viewLead);
+              return (
+                <div className="text-xs border border-gray-100 rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-400">Lead score</span>
+                    <span className="flex items-center gap-1.5"><strong className="text-gray-800 text-sm">{score}/100</strong><span className={gradeStyles[grade]}>{grade}</span></span>
+                  </div>
+                  <ul className="space-y-1">
+                    {breakdown.map(b => (
+                      <li key={b.factor} className="flex justify-between text-gray-600"><span>{b.factor} <span className="text-gray-400">({b.detail})</span></span><span className="font-semibold">+{b.points}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
+
             <div className="text-xs">
               <span className="text-gray-400 block mb-1">Discovery Notes:</span>
               <p className="text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-100">{viewLead.notes || 'No notes logged.'}</p>
@@ -511,6 +614,17 @@ export default function Leads() {
           </div>
         </Modal>
       )}
+
+      {/* Convert to Deal */}
+      <ConfirmDialog
+        isOpen={!!convertTarget}
+        onClose={() => setConvertTarget(null)}
+        onConfirm={handleConvertToDeal}
+        title="Convert lead to deal"
+        message={convertTarget ? `Create a Qualified deal for ${convertTarget.company} worth ${formatCurrency(Number(convertTarget.dealValue) || 0)}, owned by ${convertTarget.assignedTo}? The lead stays in your list and links to the new deal.` : ''}
+        confirmLabel="Create Deal"
+        variant="primary"
+      />
 
       {/* Delete Confirmation */}
       <ConfirmDialog

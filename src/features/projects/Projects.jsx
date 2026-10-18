@@ -36,8 +36,11 @@ import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import useQuickAction from '../../hooks/useQuickAction';
+import { useSearchParams } from 'react-router-dom';
 import { initialProjects } from '../../data/projects';
 import { formatCurrency, formatDate, generateId } from '../../utils/format';
+import ProjectMilestones, { milestonePercent } from './ProjectMilestones';
 import {
   exportProjectsToCSV,
   exportProjectsToExcel,
@@ -74,7 +77,9 @@ export default function Projects() {
   const [projects, setProjects] = useLocalStorage('meridian-projects-v2', initialProjects);
 
   // Filter & Search states
-  const [searchQuery, setSearchQuery] = useState('');
+  const [urlParams] = useSearchParams();
+  // Global search links open this page with ?q=<project name>
+  const [searchQuery, setSearchQuery] = useState(() => urlParams.get('q') || '');
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [leadFilter, setLeadFilter] = useState('All');
@@ -260,6 +265,9 @@ export default function Projects() {
     setCreateModalOpen(true);
   };
 
+  // Quick Create menu / command palette open this form via ?action=new
+  useQuickAction('new', handleOpenCreate);
+
   // Open Edit Modal
   const handleOpenEdit = (project) => {
     setEditingProject(project);
@@ -321,6 +329,15 @@ export default function Projects() {
 
     setCreateModalOpen(false);
     setEditingProject(null);
+  };
+
+  // Milestones are edited from the detail view and saved straight onto the project record.
+  const handleMilestonesChange = (milestones) => {
+    const id = viewProject?.id;
+    if (!id) return;
+    const updatedAt = new Date().toISOString();
+    setProjects(prev => prev.map(p => (p.id === id ? { ...p, milestones, updatedAt } : p)));
+    setViewProject(prev => (prev && prev.id === id ? { ...prev, milestones, updatedAt } : prev));
   };
 
   // Delete project
@@ -511,13 +528,7 @@ export default function Projects() {
       {/* ========================================================================= */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          {/* Breadcrumb matching reference: Dashboards / Projects */}
-          <nav className="flex items-center gap-1.5 text-xs text-secondary-500 font-medium mb-1">
-            <span className="text-primary font-semibold">Dashboards</span>
-            <span className="text-gray-400">/</span>
-            <span className="text-secondary-700">Projects</span>
-          </nav>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1e211f]">Projects</h1>
+          <h1 className="font-display text-[22px] leading-tight font-extrabold tracking-tight text-gray-900">Projects</h1>
           <p className="text-xs text-secondary-500 mt-0.5">
             {summaryStats.activeCount} active projects &middot; {summaryStats.formattedBudget} total budget
           </p>
@@ -590,7 +601,7 @@ export default function Projects() {
               </span>
             )}
 
-            <div className="flex items-center rounded-lg border border-[#e4e7e5] p-0.5 bg-white">
+            <div className="flex items-center rounded-lg border border-gray-200 p-0.5 bg-white">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
@@ -616,7 +627,7 @@ export default function Projects() {
         </div>
 
         {/* Secondary Filter Row */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#eff1f0] text-xs">
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-gray-100 text-xs">
           <div className="flex items-center gap-1.5">
             <Filter size={13} className="text-gray-400" />
             <span className="font-semibold text-secondary-600 text-2xs uppercase">Filters:</span>
@@ -626,7 +637,7 @@ export default function Projects() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-[#e4e7e5] bg-white"
+            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white"
           >
             {statuses.map(s => (
               <option key={s} value={s}>Status: {s}</option>
@@ -637,7 +648,7 @@ export default function Projects() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-[#e4e7e5] bg-white"
+            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white"
           >
             {priorities.map(p => (
               <option key={p} value={p}>Priority: {p}</option>
@@ -648,7 +659,7 @@ export default function Projects() {
           <select
             value={leadFilter}
             onChange={(e) => setLeadFilter(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-[#e4e7e5] bg-white max-w-[160px]"
+            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white max-w-[160px]"
           >
             <option value="All">All Leads</option>
             {uniqueLeads.map(l => (
@@ -660,7 +671,7 @@ export default function Projects() {
           <select
             value={sortField}
             onChange={(e) => setSortField(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-[#e4e7e5] bg-white ms-auto"
+            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white ms-auto"
           >
             <option value="name">Sort by: Name</option>
             <option value="dueDate">Sort by: Due Date</option>
@@ -766,7 +777,14 @@ export default function Projects() {
 
                   {/* Tasks count */}
                   <div className="mt-3 flex items-center justify-between text-xs text-secondary-500 font-medium">
-                    <span>{completedTasks}/{totalTasks} tasks</span>
+                    <span>
+                      {completedTasks}/{totalTasks} tasks
+                      {milestonePercent(project) !== null && (
+                        <span className="ml-1.5 text-[11px]" title="Milestones complete">
+                          &middot; {project.milestones.filter(m => m.completed).length}/{project.milestones.length} milestones
+                        </span>
+                      )}
+                    </span>
                     <span className="font-semibold text-secondary-700">{progress}%</span>
                   </div>
 
@@ -778,7 +796,7 @@ export default function Projects() {
                         ${Math.round(spent / 1000)}K / ${Math.round(budget / 1000)}K
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full overflow-hidden bg-[#eff1f0]">
+                    <div className="h-1.5 rounded-full overflow-hidden bg-gray-100">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           project.status === 'Delayed'
@@ -793,7 +811,7 @@ export default function Projects() {
                   </div>
 
                   {/* Lead and Due date */}
-                  <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-[#eff1f0]">
+                  <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-gray-100">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <div className="size-6 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
                         {(project.lead || project.manager || 'A').charAt(0).toUpperCase()}
@@ -824,7 +842,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(project)}
-                    className="size-8 rounded-lg border border-[#e4e7e5] grid place-items-center text-secondary-600 hover:text-primary hover:bg-[#f7f8f7] transition-colors"
+                    className="size-8 rounded-lg border border-gray-200 grid place-items-center text-secondary-600 hover:text-primary hover:bg-gray-50 transition-colors"
                     title="Edit project"
                   >
                     <Pencil size={13} />
@@ -832,7 +850,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => setDeleteConfirm(project)}
-                    className="size-8 rounded-lg border border-[#e4e7e5] grid place-items-center text-secondary-600 hover:text-danger hover:bg-red-50 transition-colors"
+                    className="size-8 rounded-lg border border-gray-200 grid place-items-center text-secondary-600 hover:text-danger hover:bg-red-50 transition-colors"
                     title="Delete project"
                   >
                     <Trash2 size={13} />
@@ -978,8 +996,8 @@ export default function Projects() {
 
             {/* Project Name */}
             <div>
-              <label className="form-label">Project Name *</label>
-              <input
+              <label htmlFor="projects-field-1" className="form-label">Project Name *</label>
+              <input id="projects-field-1"
                 type="text"
                 {...register('name')}
                 placeholder="e.g. Northwind POS Rollout"
@@ -990,8 +1008,8 @@ export default function Projects() {
 
             {/* Client / Company */}
             <div>
-              <label className="form-label">Client / Company *</label>
-              <input
+              <label htmlFor="projects-field-2" className="form-label">Client / Company *</label>
+              <input id="projects-field-2"
                 type="text"
                 {...register('company')}
                 placeholder="e.g. Northwind Corp"
@@ -1002,8 +1020,8 @@ export default function Projects() {
 
             {/* Priority */}
             <div>
-              <label className="form-label">Priority *</label>
-              <select {...register('priority')} className="form-select text-xs">
+              <label htmlFor="projects-field-3" className="form-label">Priority *</label>
+              <select id="projects-field-3" {...register('priority')} className="form-select text-xs">
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
                 <option value="Low">Low</option>
@@ -1013,8 +1031,8 @@ export default function Projects() {
 
             {/* Status */}
             <div>
-              <label className="form-label">Status *</label>
-              <select {...register('status')} className="form-select text-xs">
+              <label htmlFor="projects-field-4" className="form-label">Status *</label>
+              <select id="projects-field-4" {...register('status')} className="form-select text-xs">
                 <option value="In Progress">In Progress</option>
                 <option value="Delayed">Delayed</option>
                 <option value="On Track">On Track</option>
@@ -1025,8 +1043,8 @@ export default function Projects() {
 
             {/* Project Lead */}
             <div>
-              <label className="form-label">Project Lead *</label>
-              <input
+              <label htmlFor="projects-field-5" className="form-label">Project Lead *</label>
+              <input id="projects-field-5"
                 type="text"
                 {...register('lead')}
                 placeholder="e.g. Aisha Rahman"
@@ -1037,8 +1055,8 @@ export default function Projects() {
 
             {/* Due Date */}
             <div>
-              <label className="form-label">Due Date *</label>
-              <input
+              <label htmlFor="projects-field-6" className="form-label">Due Date *</label>
+              <input id="projects-field-6"
                 type="date"
                 {...register('dueDate')}
                 className="form-input text-xs"
@@ -1048,8 +1066,8 @@ export default function Projects() {
 
             {/* Total Budget */}
             <div>
-              <label className="form-label">Total Budget ($) *</label>
-              <input
+              <label htmlFor="projects-field-7" className="form-label">Total Budget ($) *</label>
+              <input id="projects-field-7"
                 type="number"
                 {...register('budget')}
                 placeholder="120000"
@@ -1060,8 +1078,8 @@ export default function Projects() {
 
             {/* Budget Spent */}
             <div>
-              <label className="form-label">Budget Spent ($)</label>
-              <input
+              <label htmlFor="projects-field-8" className="form-label">Budget Spent ($)</label>
+              <input id="projects-field-8"
                 type="number"
                 {...register('spent')}
                 placeholder="84000"
@@ -1072,8 +1090,8 @@ export default function Projects() {
 
             {/* Total Tasks */}
             <div>
-              <label className="form-label">Total Tasks</label>
-              <input
+              <label htmlFor="projects-field-9" className="form-label">Total Tasks</label>
+              <input id="projects-field-9"
                 type="number"
                 {...register('totalTasks')}
                 placeholder="24"
@@ -1084,8 +1102,8 @@ export default function Projects() {
 
             {/* Completed Tasks */}
             <div>
-              <label className="form-label">Completed Tasks</label>
-              <input
+              <label htmlFor="projects-field-10" className="form-label">Completed Tasks</label>
+              <input id="projects-field-10"
                 type="number"
                 {...register('completedTasks')}
                 placeholder="18"
@@ -1097,8 +1115,8 @@ export default function Projects() {
 
           {/* Description */}
           <div>
-            <label className="form-label">Description (Optional)</label>
-            <textarea
+            <label htmlFor="projects-field-11" className="form-label">Description (Optional)</label>
+            <textarea id="projects-field-11"
               {...register('description')}
               rows={3}
               placeholder="Provide context, objectives, milestones, or notes..."
@@ -1107,7 +1125,7 @@ export default function Projects() {
           </div>
 
           {/* Modal Actions */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#eff1f0]">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
             <button
               type="button"
               onClick={() => setCreateModalOpen(false)}
@@ -1138,7 +1156,7 @@ export default function Projects() {
         >
           <div className="space-y-4 text-xs">
             {/* Header info */}
-            <div className="flex items-start justify-between gap-3 p-3.5 rounded-xl bg-[#f7f8f7] border border-[#e4e7e5]">
+            <div className="flex items-start justify-between gap-3 p-3.5 rounded-xl bg-gray-50 border border-gray-200">
               <div className="flex items-start gap-3">
                 <span className="size-11 rounded-2xl bg-primary text-white flex items-center justify-center text-lg shadow-xs ring-2 ring-primary/20 shrink-0">
                   <Layers size={20} />
@@ -1162,7 +1180,7 @@ export default function Projects() {
 
             {/* Metrics Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3 rounded-xl border border-[#e4e7e5] bg-white">
+              <div className="p-3 rounded-xl border border-gray-200 bg-white">
                 <span className="text-2xs font-semibold text-secondary-500 uppercase tracking-wide">Tasks Progress</span>
                 <p className="text-base font-bold text-gray-900 mt-1">
                   {viewProject.completedTasks || 0} / {viewProject.totalTasks || 0}
@@ -1179,7 +1197,7 @@ export default function Projects() {
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl border border-[#e4e7e5] bg-white">
+              <div className="p-3 rounded-xl border border-gray-200 bg-white">
                 <span className="text-2xs font-semibold text-secondary-500 uppercase tracking-wide">Budget Used</span>
                 <p className="text-base font-bold text-gray-900 mt-1">
                   ${Number(viewProject.spent || 0).toLocaleString()}
@@ -1189,7 +1207,7 @@ export default function Projects() {
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl border border-[#e4e7e5] bg-white">
+              <div className="p-3 rounded-xl border border-gray-200 bg-white">
                 <span className="text-2xs font-semibold text-secondary-500 uppercase tracking-wide">Project Lead</span>
                 <p className="text-sm font-bold text-gray-900 mt-1 truncate">
                   {viewProject.lead || viewProject.manager || 'Unassigned'}
@@ -1197,7 +1215,7 @@ export default function Projects() {
                 <span className="text-2xs text-secondary-400">Team Director</span>
               </div>
 
-              <div className="p-3 rounded-xl border border-[#e4e7e5] bg-white">
+              <div className="p-3 rounded-xl border border-gray-200 bg-white">
                 <span className="text-2xs font-semibold text-secondary-500 uppercase tracking-wide">Due Date</span>
                 <p className="text-sm font-bold text-gray-900 mt-1">
                   {formatDate(viewProject.dueDate)}
@@ -1207,12 +1225,15 @@ export default function Projects() {
             </div>
 
             {/* Description */}
-            <div className="p-3.5 rounded-xl border border-[#e4e7e5] bg-white">
+            <div className="p-3.5 rounded-xl border border-gray-200 bg-white">
               <h4 className="font-semibold text-gray-800 text-xs mb-1">Project Description</h4>
               <p className="text-secondary-600 leading-relaxed text-xs">
                 {viewProject.description || 'No additional description provided for this project.'}
               </p>
             </div>
+
+            {/* Milestones */}
+            <ProjectMilestones project={viewProject} onChange={handleMilestonesChange} />
 
             {/* Audit Timestamps */}
             <div className="flex items-center justify-between text-2xs text-secondary-400 px-1">
@@ -1223,7 +1244,7 @@ export default function Projects() {
             </div>
 
             {/* Footer Actions */}
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#eff1f0]">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => setViewProject(null)}
@@ -1275,7 +1296,7 @@ export default function Projects() {
                   className={`p-3 rounded-xl border text-center flex flex-col items-center gap-1.5 transition-all ${
                     exportFormat === fmt.id
                       ? 'border-primary bg-primary/5 text-primary font-bold shadow-xs'
-                      : 'border-[#e4e7e5] bg-white text-secondary-600 hover:bg-[#f7f8f7]'
+                      : 'border-gray-200 bg-white text-secondary-600 hover:bg-gray-50'
                   }`}
                 >
                   <fmt.icon size={18} />
@@ -1289,7 +1310,7 @@ export default function Projects() {
           <div>
             <label className="form-label">Export Scope</label>
             <div className="space-y-2">
-              <label className="flex items-center gap-2.5 p-2.5 rounded-lg border border-[#e4e7e5] cursor-pointer hover:bg-[#f7f8f7] transition-colors">
+              <label className="flex items-center gap-2.5 p-2.5 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"
                   name="exportScope"
@@ -1304,7 +1325,7 @@ export default function Projects() {
                 </div>
               </label>
 
-              <label className="flex items-center gap-2.5 p-2.5 rounded-lg border border-[#e4e7e5] cursor-pointer hover:bg-[#f7f8f7] transition-colors">
+              <label className="flex items-center gap-2.5 p-2.5 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"
                   name="exportScope"
@@ -1320,8 +1341,8 @@ export default function Projects() {
               </label>
 
               <label
-                className={`flex items-center gap-2.5 p-2.5 rounded-lg border border-[#e4e7e5] transition-colors ${
-                  selectedIds.size > 0 ? 'cursor-pointer hover:bg-[#f7f8f7]' : 'opacity-50 cursor-not-allowed'
+                className={`flex items-center gap-2.5 p-2.5 rounded-lg border border-gray-200 transition-colors ${
+                  selectedIds.size > 0 ? 'cursor-pointer hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'
                 }`}
               >
                 <input
@@ -1346,7 +1367,7 @@ export default function Projects() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#eff1f0]">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
             <button
               type="button"
               onClick={() => setExportModalOpen(false)}
@@ -1397,7 +1418,7 @@ export default function Projects() {
                 className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer transition-colors border-2 border-dashed text-center ${
                   importDragActive
                     ? 'border-primary bg-primary/10'
-                    : 'border-[#d8dcd9] bg-[#f7f8f7] hover:bg-[#eff1f0]'
+                    : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
                 }`}
               >
                 <input
@@ -1455,7 +1476,7 @@ export default function Projects() {
               </div>
 
               {/* Import Options Checkboxes */}
-              <div className="space-y-2 p-3 rounded-xl border border-[#e4e7e5] bg-white">
+              <div className="space-y-2 p-3 rounded-xl border border-gray-200 bg-white">
                 <label className="flex items-center gap-2 text-xs text-secondary-700 cursor-pointer font-medium">
                   <input
                     type="checkbox"
@@ -1488,7 +1509,7 @@ export default function Projects() {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#eff1f0]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setImportModalOpen(false)}
@@ -1518,19 +1539,19 @@ export default function Projects() {
               </div>
 
               <div className="grid grid-cols-4 gap-2 text-center">
-                <div className="p-2.5 rounded-lg bg-[#f7f8f7] border border-[#e4e7e5]">
+                <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
                   <p className="text-base font-bold text-emerald-600">{importResult.imported}</p>
                   <p className="text-2xs text-secondary-500">Imported</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#f7f8f7] border border-[#e4e7e5]">
+                <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
                   <p className="text-base font-bold text-sky-600">{importResult.updated}</p>
                   <p className="text-2xs text-secondary-500">Updated</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#f7f8f7] border border-[#e4e7e5]">
+                <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
                   <p className="text-base font-bold text-amber-600">{importResult.skipped}</p>
                   <p className="text-2xs text-secondary-500">Skipped</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#f7f8f7] border border-[#e4e7e5]">
+                <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
                   <p className="text-base font-bold text-rose-600">{importResult.failed}</p>
                   <p className="text-2xs text-secondary-500">Failed</p>
                 </div>
@@ -1547,7 +1568,7 @@ export default function Projects() {
                 </div>
               )}
 
-              <div className="flex justify-end pt-3 border-t border-[#eff1f0]">
+              <div className="flex justify-end pt-3 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => {

@@ -31,14 +31,14 @@ import { revenueData } from '../../data/dashboard';
 import { formatCurrency, formatDate, formatPercent } from '../../utils/format';
 import { exportToCSV } from '../../utils/csv';
 
-const COLORS = ['#40BFA6', '#7c5cfc', '#17a2b8', '#ffc107', '#dc3545', '#28a745'];
+const COLORS = ['#24997c', '#6174bc', '#3e7ead', '#dc9a2c', '#d0504c', '#1e9e6b'];
 
 // Customer segments
 const segmentData = [
-  { name: 'Enterprise', value: 38, fill: '#40BFA6' },
-  { name: 'Mid-Market', value: 25, fill: '#7c5cfc' },
-  { name: 'SMB', value: 18, fill: '#17a2b8' },
-  { name: 'Startup', value: 19, fill: '#ffc107' },
+  { name: 'Enterprise', value: 38, fill: '#24997c' },
+  { name: 'Mid-Market', value: 25, fill: '#6174bc' },
+  { name: 'SMB', value: 18, fill: '#3e7ead' },
+  { name: 'Startup', value: 19, fill: '#dc9a2c' },
 ];
 
 // Sales funnel data

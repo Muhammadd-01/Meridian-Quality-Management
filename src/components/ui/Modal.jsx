@@ -72,7 +72,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative bg-white border border-gray-200 rounded-lg shadow-modal w-full ${sizes[size]} max-h-[90vh] flex flex-col animate-scale-in outline-none`}
+        className={`relative bg-white border border-gray-200 rounded-2xl shadow-modal w-full ${sizes[size]} max-h-[90vh] flex flex-col animate-scale-in outline-none`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <h2 id={titleId} className="text-[15px] font-bold text-gray-900">{title}</h2>
@@ -87,7 +87,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-100 bg-gray-50 rounded-b-lg shrink-0 flex-wrap">
+          <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-100 bg-gray-50 rounded-b-2xl shrink-0 flex-wrap">
             {footer}
           </div>
         )}

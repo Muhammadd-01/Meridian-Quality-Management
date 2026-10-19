@@ -35,8 +35,8 @@ const CHANNELS = ['All', 'Search', 'Direct', 'Social', 'Referral', 'Email'];
 
 const tooltipStyle = { borderRadius: '5px', fontSize: '12px' };
 
-// Series colours follow the reference design: blue sessions, orange users.
-const SERIES = { sessions: '#5b7fe0', users: '#e8830f', prior: '#9aa39e' };
+// Series colours use the theme: spruce-green sessions, gold users.
+const SERIES = { sessions: '#24997c', users: '#c4901d', prior: '#9aa39e' };
 
 const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -136,7 +136,7 @@ export default function TrafficOverview() {
       info: METRIC_DEFINITIONS.sessions, ...changeProps(current.sessions, previous.sessions, compare),
     },
     {
-      title: 'Users', value: current.users, icon: Users, color: 'bg-info-50 text-info-600', spark: sparkUsers, sparkColor: '#5aa9e6',
+      title: 'Users', value: current.users, icon: Users, color: 'bg-success-50 text-success-600', spark: sparkUsers, sparkColor: '#48b594',
       info: METRIC_DEFINITIONS.users, ...changeProps(current.users, previous.users, compare),
     },
     {
@@ -159,7 +159,7 @@ export default function TrafficOverview() {
   return (
     <div>
       {/* Hero header */}
-      <section className="relative overflow-hidden rounded-lg hero-midnight text-white p-5 md:p-6 mb-4 shadow-lg animate-rise-in">
+      <section className="relative overflow-hidden rounded-3xl hero-spruce hero-grid text-white p-5 md:p-6 mb-4 shadow-lg animate-rise-in">
         <span className="hero-orb w-72 h-72 -top-24 -right-16 bg-[radial-gradient(circle,rgba(255,255,255,0.12),transparent_70%)]" aria-hidden="true" />
         <span className="hero-orb w-64 h-64 -bottom-32 left-[20%] bg-[radial-gradient(circle,rgba(255,214,130,0.14),transparent_70%)] animate-float" aria-hidden="true" />
         <div className="relative flex flex-col gap-4">

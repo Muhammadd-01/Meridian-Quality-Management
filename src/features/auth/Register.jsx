@@ -1,316 +1,148 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Hexagon, Eye, EyeOff, Lock, Mail, User, Building2, ArrowRight, ShieldCheck, CheckCircle2, Star } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, Building2, ArrowRight, Check, Loader2, Briefcase } from 'lucide-react';
 import { useToast } from '../../components/ui/Toast';
+import AuthLayout, { AuthField } from './AuthLayout';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ROLES = ['Quality Manager', 'Lead Auditor', 'Operations Director', 'Compliance Officer', 'QA Engineer'];
+
+const RULES = [
+  { id: 'len', label: '8+ characters', test: (p) => p.length >= 8 },
+  { id: 'case', label: 'Upper & lower case', test: (p) => /[a-z]/.test(p) && /[A-Z]/.test(p) },
+  { id: 'num', label: 'A number', test: (p) => /\d/.test(p) },
+  { id: 'sym', label: 'A symbol', test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
+const STRENGTH = [
+  { label: 'Too weak', color: 'bg-danger-500', text: 'text-danger-600' },
+  { label: 'Weak', color: 'bg-danger-400', text: 'text-danger-600' },
+  { label: 'Fair', color: 'bg-warning-500', text: 'text-warning-700' },
+  { label: 'Good', color: 'bg-primary-400', text: 'text-primary-700' },
+  { label: 'Strong', color: 'bg-success-500', text: 'text-success-700' },
+];
 
 export default function Register() {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    company: '',
-    email: '',
-    role: 'Quality Manager',
-    password: '',
-    confirmPassword: '',
-    agreeTerms: true,
-  });
+  const [form, setForm] = useState({ fullName: '', company: '', email: '', role: ROLES[0], password: '', confirmPassword: '', agreeTerms: true });
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const addToast = useToast();
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+  const set = (key) => (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setForm(prev => ({ ...prev, [key]: value }));
+    setErrors(prev => ({ ...prev, [key]: undefined }));
   };
+
+  const passed = RULES.filter(r => r.test(form.password)).length;
+  const strength = STRENGTH[form.password ? passed : 0];
+  const matches = form.confirmPassword && form.confirmPassword === form.password;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.company || !formData.email || !formData.password) {
-      addToast('Please fill out all required fields', 'error');
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      addToast('Passwords do not match', 'error');
-      return;
-    }
-    if (!formData.agreeTerms) {
-      addToast('Please agree to terms and privacy policy', 'error');
-      return;
-    }
-
+    const next = {};
+    if (!form.fullName.trim()) next.fullName = 'Enter your full name';
+    if (!form.company.trim()) next.company = 'Enter your company';
+    if (!EMAIL_RE.test(form.email)) next.email = 'Enter a valid work email address';
+    if (passed < 3) next.password = 'Use at least 3 of the password rules below';
+    if (form.password !== form.confirmPassword) next.confirmPassword = 'Passwords do not match';
+    if (!form.agreeTerms) next.agreeTerms = 'Please accept the terms to continue';
+    setErrors(next);
+    if (Object.keys(next).length) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      addToast('Account created successfully! Welcome to Meridian.', 'success');
+      addToast(`Welcome to Meridian, ${form.fullName.split(' ')[0]}!`, 'success');
       navigate('/dashboard');
-    }, 600);
+    }, 800);
   };
 
+  const eye = (
+    <button type="button" onClick={() => setShowPassword(s => !s)} className="btn-icon w-8 h-8" aria-label={showPassword ? 'Hide passwords' : 'Show passwords'} aria-pressed={showPassword}>
+      {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+    </button>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Left Form Area */}
-      <div className="flex-1 flex flex-col justify-between p-6 sm:p-12 lg:p-16 max-w-xl mx-auto w-full">
+    <AuthLayout
+      eyebrow="14-day full-access workspace"
+      title="Create your account"
+      subtitle="Set up your workspace in under a minute."
+    >
+      <form id="register-form" onSubmit={handleSubmit} noValidate className="auth-form space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AuthField id="register-name" label="Full name" icon={User} autoComplete="name" value={form.fullName} onChange={set('fullName')} placeholder="e.g. Ayesha Malik" error={errors.fullName} />
+          <AuthField id="register-company" label="Company" icon={Building2} autoComplete="organization" value={form.company} onChange={set('company')} placeholder="Company name" error={errors.company} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AuthField id="register-email" label="Work email" icon={Mail} type="email" autoComplete="email" value={form.email} onChange={set('email')} placeholder="name@company.com" error={errors.email} />
+          <div>
+            <label htmlFor="register-role" className="block text-[12.5px] font-semibold text-gray-800 mb-1.5">Primary role</label>
+            <div className="relative group">
+              <Briefcase size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors group-focus-within:text-primary" aria-hidden="true" />
+              <select id="register-role" value={form.role} onChange={set('role')} className="form-select !py-2.5 pl-10">
+                {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div>
-          {/* Brand Logo */}
-          <Link to="/dashboard" className="inline-flex items-center gap-2.5 mb-8 group">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
-              <Hexagon className="w-6 h-6 fill-white/20 stroke-white" />
-            </div>
-            <div>
-              <span className="text-base font-bold text-gray-900 tracking-tight block">
-                Meridian
-              </span>
-              <span className="text-[10px] text-gray-400 font-medium tracking-wide uppercase block -mt-1">
-                Quality Management Professionals
-              </span>
-            </div>
-          </Link>
-
-          {/* Form Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-              Create an account
-            </h1>
-            <p className="text-sm text-gray-500 mt-1.5">
-              Start your 14-day full access enterprise quality trial. No credit card required.
-            </p>
-          </div>
-
-          {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className="form-label text-xs font-semibold text-gray-700">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="e.g. Dr. Kamran"
-                    className="form-input pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="form-label text-xs font-semibold text-gray-700">
-                  Company / Organization
-                </label>
-                <div className="relative">
-                  <Building2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    type="text"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    placeholder="Company name"
-                    className="form-input pl-10"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className="form-label text-xs font-semibold text-gray-700">
-                  Work Email
-                </label>
-                <div className="relative">
-                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="name@company.com"
-                    className="form-input pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="form-label text-xs font-semibold text-gray-700">
-                  Primary Role
-                </label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="form-select"
-                >
-                  <option value="Quality Manager">Quality Manager</option>
-                  <option value="Lead Auditor">Lead Auditor</option>
-                  <option value="Operations Director">Operations Director</option>
-                  <option value="Compliance Officer">Compliance Officer</option>
-                  <option value="QA Engineer">QA Engineer</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className="form-label text-xs font-semibold text-gray-700">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Min 8 characters"
-                    className="form-input pl-10 pr-9"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="form-label text-xs font-semibold text-gray-700">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Repeat password"
-                    className="form-input pl-10"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-1">
-              <label className="flex items-start gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  name="agreeTerms"
-                  checked={formData.agreeTerms}
-                  onChange={handleChange}
-                  className="rounded border-gray-300 text-primary focus:ring-primary w-4 h-4 mt-0.5"
-                />
-                <span className="text-xs text-gray-600">
-                  I agree to the <span className="text-primary hover:underline">Terms of Service</span> and acknowledge the <span className="text-primary hover:underline">Privacy Policy</span>.
+          <AuthField
+            id="register-password" label="Password" icon={Lock} type={showPassword ? 'text' : 'password'} autoComplete="new-password"
+            value={form.password} onChange={set('password')} placeholder="Create a password" error={errors.password} trailing={eye}
+          />
+          {/* Strength meter */}
+          <div className="mt-2.5" aria-live="polite">
+            <div className="grid grid-cols-4 gap-1.5">
+              {[0, 1, 2, 3].map(i => (
+                <span key={i} className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <span className={`block h-full rounded-full transition-all duration-500 ease-spring ${i < passed ? strength.color : ''}`} style={{ width: i < passed ? '100%' : '0%' }} />
                 </span>
-              </label>
+              ))}
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full py-2.5 mt-3 text-sm font-semibold flex items-center justify-center gap-2 shadow-md shadow-primary/25 disabled:opacity-60 cursor-pointer"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Creating Account...</span>
-                </>
-              ) : (
-                <>
-                  <span>Create Account</span>
-                  <ArrowRight size={16} />
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Login Link */}
-          <p className="text-xs text-center text-gray-500 mt-6">
-            Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-primary hover:underline">
-              Sign In
-            </Link>
-          </p>
-        </div>
-
-        {/* Footer info */}
-        <div className="pt-6 border-t border-gray-100 text-[11px] text-gray-400 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-2">
-          <span>© 2026 Meridian Quality Management Professionals</span>
-          <div className="flex gap-4">
-            <span className="hover:text-gray-600 cursor-pointer">Security</span>
-            <span className="hover:text-gray-600 cursor-pointer">Compliance</span>
-            <span className="hover:text-gray-600 cursor-pointer">Contact</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Hero Branding Area (Desktop only) */}
-      <div className="hidden lg:flex flex-1 bg-[#141414] text-white p-12 lg:p-16 flex-col justify-between relative overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Top badge */}
-        <div className="relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-sm border border-white/10">
-            <ShieldCheck size={14} className="text-primary" /> ISO 9001 / ISO 14001 / IATF 16949 Ready
-          </span>
-        </div>
-
-        {/* Center content */}
-        <div className="relative z-10 max-w-lg my-auto py-10">
-          <h2 className="text-3xl lg:text-4xl font-extrabold leading-tight text-white tracking-tight">
-            Join thousands of certified quality organizations worldwide.
-          </h2>
-          <p className="text-sm text-white/70 mt-4 leading-relaxed">
-            Get instant access to enterprise project workflows, compliance audits, customer relationship tracking, and learning management dashboards.
-          </p>
-
-          <div className="space-y-3 mt-8">
-            {[
-              'Automated ISO audit checklists and NCR tracking',
-              'Integrated CRM lead pipeline with revenue projections',
-              'Interactive LMS course telemetry and assessment performance',
-              'Export audit-ready PDF/CSV reports in one click',
-            ].map((feat, i) => (
-              <div key={i} className="flex items-center gap-2.5 text-xs text-white/90">
-                <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                  <CheckCircle2 size={13} className="text-primary" />
-                </div>
-                <span>{feat}</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
+                {RULES.map(r => {
+                  const ok = r.test(form.password);
+                  return (
+                    <span key={r.id} className={`inline-flex items-center gap-1 text-[11px] transition-colors ${ok ? 'text-primary-700 font-semibold' : 'text-gray-400'}`}>
+                      <span className={`grid place-items-center w-3.5 h-3.5 rounded-full transition-all duration-300 ${ok ? 'bg-primary text-white scale-100' : 'bg-gray-200 scale-90'}`}><Check size={9} strokeWidth={3} aria-hidden="true" /></span>
+                      {r.label}
+                    </span>
+                  );
+                })}
               </div>
-            ))}
+              {form.password && <span className={`text-[11px] font-bold ${strength.text}`}>{strength.label}</span>}
+            </div>
           </div>
         </div>
 
-        {/* Bottom statistics */}
-        <div className="relative z-10 grid grid-cols-3 gap-4 pt-6 border-t border-white/10">
-          <div>
-            <p className="text-lg font-bold text-white">100%</p>
-            <p className="text-[10px] text-white/50 mt-0.5">Cloud-Sync</p>
-          </div>
-          <div>
-            <p className="text-lg font-bold text-primary">24/7</p>
-            <p className="text-[10px] text-white/50 mt-0.5">Support SLA</p>
-          </div>
-          <div>
-            <p className="text-lg font-bold text-white">SOC-2</p>
-            <p className="text-[10px] text-white/50 mt-0.5">Type II Compliant</p>
-          </div>
+        <AuthField
+          id="register-confirm" label="Confirm password" icon={Lock} type={showPassword ? 'text' : 'password'} autoComplete="new-password"
+          value={form.confirmPassword} onChange={set('confirmPassword')} placeholder="Repeat your password" error={errors.confirmPassword}
+          trailing={matches ? <span className="grid place-items-center w-7 h-7 rounded-full bg-success-50 text-success-600 animate-scale-in" aria-label="Passwords match"><Check size={14} strokeWidth={3} /></span> : null}
+        />
+
+        <div>
+          <label htmlFor="register-terms" className="flex items-start gap-2.5 cursor-pointer select-none">
+            <input id="register-terms" type="checkbox" checked={form.agreeTerms} onChange={set('agreeTerms')} className="w-4 h-4 mt-0.5 accent-[#187f65]" aria-describedby={errors.agreeTerms ? 'register-terms-error' : undefined} />
+            <span className="text-[12.5px] text-gray-600">I agree to the <span className="font-semibold text-primary">Terms of Service</span> and <span className="font-semibold text-primary">Privacy Policy</span>.</span>
+          </label>
+          {errors.agreeTerms && <p id="register-terms-error" className="form-error">{errors.agreeTerms}</p>}
         </div>
-      </div>
-    </div>
+
+        <button type="submit" form="register-form" disabled={loading} className="btn-primary w-full !py-3 !text-sm !rounded-xl">
+          {loading ? <><Loader2 size={16} className="animate-spin" aria-hidden="true" /> Creating your workspace…</> : <>Create account <ArrowRight size={16} aria-hidden="true" /></>}
+        </button>
+
+        <p className="text-[13px] text-center text-gray-500">
+          Already have an account?{' '}
+          <Link to="/login" className="font-bold text-primary hover:text-primary-700 transition-colors">Sign in</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }

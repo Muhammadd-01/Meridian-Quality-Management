@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
-  PanelLeftClose, PanelLeftOpen, Hexagon, X, LogOut, Star, ChevronDown, Database, ArrowRight,
+  ChevronLeft, Hexagon, X, LogOut, Star, ChevronDown, Database, ArrowRight,
 } from 'lucide-react';
 import { mainDashboardItems, moduleSections } from '../../app/navigation';
 import useLocalStorage from '../../hooks/useLocalStorage';
@@ -157,8 +157,8 @@ export default function Sidebar({
   return (
     <aside className={sidebarClasses} aria-label="Primary navigation">
       {/* Brand */}
-      <div className={`flex items-center justify-between h-[65px] px-4 shrink-0 border-b ${t.divider}`}>
-        <NavLink to="/dashboard" onClick={handleNavClick} className="flex items-center gap-2.5 min-w-0 rounded px-1 py-1.5 group">
+      <div className={`relative flex items-center h-[65px] shrink-0 border-b ${t.divider} ${isOpen ? 'justify-between px-4' : 'justify-between px-4 lg:justify-center lg:px-0'}`}>
+        <NavLink to="/dashboard" onClick={handleNavClick} className="flex items-center gap-2.5 min-w-0 rounded px-1 py-1.5 group" title={!isOpen ? 'Meridian — Dashboard' : undefined}>
           <div className="shrink-0 w-9 h-9 rounded-lg grid place-items-center text-white bg-gradient-to-br from-primary-400 to-primary-700 shadow-glow-primary group-hover:rotate-[-8deg] group-hover:scale-105 transition-transform duration-300">
             <Hexagon className="w-5 h-5 fill-white/20 stroke-white" aria-hidden="true" />
           </div>
@@ -174,15 +174,16 @@ export default function Sidebar({
           )}
         </NavLink>
 
+        {/* Collapse toggle floats on the sidebar edge so it never overlaps the logo */}
         <button
           type="button"
           onClick={onToggle}
           aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           aria-expanded={isOpen}
-          className={`hidden lg:grid place-items-center w-8 h-8 rounded transition-colors ${t.toggleBtn}`}
+          className="sidebar-toggle hidden lg:grid"
           title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
-          {isOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
+          <ChevronLeft size={15} strokeWidth={2.5} className={`transition-transform duration-500 ease-spring ${isOpen ? '' : 'rotate-180'}`} />
         </button>
         <button
           type="button"

@@ -8,6 +8,7 @@ import LoadingState from '../ui/LoadingState';
 import { useSettings } from '../../lib/settings';
 import { useColorMode, useSidebarStyle } from '../../lib/theme';
 import { useTrackRecentPage } from '../../lib/workspace';
+import useScrollReveal from '../../hooks/useScrollReveal';
 import { pageTitles, pageGroup } from '../../app/navigation';
 
 const groupLinks = {
@@ -49,6 +50,7 @@ export default function AppLayout() {
   const reduceMotion = settings.preferences.reduceMotion;
 
   useTrackRecentPage();
+  useScrollReveal(mainRef, location.pathname, !reduceMotion);
 
   // In-app reduced-motion preference (the OS preference is honoured in CSS too)
   useEffect(() => {

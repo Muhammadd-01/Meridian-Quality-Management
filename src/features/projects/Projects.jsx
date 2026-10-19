@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import PageHeroIcon from '../../components/ui/PageHeroIcon';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -27,7 +28,8 @@ import {
   Calendar,
   DollarSign,
   User,
-  Briefcase
+  Briefcase,
+  GanttChartSquare,
 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -526,9 +528,10 @@ export default function Projects() {
       {/* ========================================================================= */}
       {/* 1. Breadcrumbs & Header Bar matching DreamsCore projects.html             */}
       {/* ========================================================================= */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="page-hero mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
+        <PageHeroIcon icon={GanttChartSquare} />
         <div>
-          <h1 className="font-display text-[22px] leading-tight font-extrabold tracking-tight text-gray-900">Projects</h1>
+          <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-gray-900">Projects</h1>
           <p className="text-xs text-secondary-500 mt-0.5">
             {summaryStats.activeCount} active projects &middot; {summaryStats.formattedBudget} total budget
           </p>

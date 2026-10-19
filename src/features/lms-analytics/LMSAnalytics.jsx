@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import PageHeroIcon from '../../components/ui/PageHeroIcon';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -7,7 +8,8 @@ import {
   BookOpen, Users, GraduationCap, Award, TrendingUp,
   BarChart3, Eye, Download, CheckCircle2, AlertTriangle,
   Flame, Zap, Clock, ShieldCheck, ChevronRight, Sparkles,
-  ArrowUpRight, ArrowDownRight, Star, RefreshCw, Plus
+  ArrowUpRight, ArrowDownRight, Star, RefreshCw, Plus,
+  BookOpenCheck,
 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -182,10 +184,11 @@ export default function LMSAnalytics() {
   return (
     <div className="space-y-4">
       {/* ============ Top Header & Action Buttons ============ */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="page-hero mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
+        <PageHeroIcon icon={BookOpenCheck} />
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-gray-800">LMS Analytics</h1>
+            <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-gray-900">LMS Analytics</h1>
             <span className="badge-primary text-[10px]">Enterprise Learning Intelligence</span>
           </div>
           <p className="text-xs text-gray-400 mt-0.5">Comprehensive learner progress, certifications & performance telemetry</p>

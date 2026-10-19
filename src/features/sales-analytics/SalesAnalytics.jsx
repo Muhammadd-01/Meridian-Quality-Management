@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import PageHeroIcon from '../../components/ui/PageHeroIcon';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -176,10 +177,11 @@ export default function SalesAnalytics() {
   return (
     <div className="space-y-4">
       {/* ============ Top Header & Action Buttons ============ */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="page-hero mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
+        <PageHeroIcon icon={TrendingUp} />
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-gray-800">Revenue Intelligence</h1>
+            <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-gray-900">Revenue Intelligence</h1>
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-success-50 text-success text-[11px] font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> Live — Q3 Pipeline
             </span>

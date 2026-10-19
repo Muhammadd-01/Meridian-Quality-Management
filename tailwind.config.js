@@ -144,14 +144,15 @@ export default {
         'glow-accent': '0 8px 24px -6px rgb(196 144 29 / 0.32)',
         'glow-danger': '0 8px 24px -6px rgb(208 80 76 / 0.35)',
       },
-      // Reference design: one crisp 5px radius across cards, buttons, inputs and tiles.
+      // Soft, modern curves: tiles and controls 8–12px, cards 18px, hero panels 20–28px.
       borderRadius: {
-        sm: '4px',
-        DEFAULT: '5px',
-        md: '5px',
-        lg: '5px',
-        xl: '5px',
-        '2xl': '6px',
+        sm: '6px',
+        DEFAULT: '8px',
+        md: '10px',
+        lg: '12px',
+        xl: '16px',
+        '2xl': '20px',
+        '3xl': '28px',
       },
       transitionTimingFunction: {
         spring: 'cubic-bezier(0.16, 1, 0.3, 1)',

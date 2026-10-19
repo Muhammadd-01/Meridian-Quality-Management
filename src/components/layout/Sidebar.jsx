@@ -3,16 +3,13 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   PanelLeftClose, PanelLeftOpen, Hexagon, X, LogOut, Star, ChevronDown, Database, ArrowRight,
 } from 'lucide-react';
-import { mainGroups, moduleSections } from '../../app/navigation';
+import { mainDashboardItems, moduleSections } from '../../app/navigation';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { useSettings } from '../../lib/settings';
 import { useFavorites, storageUsage } from '../../lib/workspace';
 
 const COLLAPSED_KEY = 'meridian-sidebar-collapsed-sections';
 const FAVORITES_VISIBLE = 4;
-
-const containsPath = (item, path) => (item.children ? item.children.some(c => containsPath(c, path)) : item.path === path);
-const groupKey = (scope, g) => `${scope}:${g.id || g.label}`;
 
 const formatSize = (bytes) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`);
 
@@ -22,9 +19,6 @@ export default function Sidebar({
   onToggle,
   onMobileClose,
   theme = 'spruce', // 'spruce' = reference dark sidebar (#14201c), 'light' = white sidebar
-  side = 'left', // 'right' for the right-sidebar and RTL layouts
-  desktop = 'fixed', // 'hidden' = drawer only, on every screen size (horizontal, fullscreen, bottom nav…)
-  detached = false, // floating rounded card (detached layout)
 }) {
   const location = useLocation();
   const isLight = theme === 'light';
@@ -40,23 +34,9 @@ export default function Sidebar({
 
   // A section holding the active page is always shown expanded.
   const activeSection = useMemo(
-    () => moduleSections.find(s => s.items.some(i => containsPath(i, location.pathname)))?.id,
+    () => moduleSections.find(s => s.items.some(i => i.path === location.pathname))?.id,
     [location.pathname]
   );
-
-  // Expandable groups (Dashboards, Applications, Users & Access, report categories…).
-  const activeGroups = useMemo(() => {
-    const keys = [];
-    mainGroups.forEach(g => { if (containsPath(g, location.pathname)) keys.push(groupKey('main', g)); });
-    moduleSections.forEach(sec => sec.items.forEach(i => { if (i.children && containsPath(i, location.pathname)) keys.push(groupKey(sec.id, i)); }));
-    return keys;
-  }, [location.pathname]);
-  const [openGroups, setOpenGroups] = useState(() => new Set(activeGroups));
-  useEffect(() => { setOpenGroups(prev => new Set([...prev, ...activeGroups])); }, [activeGroups]);
-  const toggleGroup = (key) => {
-    if (!isOpen) { onToggle?.(); setOpenGroups(prev => new Set([...prev, key])); return; }
-    setOpenGroups(prev => { const n = new Set(prev); if (n.has(key)) n.delete(key); else n.add(key); return n; });
-  };
   const collapsedSet = new Set(Array.isArray(collapsed) ? collapsed : []);
   const toggleSection = (id) => setCollapsed(prev => {
     const cur = new Set(Array.isArray(prev) ? prev : []);
@@ -112,16 +92,12 @@ export default function Sidebar({
         scrollbar: 'sidebar-scrollbar-dark',
       };
 
-  const right = side === 'right';
-  const hiddenOnDesktop = desktop === 'hidden';
-  const asideTheme = right ? t.aside.replace('border-r', 'border-l') : t.aside;
   const sidebarClasses = `
-    fixed top-0 ${right ? 'right-0' : 'left-0'} z-50 h-full ${asideTheme}
+    fixed top-0 left-0 z-50 h-full ${t.aside}
     transition-[width,transform] duration-300 ease-spring flex flex-col
-    ${mobileOpen ? 'translate-x-0 shadow-xl' : right ? 'translate-x-full' : '-translate-x-full'}
-    ${hiddenOnDesktop ? '' : 'lg:translate-x-0'}
-    ${detached && !hiddenOnDesktop ? `lg:top-3 lg:h-[calc(100%-1.5rem)] lg:rounded-lg lg:shadow-lg lg:border ${right ? 'lg:right-3' : 'lg:left-3'}` : ''}
-    ${isOpen || hiddenOnDesktop ? 'w-[256px]' : 'lg:w-[72px] w-[256px]'}
+    ${mobileOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'}
+    lg:translate-x-0
+    ${isOpen ? 'w-[256px]' : 'lg:w-[72px] w-[256px]'}
   `;
 
   const handleNavClick = () => {
@@ -176,33 +152,6 @@ export default function Sidebar({
     );
   };
 
-  const renderGroup = (group, key) => {
-    const Icon = group.icon;
-    const open = openGroups.has(key) && isOpen;
-    const active = containsPath(group, location.pathname);
-    return (
-      <li key={key}>
-        <button
-          type="button"
-          onClick={() => toggleGroup(key)}
-          aria-expanded={open}
-          title={!isOpen ? group.label : undefined}
-          className={`sidebar-link group w-full ${active && !open ? t.linkActive : t.linkInactive} ${!isOpen ? 'lg:justify-center lg:!px-0' : ''}`}
-        >
-          {Icon && <Icon size={17} className={`shrink-0 transition-colors ${active ? (isLight ? 'text-primary' : 'text-primary-300') : t.icon}`} aria-hidden="true" />}
-          {isOpen && <span className="truncate flex-1 text-start">{group.label}</span>}
-          {isOpen && <span className={`text-[10px] font-bold tabular-nums ${isLight ? 'text-gray-400' : 'text-white/30'}`}>{group.children.length}</span>}
-          {isOpen && <ChevronDown size={14} className={`shrink-0 transition-transform duration-200 ${open ? '' : '-rotate-90'} ${isLight ? 'text-gray-400' : 'text-white/40'}`} aria-hidden="true" />}
-        </button>
-        {open && (
-          <ul className={`mt-0.5 mb-1 ms-[1.15rem] ps-2 space-y-0.5 border-s animate-fade-in ${isLight ? 'border-gray-200' : 'border-white/[0.08]'}`}>
-            {group.children.map(c => (c.children ? renderGroup(c, `${key}/${c.label}`) : renderLink(c)))}
-          </ul>
-        )}
-      </li>
-    );
-  };
-
   const headingClass = `w-full flex items-center justify-between px-3 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors ${t.sectionTitle}`;
 
   return (
@@ -230,7 +179,7 @@ export default function Sidebar({
           onClick={onToggle}
           aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           aria-expanded={isOpen}
-          className={`hidden ${hiddenOnDesktop ? '' : 'lg:grid'} place-items-center w-8 h-8 rounded transition-colors ${t.toggleBtn}`}
+          className={`hidden lg:grid place-items-center w-8 h-8 rounded transition-colors ${t.toggleBtn}`}
           title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {isOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
@@ -239,7 +188,7 @@ export default function Sidebar({
           type="button"
           onClick={onMobileClose}
           aria-label="Close navigation"
-          className={`${hiddenOnDesktop ? '' : 'lg:hidden'} grid place-items-center w-8 h-8 rounded transition-colors ${t.toggleBtn}`}
+          className={`lg:hidden grid place-items-center w-8 h-8 rounded transition-colors ${t.toggleBtn}`}
         >
           <X size={17} />
         </button>
@@ -298,11 +247,11 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* Main: Dashboards, Applications, Layouts */}
+        {/* Main dashboards */}
         <div>
           {isOpen && <p className={headingClass}>Main</p>}
           <ul className="space-y-0.5">
-            {mainGroups.map(g => renderGroup(g, groupKey('main', g)))}
+            {mainDashboardItems.map(item => renderLink(item))}
           </ul>
         </div>
 
@@ -319,7 +268,7 @@ export default function Sidebar({
               )}
               {open && (
                 <ul className="space-y-0.5 animate-fade-in">
-                  {section.items.map(item => (item.children ? renderGroup(item, groupKey(section.id, item)) : renderLink(item)))}
+                  {section.items.map(item => renderLink(item))}
                 </ul>
               )}
             </div>

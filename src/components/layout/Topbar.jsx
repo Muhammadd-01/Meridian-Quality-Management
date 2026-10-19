@@ -3,10 +3,9 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   Menu, Search, Bell, Sun, Moon, Monitor, Maximize, Minimize, ChevronDown, User, Settings, LogOut, Check, Plus,
   History, BellOff, LayoutGrid, Compass, CalendarDays, CheckSquare, Contact, Building2, FileBarChart, Clock,
-  BookOpen, PanelLeft, ArrowRight, Sparkles, AlertTriangle, ListChecks, Hexagon, RotateCcw, Eye,
+  BookOpen, PanelLeft, ArrowRight, Sparkles, AlertTriangle, ListChecks,
 } from 'lucide-react';
-import { LAYOUT_OPTIONS, LAYOUT_BY_ID, DEFAULT_LAYOUT } from './layouts';
-import { quickActions, moduleForPath, mainDashboardItems, mainGroups, moduleSections, allPages } from '../../app/navigation';
+import { quickActions, moduleForPath, mainDashboardItems, moduleSections, allPages } from '../../app/navigation';
 import CommandPalette from './CommandPalette';
 import useNotifications from '../../hooks/useNotifications';
 import useCollection from '../../hooks/useCollection';
@@ -35,26 +34,11 @@ const APPS = [
   { label: 'Settings', path: '/settings', icon: Settings, tone: 'bg-info-50 text-info-600' },
 ];
 
-const flattenNav = (items) => items.flatMap(i => (i.children ? flattenNav(i.children) : [i]));
-// One entry per module section, linking to its dashboard (or first page).
-const MODULE_LINKS = moduleSections
-  .filter(s => !['workspace', 'ui', 'pages', 'support', 'reports', 'management'].includes(s.id))
-  .map(s => {
-    const first = flattenNav(s.items)[0];
-    return { path: s.home || first.path, label: s.title, icon: first.icon };
-  });
 const EXPLORE_COLUMNS = [
   { title: 'Dashboards', items: mainDashboardItems },
-  { title: 'Modules', items: MODULE_LINKS },
-  { title: 'Applications', items: mainGroups.find(g => g.id === 'apps').children },
-  {
-    title: 'Workspace',
-    items: [
-      ...moduleSections.find(s => s.id === 'workspace').items,
-      ...flattenNav(moduleSections.find(s => s.id === 'reports').items).filter(i => ['/reports', '/reports/builder', '/activity-log'].includes(i.path)),
-      ...flattenNav(moduleSections.find(s => s.id === 'management').items),
-    ],
-  },
+  { title: 'CRM & Sales', items: [...moduleSections.find(s => s.id === 'crm').items, ...moduleSections.find(s => s.id === 'sales').items] },
+  { title: 'Delivery & Learning', items: [...moduleSections.find(s => s.id === 'projects').items, ...moduleSections.find(s => s.id === 'lms').items] },
+  { title: 'Workspace', items: moduleSections.find(s => s.id === 'workspace').items },
 ];
 
 const COLOR_MODES = [
@@ -81,20 +65,7 @@ function usePopover() {
   return { open, setOpen, ref, toggle: () => setOpen(o => !o) };
 }
 
-const HEADER_VARIANTS = {
-  default: 'bg-surface-base border-b border-gray-200',
-  detached: 'bg-surface-base border-b border-gray-200 lg:mt-3 lg:rounded-lg lg:border lg:shadow-sm',
-  transparent: 'bg-transparent border-b border-transparent',
-  'transparent-solid': 'bg-[color:var(--surface-overlay)] backdrop-blur-md border-b border-gray-200 shadow-md',
-};
-
-export default function Topbar({
-  onMenuClick, colorMode, sidebarStyle, onSidebarStyleChange,
-  layout, // { layout, saved, preview, setLayout } from ./layouts
-  menuMode = 'mobile', // 'mobile' | 'always' | 'none' — when the drawer button shows
-  showBrand = false, // brand mark in the header (layouts without a full sidebar)
-  variant = 'default',
-}) {
+export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebarStyleChange }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -175,36 +146,22 @@ export default function Topbar({
   const iconBtn = 'relative grid place-items-center w-8 h-8 rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md';
 
   return (
-    <header className={`sticky top-0 ${searchOpen ? "z-[70]" : "z-30"} ${HEADER_VARIANTS[variant] || HEADER_VARIANTS.default} transition-[background-color,box-shadow,border-color] duration-300 h-[65px] flex items-center px-3 md:px-5 gap-2 md:gap-3 shrink-0`}>
-      {/* Drawer toggle */}
-      {menuMode !== 'none' && (
-        <button
-          type="button"
-          onClick={onMenuClick}
-          aria-label="Open navigation"
-          className={`${menuMode === 'always' ? '' : 'lg:hidden'} btn-icon`}
-        >
-          <Menu size={20} />
-        </button>
-      )}
-
-      {showBrand && (
-        <Link to="/dashboard" className="hidden lg:flex items-center gap-2 shrink-0 me-1 group" aria-label="Meridian home">
-          <span className="w-9 h-9 rounded-lg grid place-items-center text-white bg-gradient-to-br from-primary-400 to-primary-700 shadow-glow-primary group-hover:rotate-[-8deg] transition-transform duration-300">
-            <Hexagon className="w-5 h-5 fill-white/20 stroke-white" aria-hidden="true" />
-          </span>
-          <span className="hidden xl:block leading-tight">
-            <span className="block text-[15px] font-extrabold tracking-tight text-gray-900">Meridian</span>
-            <span className="block text-[8.5px] uppercase tracking-[0.14em] font-bold text-gray-400">Quality Management</span>
-          </span>
-        </Link>
-      )}
+    <header className={`sticky top-0 ${searchOpen ? "z-[70]" : "z-30"} bg-surface-base border-b border-gray-200 h-[65px] flex items-center px-3 md:px-5 gap-2 md:gap-3 shrink-0`}>
+      {/* Mobile menu toggle */}
+      <button
+        type="button"
+        onClick={onMenuClick}
+        aria-label="Open navigation"
+        className="lg:hidden btn-icon"
+      >
+        <Menu size={20} />
+      </button>
 
       {/* Search pill (opens command palette) */}
       <button
         type="button"
         onClick={() => setSearchOpen(true)}
-        className="group hidden sm:flex items-center gap-2.5 h-10 ps-1.5 pe-2 w-60 lg:w-72 rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-primary-300 hover:bg-white transition-all text-start"
+        className="group hidden sm:flex items-center gap-2.5 h-10 pl-1.5 pr-2 w-60 lg:w-72 rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-primary-300 hover:bg-white transition-all text-left"
         aria-label="Search pages, actions and records"
         aria-keyshortcuts={isMac ? 'Meta+K' : 'Control+K'}
       >
@@ -308,7 +265,7 @@ export default function Topbar({
             <ChevronDown size={13} className={`transition-transform ${apps.open ? 'rotate-180' : ''}`} aria-hidden="true" />
           </button>
           {apps.open && (
-            <div role="menu" className="menu-panel absolute start-0 top-full mt-3 w-[320px] z-50 p-3" style={{ transformOrigin: 'top left' }}>
+            <div role="menu" className="menu-panel absolute left-0 top-full mt-3 w-[320px] z-50 p-3" style={{ transformOrigin: 'top left' }}>
               <div className="flex items-center justify-between px-1 pb-2.5 mb-2 border-b border-gray-100">
                 <div>
                   <p className="text-sm font-bold text-gray-900">Apps</p>
@@ -345,7 +302,7 @@ export default function Topbar({
           <ChevronDown size={13} className="hidden md:block opacity-80" aria-hidden="true" />
         </button>
         {create.open && (
-          <div role="menu" className="menu-panel absolute end-0 top-full mt-2 w-60 p-1.5 z-50 max-h-[70vh] overflow-y-auto">
+          <div role="menu" className="menu-panel absolute right-0 top-full mt-2 w-60 p-1.5 z-50 max-h-[70vh] overflow-y-auto">
             <p className="px-2.5 pt-1.5 pb-2 text-[10.5px] font-bold uppercase tracking-wider text-gray-400">Quick create</p>
             {orderedActions.map(a => {
               const Icon = a.icon;
@@ -376,7 +333,7 @@ export default function Topbar({
             <ModeIcon size={15} className="transition-transform duration-500 hover:rotate-45" />
           </button>
           {theme.open && (
-            <div role="menu" className="menu-panel absolute end-0 top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] p-1.5 z-50 max-h-[calc(100vh-90px)] overflow-y-auto">
+            <div role="menu" className="menu-panel absolute right-0 top-full mt-2 w-52 p-1.5 z-50">
               <p className="px-2.5 pt-1 pb-1.5 text-[10.5px] font-bold uppercase tracking-wider text-gray-400">Appearance</p>
               {COLOR_MODES.map(m => (
                 <button
@@ -407,47 +364,6 @@ export default function Topbar({
                   {sidebarStyle === id && <Check size={13} className="ms-auto" aria-hidden="true" />}
                 </button>
               ))}
-              {layout && (
-                <>
-                  <div className="flex items-center justify-between gap-2 px-2.5 pt-2.5 pb-1.5 mt-1 border-t border-gray-100">
-                    <p className="text-[10.5px] font-bold uppercase tracking-wider text-gray-400">Layout</p>
-                    {layout.saved !== DEFAULT_LAYOUT && (
-                      <button type="button" onClick={() => { layout.setLayout(DEFAULT_LAYOUT); theme.setOpen(false); }} className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline">
-                        <RotateCcw size={11} aria-hidden="true" /> Reset
-                      </button>
-                    )}
-                  </div>
-                  {layout.preview && (
-                    <p className="mx-1.5 mb-1.5 px-2 py-1.5 rounded bg-accent-50 text-[11px] text-gray-700 flex items-center gap-1.5">
-                      <Eye size={12} className="text-accent-600 shrink-0" aria-hidden="true" />
-                      Previewing {LAYOUT_BY_ID[layout.preview].short} on this page
-                    </p>
-                  )}
-                  <div className="grid grid-cols-2 gap-1">
-                    {LAYOUT_OPTIONS.filter(l => l.id !== 'dark-mode').map(l => {
-                      const on = layout.saved === l.id;
-                      return (
-                        <button
-                          key={l.id}
-                          type="button"
-                          role="menuitemradio"
-                          aria-checked={on}
-                          onClick={() => { layout.setLayout(l.id); theme.setOpen(false); }}
-                          title={l.description}
-                          className={`menu-item !px-2 !py-1.5 !text-[12px] ${on ? 'is-active' : ''}`}
-                        >
-                          <l.icon size={14} className="shrink-0" aria-hidden="true" />
-                          <span className="truncate">{l.short}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <Link to="/layouts/detached-sidebar" role="menuitem" className="menu-item !text-[12px] mt-1 !text-primary">
-                    <Eye size={14} aria-hidden="true" /> Preview layouts
-                    <ArrowRight size={12} className="ms-auto rtl:rotate-180" aria-hidden="true" />
-                  </Link>
-                </>
-              )}
             </div>
           )}
         </div>
@@ -477,13 +393,13 @@ export default function Topbar({
           >
             <Bell size={15} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -end-1 min-w-[17px] h-[17px] px-1 rounded-full bg-danger-500 text-white text-[9.5px] font-bold grid place-items-center ring-2 ring-[color:var(--surface-raised)]">
+              <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-danger-500 text-white text-[9.5px] font-bold grid place-items-center ring-2 ring-[color:var(--surface-raised)]">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
           </button>
           {notif.open && (
-            <div className="menu-panel absolute end-0 top-full mt-2 w-[min(24rem,calc(100vw-1.5rem))] z-50 overflow-hidden" role="dialog" aria-label="Notifications">
+            <div className="menu-panel absolute right-0 top-full mt-2 w-[min(24rem,calc(100vw-1.5rem))] z-50 overflow-hidden" role="dialog" aria-label="Notifications">
               <div className="px-4 pt-3.5 pb-2.5 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
@@ -523,7 +439,7 @@ export default function Topbar({
                         key={n.id}
                         type="button"
                         onClick={() => openNotification(n)}
-                        className={`w-full text-start flex items-start gap-3 px-4 py-2.5 transition-colors hover:bg-gray-50 ${n.read ? '' : 'bg-primary-50/40'}`}
+                        className={`w-full text-left flex items-start gap-3 px-4 py-2.5 transition-colors hover:bg-gray-50 ${n.read ? '' : 'bg-primary-50/40'}`}
                       >
                         <span className={`mt-0.5 grid place-items-center w-8 h-8 rounded-full shrink-0 ${n.kind === 'danger' ? 'bg-danger-50 text-danger-600' : n.kind === 'warning' ? 'bg-warning-50 text-warning-600' : 'bg-primary-50 text-primary'}`} aria-hidden="true">
                           {n.kind === 'danger' || n.kind === 'warning' ? <AlertTriangle size={14} /> : <History size={14} />}
@@ -557,7 +473,7 @@ export default function Topbar({
         <button
           type="button"
           onClick={profile.toggle}
-          className="flex items-center gap-2 h-10 ps-1 pe-2 rounded-full border border-gray-200 bg-gray-50 hover:bg-white hover:shadow-sm transition-all"
+          className="flex items-center gap-2 h-10 pl-1 pr-2 rounded-full border border-gray-200 bg-gray-50 hover:bg-white hover:shadow-sm transition-all"
           aria-label="Open profile menu"
           aria-haspopup="menu"
           aria-expanded={profile.open}
@@ -566,14 +482,14 @@ export default function Topbar({
             {profileInitials}
             <span className="absolute -bottom-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-success-400 ring-2 ring-[color:var(--surface-raised)]" aria-hidden="true" />
           </span>
-          <span className="hidden xl:block text-start">
+          <span className="hidden xl:block text-left">
             <span className="block text-xs font-bold text-gray-900 leading-tight">{settings.profile.name.split(' ')[0]}</span>
             <span className="block text-[10px] text-gray-500">Admin</span>
           </span>
           <ChevronDown size={13} className={`text-gray-400 hidden md:block transition-transform ${profile.open ? 'rotate-180' : ''}`} aria-hidden="true" />
         </button>
         {profile.open && (
-          <div role="menu" className="menu-panel absolute end-0 top-full mt-2 w-72 z-50 overflow-hidden">
+          <div role="menu" className="menu-panel absolute right-0 top-full mt-2 w-72 z-50 overflow-hidden">
             <div className="relative p-4 hero-spruce hero-grid text-white">
               <div className="relative flex items-center gap-3">
                 <span className="w-11 h-11 rounded-full bg-gradient-to-br from-accent-300 to-primary-400 grid place-items-center text-sm font-extrabold ring-2 ring-white/20">{profileInitials}</span>
@@ -586,7 +502,7 @@ export default function Topbar({
                 {[
                   { label: 'Due today', value: taskStats.dueToday, to: '/projects/tasks' },
                   { label: 'Overdue', value: taskStats.overdue, to: '/projects/tasks' },
-                  { label: 'Unread', value: unreadCount, to: '/account/notifications' },
+                  { label: 'Unread', value: unreadCount, to: '/audit-log' },
                 ].map(s => (
                   <Link key={s.label} to={s.to} role="menuitem" className="rounded bg-white/[0.08] hover:bg-white/[0.14] transition-colors px-2 py-1.5 text-center">
                     <span className="block text-base font-extrabold tabular-nums">{s.value}</span>
@@ -596,7 +512,7 @@ export default function Topbar({
               </div>
             </div>
             <div className="p-1.5">
-              <Link role="menuitem" to="/account/profile" className="menu-item"><User size={15} aria-hidden="true" /> My Profile</Link>
+              <Link role="menuitem" to="/settings#profile" className="menu-item"><User size={15} aria-hidden="true" /> My Profile</Link>
               <Link role="menuitem" to="/settings" className="menu-item"><Settings size={15} aria-hidden="true" /> Settings & Preferences</Link>
               <Link role="menuitem" to="/projects/tasks" className="menu-item"><ListChecks size={15} aria-hidden="true" /> My Tasks <span className="ms-auto badge-secondary">{taskStats.open}</span></Link>
               <Link role="menuitem" to="/settings#notifications" className="menu-item"><Bell size={15} aria-hidden="true" /> Notification Preferences</Link>

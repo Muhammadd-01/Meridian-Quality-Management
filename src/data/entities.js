@@ -16,7 +16,6 @@ import { initialTasks, initialTeamMembers, initialTimesheets } from './projectMa
 import { initialCourses } from './courses';
 import { initialLearners, initialQuizzes, initialLmsActivityFeed } from './lmsData';
 import { initialContacts, contactStatuses, contactSources } from './contacts';
-import { MODULE_ENTITIES } from '../modules/entities';
 
 const initials = (name = '') =>
   String(name).split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'NA';
@@ -27,7 +26,7 @@ export const DEAL_STAGES = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Clo
  * Field definition: { key, label, type: 'text'|'number'|'date'|'email'|'enum'|'list', required, options }
  * `list` fields are arrays serialised as "a; b; c" in flat files.
  */
-const CORE_ENTITIES = {
+export const ENTITIES = {
   companies: {
     type: 'companies',
     key: 'meridian-companies',
@@ -499,9 +498,6 @@ const CORE_ENTITIES = {
     ],
   },
 };
-
-// Module folders (src/modules/<group>/entities.js) add their own collections.
-export const ENTITIES = { ...CORE_ENTITIES, ...MODULE_ENTITIES };
 
 export const ENTITY_LIST = Object.values(ENTITIES);
 

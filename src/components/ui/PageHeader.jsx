@@ -33,7 +33,7 @@ export default function PageHeader({ title, subtitle, breadcrumbs, actions, icon
             {subtitle && <p className="text-[13.5px] text-gray-500 mt-2 max-w-3xl">{subtitle}</p>}
           </div>
         </div>
-        {actions && <div className="relative flex items-center gap-2 flex-wrap">{actions}</div>}
+        {actions && <div className="relative flex items-center gap-2 flex-wrap [&>div]:flex-wrap [&>div]:gap-2">{actions}</div>}
       </div>
     </div>
   );

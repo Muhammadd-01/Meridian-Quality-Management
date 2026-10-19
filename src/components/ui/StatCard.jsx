@@ -44,13 +44,13 @@ export default function StatCard({ title, value, change, changeType = 'increase'
   const ChangeIcon = changeType === 'neutral' ? Minus : changeType === 'increase' ? TrendingUp : TrendingDown;
 
   const body = (
-    <div className="flex items-start justify-between">
-      <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.06em] flex items-center gap-1">
+    <div className="relative">
+      <div className="min-w-0">
+        <p className={`text-[11px] font-bold text-gray-500 uppercase tracking-[0.06em] flex items-center gap-1 min-h-[2.25rem] ${Icon ? 'pr-12' : ''}`}>
           {title}
           {info && <InfoTip text={info} />}
         </p>
-        <h3 className="font-display text-[26px] leading-8 font-extrabold tracking-tight text-gray-900 mt-1.5 tabular-nums">{renderValue()}</h3>
+        <h3 className="font-display text-[clamp(1.2rem,0.95rem+0.75vw,1.65rem)] leading-tight font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">{renderValue()}</h3>
         {change !== undefined && change !== null && change !== '' && (
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             <span className={`inline-flex items-center gap-0.5 text-xs font-bold ${changeColor}`}>
@@ -65,7 +65,7 @@ export default function StatCard({ title, value, change, changeType = 'increase'
         {footer}
       </div>
       {Icon && (
-        <div className={`icon-tile ${iconColor}`} aria-hidden="true">
+        <div className={`icon-tile absolute top-0 right-0 ${iconColor}`} aria-hidden="true">
           <Icon size={17} />
         </div>
       )}

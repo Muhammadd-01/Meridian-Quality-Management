@@ -28,20 +28,22 @@ import {
   FileBarChart,
   History,
   Settings,
+  LayoutGrid,
+  PanelsTopLeft,
 } from 'lucide-react';
 
-// Section 1: Main Dashboards (Simple direct links, NO dropdown!)
-export const mainDashboardItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 'Main' },
-  { path: '/traffic-overview', label: 'Traffic Overview', icon: BarChart3 },
-  { path: '/crm', label: 'CRM', icon: Users },
-  { path: '/projects', label: 'Project Management', icon: GanttChartSquare },
-  { path: '/lms-analytics', label: 'LMS Analytics', icon: BookOpenCheck },
-  { path: '/sales-analytics', label: 'Sales Analytics', icon: TrendingUp },
+import { DASHBOARDS, APPLICATIONS, LAYOUTS, MODULE_SECTIONS } from '../modules/catalog';
+
+// MAIN area: expandable Dashboards, Applications and Layouts groups (as in the reference).
+export const mainDashboardItems = DASHBOARDS;
+export const mainGroups = [
+  { id: 'dashboards', label: 'Dashboards', icon: LayoutDashboard, children: DASHBOARDS },
+  { id: 'apps', label: 'Applications', icon: LayoutGrid, children: APPLICATIONS },
+  { id: 'layouts', label: 'Layouts', icon: PanelsTopLeft, children: LAYOUTS },
 ];
 
-// Section 2: Module Headings and their pages (NO dropdowns below!)
-export const moduleSections = [
+// Sections that existed before the module catalogue (pages in src/features).
+const CORE_SECTIONS = [
   {
     id: 'crm',
     title: 'CRM',
@@ -94,13 +96,29 @@ export const moduleSections = [
     ],
   },
 ];
+const HOMES = { crm: '/crm', projects: '/projects', lms: '/lms-analytics', sales: '/sales-analytics' };
+CORE_SECTIONS.forEach(s => { s.home = HOMES[s.id]; });
+// Calendar lives under Applications and Reports under the Reports section now.
+const workspace = CORE_SECTIONS.find(s => s.id === 'workspace');
+workspace.items = workspace.items.filter(i => i.path !== '/reports' && i.path !== '/calendar');
 
-const sectionTitleFor = (path) => moduleSections.find(s => s.items.some(i => i.path === path))?.title;
+const core = (id) => CORE_SECTIONS.find(s => s.id === id);
+const mod = (id) => MODULE_SECTIONS.find(s => s.id === id);
+
+/** Sidebar sections in reference order. Items may be groups: { label, icon, children }. */
+export const moduleSections = [
+  mod('ecommerce'), mod('bi'), core('sales'), mod('logistics'), mod('real-estate'), core('crm'), core('projects'),
+  mod('finance'), mod('accounting'), mod('banking'), mod('crypto'), mod('hospital'), mod('school'), core('lms'),
+  mod('hotel'), mod('restaurant'), mod('food-delivery'), mod('travel'), mod('seo'), mod('hrm'), mod('ai'),
+  mod('management'), mod('reports'), core('workspace'), mod('ui'), mod('pages'), mod('support'),
+];
+
+const flatten = (items) => items.flatMap(i => (i.children ? flatten(i.children) : [i]));
 
 /** Flat list of every navigable page: { path, label, icon, group } */
 export const allPages = [
-  ...mainDashboardItems.map(i => ({ ...i, group: 'Main' })),
-  ...moduleSections.flatMap(s => s.items.map(i => ({ ...i, group: s.title }))),
+  ...mainGroups.flatMap(g => g.children.map(i => ({ ...i, group: g.label }))),
+  ...moduleSections.flatMap(s => flatten(s.items).map(i => ({ ...i, group: s.title }))),
 ].filter((p, idx, arr) => arr.findIndex(q => q.path === p.path) === idx);
 
 export const pageTitles = {
@@ -109,8 +127,16 @@ export const pageTitles = {
   '/projects': 'Project Management',
 };
 
+/** Section a page belongs to (module sections first, then the MAIN groups). */
+export function sectionFor(path) {
+  const s = moduleSections.find(sec => flatten(sec.items).some(i => i.path === path));
+  if (s) return { id: s.id, title: s.title, home: s.home };
+  const g = mainGroups.find(gr => gr.children.some(i => i.path === path));
+  return g ? { id: g.id, title: g.label, home: g.id === 'dashboards' ? '/dashboard' : undefined } : { id: 'main', title: 'Main', home: '/dashboard' };
+}
+
 export function pageGroup(path) {
-  return sectionTitleFor(path) || 'Main';
+  return sectionFor(path).title;
 }
 
 /**

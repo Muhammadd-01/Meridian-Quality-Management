@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import LoadingState from '../components/ui/LoadingState';
+import { MODULE_ROUTES } from '../modules';
 
 // Route-level code splitting: each page loads on first visit.
 
@@ -55,8 +56,18 @@ export default function AppRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Module pages rendered without the app shell (auth and error screens) */}
+        {MODULE_ROUTES.filter(r => r.bare).map(({ path, Component }) => (
+          <Route key={path} path={path} element={<Component />} />
+        ))}
+
         {/* Main Application Layout Routes */}
         <Route element={<AppLayout />}>
+          {/* Module pages from src/modules/catalog.js */}
+          {MODULE_ROUTES.filter(r => !r.bare).map(({ path, Component }) => (
+            <Route key={path} path={path} element={<Component />} />
+          ))}
+
           {/* Dashboard */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/traffic-overview" element={<TrafficOverview />} />

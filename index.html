@@ -1,10 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Primary SEO (page-specific values are updated on navigation by src/lib/seo.js) -->
+    <title>Meridian Quality Management Professionals — CRM, Projects, Training & Sales Workspace</title>
+    <meta name="description" content="Meridian is a quality-management operations workspace for ISO consultants and auditors: CRM, sales pipeline, project delivery, learning management, reports and calendar in one web app." />
+    <meta name="keywords" content="quality management software, ISO 9001 consultancy CRM, audit project management, LMS for quality training, QMS workspace, ISO consultants Pakistan" />
+    <meta name="application-name" content="Meridian" />
+    <meta name="author" content="Meridian Quality Management Professionals" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Theme & installability -->
+    <meta name="theme-color" content="#14201c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#187f65" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meridian Quality Management Professionals</title>
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph / social previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Meridian Quality Management Professionals" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="Meridian Quality Management Professionals" />
+    <meta property="og:description" content="One workspace for quality professionals: clients, ISO projects, training and sales, with reports you can export in one click." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Meridian workspace: CRM, projects, training and sales for quality professionals" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Meridian Quality Management Professionals" />
+    <meta name="twitter:description" content="One workspace for quality professionals: clients, ISO projects, training and sales." />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <!-- Structured data for search and AI answer engines -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "#organization",
+            "name": "Meridian Quality Management Professionals",
+            "alternateName": "Meridian",
+            "description": "Quality-management consultancy and training provider for ISO standards, audits and continuous improvement.",
+            "logo": "/apple-touch-icon.png",
+            "sameAs": ["https://github.com/Muhammadd-01/Meridian-Quality-Management"]
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "#app",
+            "name": "Meridian",
+            "url": "/",
+            "applicationCategory": "BusinessApplication",
+            "applicationSubCategory": "Quality management, CRM and learning management",
+            "operatingSystem": "Any (web browser)",
+            "browserRequirements": "Requires JavaScript and a modern browser",
+            "inLanguage": "en",
+            "publisher": { "@id": "#organization" },
+            "description": "Operations workspace for quality-management consultancies: CRM, sales pipeline, project delivery, learning management, reports, calendar and audit log.",
+            "featureList": [
+              "CRM: companies, contacts, customer segments, activities, calls and emails",
+              "Sales: lead scoring, deals, quotations with print/PDF, drag-and-drop pipeline",
+              "Projects: milestones, tasks with subtasks and comments, team workload, timesheets",
+              "Learning: course catalog, learner profiles, quiz builder, learning activity feed",
+              "Thirteen built-in reports with formulas and CSV, Excel and PDF export",
+              "Global search, calendar, notifications and an automatic audit log",
+              "Light, dark and system appearance"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "#website",
+            "name": "Meridian Quality Management Professionals",
+            "url": "/",
+            "publisher": { "@id": "#organization" },
+            "inLanguage": "en"
+          }
+        ]
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,6 +103,24 @@
   </head>
   <body class="font-sans antialiased">
     <div id="root"></div>
+
+    <!-- Readable summary for crawlers and visitors without JavaScript -->
+    <noscript>
+      <main style="max-width:760px;margin:48px auto;padding:0 20px;font-family:system-ui,sans-serif;color:#1e211f;line-height:1.6">
+        <h1>Meridian Quality Management Professionals</h1>
+        <p>Meridian is an operations workspace for quality-management consultancies, ISO consultants and auditors. It brings client management, sales, project delivery and staff training together in one web application.</p>
+        <h2>What you can do in Meridian</h2>
+        <ul>
+          <li><strong>CRM</strong> — companies, contacts, customer segments, activities, calls and emails.</li>
+          <li><strong>Sales</strong> — lead scoring and conversion, deals, quotations with print/PDF, and a drag-and-drop pipeline.</li>
+          <li><strong>Project management</strong> — projects with milestones, tasks with subtasks and comments, team workload and timesheets.</li>
+          <li><strong>Learning</strong> — course catalog (ISO 9001, Six Sigma, GMP…), learner profiles, quiz builder and an activity feed.</li>
+          <li><strong>Workspace tools</strong> — global search, calendar, notifications, thirteen exportable reports and an automatic audit log.</li>
+        </ul>
+        <p>Please enable JavaScript to use the application.</p>
+      </main>
+    </noscript>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

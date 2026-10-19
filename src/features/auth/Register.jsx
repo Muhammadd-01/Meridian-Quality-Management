@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, User, Building2, ArrowRight, Check, Loader2, Briefcase } from 'lucide-react';
 import { useToast } from '../../components/ui/Toast';
 import AuthLayout, { AuthField } from './AuthLayout';
+import { useDocumentMeta } from '../../lib/seo';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ROLES = ['Quality Manager', 'Lead Auditor', 'Operations Director', 'Compliance Officer', 'QA Engineer'];
@@ -22,6 +23,7 @@ const STRENGTH = [
 ];
 
 export default function Register() {
+  useDocumentMeta('/register');
   const [form, setForm] = useState({ fullName: '', company: '', email: '', role: ROLES[0], password: '', confirmPassword: '', agreeTerms: true });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);

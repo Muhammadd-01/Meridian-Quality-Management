@@ -161,15 +161,15 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
       <button
         type="button"
         onClick={() => setSearchOpen(true)}
-        className="group hidden sm:flex items-center gap-2.5 h-10 pl-1.5 pr-2 w-60 lg:w-72 rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-primary-300 hover:bg-white transition-all text-left"
+        className="group hidden sm:flex items-center gap-2.5 h-10 pl-1.5 pr-1.5 xl:pr-2 w-10 xl:w-72 min-w-0 shrink rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-primary-300 hover:bg-white transition-all text-left"
         aria-label="Search pages, actions and records"
         aria-keyshortcuts={isMac ? 'Meta+K' : 'Control+K'}
       >
         <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-50 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
           <Search size={14} aria-hidden="true" />
         </span>
-        <span className="flex-1 text-[13px] truncate">Search records, pages, actions…</span>
-        <kbd className="kbd">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+        <span className="hidden xl:block flex-1 text-[13px] truncate">Search records, pages, actions…</span>
+        <kbd className="kbd hidden xl:inline">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
       </button>
       <button type="button" onClick={() => setSearchOpen(true)} className="sm:hidden btn-icon" aria-label="Search">
         <Search size={18} />
@@ -184,9 +184,11 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
             className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[13px] font-semibold transition-colors ${explore.open ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-white'}`}
             aria-haspopup="dialog"
             aria-expanded={explore.open}
+            aria-label="Explore the workspace"
+            title="Explore"
           >
-            <Compass size={14} aria-hidden="true" /> Explore
-            <ChevronDown size={13} className={`transition-transform ${explore.open ? 'rotate-180' : ''}`} aria-hidden="true" />
+            <Compass size={14} aria-hidden="true" /> <span className="hidden xl:inline">Explore</span>
+            <ChevronDown size={13} className={`hidden xl:block transition-transform ${explore.open ? 'rotate-180' : ''}`} aria-hidden="true" />
           </button>
           {explore.open && (
             <div className="fixed inset-x-0 top-[72px] z-50 flex justify-center px-4 pointer-events-none">
@@ -260,9 +262,11 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
             className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[13px] font-semibold transition-colors ${apps.open ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-white'}`}
             aria-haspopup="menu"
             aria-expanded={apps.open}
+            aria-label="Apps"
+            title="Apps"
           >
-            <LayoutGrid size={14} aria-hidden="true" /> Apps
-            <ChevronDown size={13} className={`transition-transform ${apps.open ? 'rotate-180' : ''}`} aria-hidden="true" />
+            <LayoutGrid size={14} aria-hidden="true" /> <span className="hidden xl:inline">Apps</span>
+            <ChevronDown size={13} className={`hidden xl:block transition-transform ${apps.open ? 'rotate-180' : ''}`} aria-hidden="true" />
           </button>
           {apps.open && (
             <div role="menu" className="menu-panel absolute left-0 top-full mt-3 w-[320px] z-50 p-3" style={{ transformOrigin: 'top left' }}>
@@ -296,10 +300,12 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
           className="btn-primary !rounded-full !px-3 md:!px-4 h-10"
           aria-haspopup="menu"
           aria-expanded={create.open}
+          aria-label="Quick create"
+          title="Quick create"
         >
           <Plus size={15} aria-hidden="true" className={`transition-transform duration-300 ${create.open ? 'rotate-45' : ''}`} />
-          <span className="hidden md:inline">Quick Create</span>
-          <ChevronDown size={13} className="hidden md:block opacity-80" aria-hidden="true" />
+          <span className="hidden xl:inline">Quick Create</span>
+          <ChevronDown size={13} className="hidden xl:block opacity-80" aria-hidden="true" />
         </button>
         {create.open && (
           <div role="menu" className="menu-panel absolute right-0 top-full mt-2 w-60 p-1.5 z-50 max-h-[70vh] overflow-y-auto">

@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, Zap, Loader2 } from 'lucide-react';
 import { useToast } from '../../components/ui/Toast';
 import AuthLayout, { AuthField } from './AuthLayout';
+import { useDocumentMeta } from '../../lib/seo';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Login() {
+  useDocumentMeta('/login');
   const [email, setEmail] = useState('admin@meridian.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);

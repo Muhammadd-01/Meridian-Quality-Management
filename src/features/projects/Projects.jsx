@@ -573,132 +573,129 @@ export default function Projects() {
       {/* ========================================================================= */}
       {/* 2. Controls Toolbar: Search, Filters, Sorting, View Toggle, Selection     */}
       {/* ========================================================================= */}
-      <div className="card p-3.5 space-y-3">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-
-          {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+      <div className="card filter-toolbar p-4 sm:p-5 space-y-4">
+        {/* Row 1: search, result count, view switch */}
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+          <div className="relative flex-1 lg:max-w-lg group">
+            <label htmlFor="projects-search" className="sr-only">Search projects</label>
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-primary pointer-events-none" aria-hidden="true" />
             <input
-              type="text"
-              placeholder="Search by project name, client, lead..."
+              id="projects-search"
+              type="search"
+              placeholder="Search by project, client or lead…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="form-input pl-9 text-xs w-full !py-1.5"
+              className="form-input !rounded-xl !py-2.5 pl-10 pr-10"
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center w-7 h-7 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
               >
-                <X size={13} />
+                <X size={14} />
               </button>
             )}
           </div>
 
-          {/* View Toggle & Bulk Selection summary */}
-          <div className="flex items-center gap-2 self-end md:self-auto">
+          <div className="flex flex-wrap items-center gap-2 lg:ms-auto">
+            <span className="text-xs text-gray-500" aria-live="polite">
+              Showing <strong className="text-gray-900 tabular-nums">{filteredProjects.length}</strong> of <span className="tabular-nums">{projects.length}</span> projects
+            </span>
             {selectedIds.size > 0 && (
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                {selectedIds.size} selected
-              </span>
+              <span className="badge-primary badge-dot">{selectedIds.size} selected</span>
             )}
-
-            <div className="flex items-center rounded-lg border border-gray-200 p-0.5 bg-white">
-              <button
-                type="button"
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded text-xs transition-colors ${
-                  viewMode === 'grid' ? 'bg-primary text-white shadow-xs' : 'text-gray-500 hover:text-gray-800'
-                }`}
-                title="Grid Card View"
-              >
-                <LayoutGrid size={15} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('table')}
-                className={`p-1.5 rounded text-xs transition-colors ${
-                  viewMode === 'table' ? 'bg-primary text-white shadow-xs' : 'text-gray-500 hover:text-gray-800'
-                }`}
-                title="Data Table View"
-              >
-                <TableIcon size={15} />
-              </button>
+            <div className="seg-control" role="group" aria-label="View mode">
+              {[['grid', LayoutGrid, 'Cards'], ['table', TableIcon, 'Table']].map(([mode, Icon, label]) => (
+                <button key={mode} type="button" onClick={() => setViewMode(mode)} aria-pressed={viewMode === mode} className={viewMode === mode ? 'is-active' : ''}>
+                  <Icon size={14} aria-hidden="true" /> <span className="hidden sm:inline">{label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Secondary Filter Row */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-gray-100 text-xs">
-          <div className="flex items-center gap-1.5">
-            <Filter size={13} className="text-gray-400" />
-            <span className="font-semibold text-secondary-600 text-2xs uppercase">Filters:</span>
+        {/* Row 2: status and priority chips */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-3 pt-4 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="filter-label"><Filter size={12} aria-hidden="true" /> Status</span>
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by status">
+              {statuses.map(s => {
+                const count = s === 'All' ? projects.length : projects.filter(p => p.status === s).length;
+                return (
+                  <button key={s} type="button" onClick={() => setStatusFilter(s)} aria-pressed={statusFilter === s} className={`filter-chip ${statusFilter === s ? 'is-active' : ''}`}>
+                    {s !== 'All' && <span className={`filter-dot status-${s.toLowerCase().replace(/\s+/g, '-')}`} aria-hidden="true" />}
+                    {s}
+                    <span className="filter-count">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="filter-label"><AlertTriangle size={12} aria-hidden="true" /> Priority</span>
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by priority">
+              {priorities.map(p => (
+                <button key={p} type="button" onClick={() => setPriorityFilter(p)} aria-pressed={priorityFilter === p} className={`filter-chip ${priorityFilter === p ? 'is-active' : ''}`}>
+                  {p !== 'All' && <span className={`filter-dot priority-${p.toLowerCase()}`} aria-hidden="true" />}
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: lead, sort, active filters */}
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="picker">
+              <User size={14} className="text-primary shrink-0" aria-hidden="true" />
+              <label htmlFor="projects-lead" className="sr-only">Project lead</label>
+              <select id="projects-lead" value={leadFilter} onChange={(e) => setLeadFilter(e.target.value)}>
+                <option value="All">All leads</option>
+                {uniqueLeads.map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+            </div>
+            <div className="picker">
+              <ArrowUpDown size={14} className="text-primary shrink-0" aria-hidden="true" />
+              <label htmlFor="projects-sort" className="sr-only">Sort projects by</label>
+              <select id="projects-sort" value={sortField} onChange={(e) => setSortField(e.target.value)}>
+                <option value="name">Sort: Name</option>
+                <option value="dueDate">Sort: Due date</option>
+                <option value="budget">Sort: Budget</option>
+                <option value="progress">Sort: Progress</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))}
+                className="sort-dir"
+                aria-label={sortDir === 'asc' ? 'Ascending, switch to descending' : 'Descending, switch to ascending'}
+                title={sortDir === 'asc' ? 'Ascending' : 'Descending'}
+              >
+                <ArrowUpDown size={13} className={`transition-transform duration-300 ${sortDir === 'desc' ? 'rotate-180' : ''}`} aria-hidden="true" />
+                {sortDir === 'asc' ? 'A→Z' : 'Z→A'}
+              </button>
+            </div>
           </div>
 
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white"
-          >
-            {statuses.map(s => (
-              <option key={s} value={s}>Status: {s}</option>
-            ))}
-          </select>
-
-          {/* Priority Filter */}
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white"
-          >
-            {priorities.map(p => (
-              <option key={p} value={p}>Priority: {p}</option>
-            ))}
-          </select>
-
-          {/* Lead Filter */}
-          <select
-            value={leadFilter}
-            onChange={(e) => setLeadFilter(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white max-w-[160px]"
-          >
-            <option value="All">All Leads</option>
-            {uniqueLeads.map(l => (
-              <option key={l} value={l}>{l}</option>
-            ))}
-          </select>
-
-          {/* Sort By */}
-          <select
-            value={sortField}
-            onChange={(e) => setSortField(e.target.value)}
-            className="form-select text-xs !py-1 !px-2.5 rounded-lg border-gray-200 bg-white ms-auto"
-          >
-            <option value="name">Sort by: Name</option>
-            <option value="dueDate">Sort by: Due Date</option>
-            <option value="budget">Sort by: Budget</option>
-            <option value="progress">Sort by: Progress</option>
-          </select>
-
-          <button
-            type="button"
-            onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
-            className="btn btn-outline text-xs !p-1.5"
-            title={sortDir === 'asc' ? 'Ascending' : 'Descending'}
-          >
-            <ArrowUpDown size={13} />
-          </button>
-
           {(searchQuery || statusFilter !== 'All' || priorityFilter !== 'All' || leadFilter !== 'All') && (
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="text-2xs font-semibold text-danger hover:underline flex items-center gap-1 ms-1"
-            >
-              <RotateCcw size={11} /> Reset
-            </button>
+            <div className="flex flex-wrap items-center gap-1.5 md:ms-auto animate-fade-in">
+              {[
+                searchQuery && { key: 'q', label: `“${searchQuery}”`, clear: () => setSearchQuery('') },
+                statusFilter !== 'All' && { key: 's', label: statusFilter, clear: () => setStatusFilter('All') },
+                priorityFilter !== 'All' && { key: 'p', label: `${priorityFilter} priority`, clear: () => setPriorityFilter('All') },
+                leadFilter !== 'All' && { key: 'l', label: leadFilter, clear: () => setLeadFilter('All') },
+              ].filter(Boolean).map(f => (
+                <span key={f.key} className="active-filter">
+                  {f.label}
+                  <button type="button" onClick={f.clear} aria-label={`Remove filter ${f.label}`}><X size={11} /></button>
+                </span>
+              ))}
+              <button type="button" onClick={handleResetFilters} className="text-xs font-bold text-danger-600 hover:text-danger-700 inline-flex items-center gap-1 ms-1">
+                <RotateCcw size={12} aria-hidden="true" /> Clear all
+              </button>
+            </div>
           )}
         </div>
       </div>

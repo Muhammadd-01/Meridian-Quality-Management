@@ -19,7 +19,7 @@ import StatusBadge from '../../components/ui/StatusBadge';
 import ProgressBar from '../../components/ui/ProgressBar';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../components/ui/Toast';
-import { revenueData, enrollmentTrends } from '../../data/dashboard';
+import { revenueData } from '../../data/dashboard';
 import { initialSales } from '../../data/sales';
 import { ENTITY_LIST } from '../../data/entities';
 import useCollection from '../../hooks/useCollection';
@@ -69,7 +69,6 @@ export default function Dashboard() {
   // Live records — the same collections the module pages edit.
   const [projects] = useCollection('projects');
   const [leads] = useCollection('leads');
-  const [courses] = useCollection('courses');
   const [deals] = useCollection('deals');
   const [tasks] = useCollection('tasks');
   const [team] = useCollection('team');
@@ -99,13 +98,6 @@ export default function Dashboard() {
   const wonLeads = leads.filter(l => l.status === 'Won').length;
   const lostLeads = leads.filter(l => l.status === 'Lost').length;
   const winRate = wonLeads + lostLeads ? (wonLeads / (wonLeads + lostLeads)) * 100 : 0;
-
-  const totalLearners = courses.reduce((sum, c) => sum + (c.enrolledLearners || 0), 0);
-  const scored = courses.filter(c => c.avgScore > 0);
-  const avgScore = scored.length ? scored.reduce((sum, c) => sum + c.avgScore, 0) / scored.length : 0;
-  const completionRate = totalLearners
-    ? courses.reduce((sum, c) => sum + (c.completionRate || 0) * (c.enrolledLearners || 0), 0) / totalLearners
-    : 0;
 
   const closedIn = (from, to) => sales.filter(s => s.status === 'Closed' && inRange(s.date, from, to));
   const revenue = closedIn(range.from, range.to).reduce((sum, s) => sum + s.value, 0);
@@ -196,7 +188,7 @@ export default function Dashboard() {
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <StatCard
           title="Total Projects"
           value={totalProjects}
@@ -214,15 +206,6 @@ export default function Dashboard() {
           iconColor="bg-info/10 text-info"
           info="Leads whose last-contact date falls in the selected period. Leads do not store a creation date, so last contact is used."
           to="/sales-analytics/leads"
-        />
-        <StatCard
-          title="Total Learners"
-          value={formatNumber(totalLearners)}
-          subtitle={`across ${courses.length} courses`}
-          icon={BookOpen}
-          iconColor="bg-accent/10 text-accent"
-          info="Sum of enrolled learners on every course record (a learner on two courses counts twice)."
-          to="/lms-analytics/course-catalog"
         />
         <StatCard
           title="Closed Revenue"
@@ -251,15 +234,6 @@ export default function Dashboard() {
           to="/reports?report=sales-funnel"
         />
         <StatCard
-          title="Avg Course Score"
-          value={avgScore.toFixed(1)}
-          subtitle={`${scored.length} scored courses`}
-          icon={Award}
-          iconColor="bg-accent/10 text-accent"
-          info="Simple average of each course's average score (courses without scores are excluded)."
-          to="/reports?report=lms-courses"
-        />
-        <StatCard
           title="Open Pipeline"
           value={formatCurrency(openPipeline)}
           subtitle={`${formatCurrency(Math.round(weightedPipeline))} weighted`}
@@ -285,15 +259,6 @@ export default function Dashboard() {
           iconColor="bg-info/10 text-info"
           info="Companies with relationship = Customer."
           to="/crm/companies"
-        />
-        <StatCard
-          title="Course Completion"
-          value={formatPercent(completionRate)}
-          subtitle="enrolment-weighted"
-          icon={GraduationCap}
-          iconColor="bg-success/10 text-success"
-          info="Σ(course completion rate × enrolled learners) ÷ Σ enrolled learners."
-          to="/reports?report=lms-courses"
         />
         <StatCard
           title="Quote Acceptance"
@@ -348,7 +313,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 animate-slide-up">
+      <div className="grid grid-cols-1 gap-4 mb-6 animate-slide-up">
         <ChartCard title="Project Status" subtitle={`${projects.length} projects by current status`}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={projectStatusDistribution}>
@@ -365,19 +330,6 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={<>Enrollment Trends <DemoBadge /></>} subtitle="Monthly enrollments vs completions · illustrative figures">
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={enrollmentTrends}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-              <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Line type="monotone" dataKey="enrollments" stroke="#6174bc" strokeWidth={2} dot={{ r: 4 }} name="Enrollments" animationDuration={900} />
-              <Line type="monotone" dataKey="completions" stroke="#24997c" strokeWidth={2} dot={{ r: 4 }} name="Completions" animationDuration={900} />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
       </div>
 
       {/* Charts Row 3 */}

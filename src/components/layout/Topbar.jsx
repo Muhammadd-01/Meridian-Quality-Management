@@ -3,7 +3,7 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   Menu, Search, Bell, Sun, Moon, Monitor, Maximize, Minimize, ChevronDown, User, Settings, LogOut, Check, Plus,
   History, BellOff, LayoutGrid, Compass, CalendarDays, CheckSquare, Contact, Building2, FileBarChart, Clock,
-  BookOpen, PanelLeft, ArrowRight, Sparkles, AlertTriangle, ListChecks,
+  BookOpen, PanelLeft, GitBranch, ArrowRight, Sparkles, AlertTriangle, ListChecks,
 } from 'lucide-react';
 import { quickActions, moduleForPath, mainDashboardItems, moduleSections, allPages } from '../../app/navigation';
 import CommandPalette from './CommandPalette';
@@ -30,14 +30,14 @@ const APPS = [
   { label: 'Reports', path: '/reports', icon: FileBarChart, tone: 'bg-danger-50 text-danger-600' },
   { label: 'Audit Log', path: '/audit-log', icon: History, tone: 'bg-gray-100 text-gray-700' },
   { label: 'Timesheets', path: '/projects/timesheets', icon: Clock, tone: 'bg-warning-50 text-warning-600' },
-  { label: 'Courses', path: '/lms-analytics/course-catalog', icon: BookOpen, tone: 'bg-primary-50 text-primary-600' },
+  { label: 'Pipeline', path: '/sales-analytics/pipeline', icon: GitBranch, tone: 'bg-primary-50 text-primary-600' },
   { label: 'Settings', path: '/settings', icon: Settings, tone: 'bg-info-50 text-info-600' },
 ];
 
 const EXPLORE_COLUMNS = [
   { title: 'Dashboards', items: mainDashboardItems },
   { title: 'CRM & Sales', items: [...moduleSections.find(s => s.id === 'crm').items, ...moduleSections.find(s => s.id === 'sales').items] },
-  { title: 'Delivery & Learning', items: [...moduleSections.find(s => s.id === 'projects').items, ...moduleSections.find(s => s.id === 'lms').items] },
+  { title: 'Project Delivery', items: moduleSections.find(s => s.id === 'projects').items },
   { title: 'Workspace', items: moduleSections.find(s => s.id === 'workspace').items },
 ];
 

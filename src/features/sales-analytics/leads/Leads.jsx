@@ -186,7 +186,7 @@ export default function Leads() {
         title="Leads"
         subtitle="Manage prospective clients, audit inquiries, and sales qualification opportunities."
         breadcrumbs={[
-          { label: 'Sales Analytics', href: '/sales-analytics' },
+          { label: 'Website Analytics', href: '/sales-analytics' },
           { label: 'Leads' },
         ]}
         actions={

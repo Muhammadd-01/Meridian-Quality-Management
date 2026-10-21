@@ -29,12 +29,10 @@ export default function Reports() {
   const [tasks] = useCollection('tasks');
   const [timesheets] = useCollection('timesheets');
   const [projects] = useCollection('projects');
-  const [courses] = useCollection('courses');
-  const [learners] = useCollection('learners');
 
   const collections = useMemo(() => ({
-    activities, communications, companies, leads, deals, quotations, tasks, timesheets, projects, courses, learners,
-  }), [activities, communications, companies, leads, deals, quotations, tasks, timesheets, projects, courses, learners]);
+    activities, communications, companies, leads, deals, quotations, tasks, timesheets, projects,
+  }), [activities, communications, companies, leads, deals, quotations, tasks, timesheets, projects]);
 
   // Restrict the report's collections to the selected date range (when it has a date field).
   const scoped = useMemo(() => {

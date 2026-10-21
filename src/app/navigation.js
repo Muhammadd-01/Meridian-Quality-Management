@@ -36,8 +36,7 @@ export const mainDashboardItems = [
   { path: '/traffic-overview', label: 'Traffic Overview', icon: BarChart3 },
   { path: '/crm', label: 'CRM', icon: Users },
   { path: '/projects', label: 'Project Management', icon: GanttChartSquare },
-  { path: '/lms-analytics', label: 'LMS Analytics', icon: BookOpenCheck },
-  { path: '/sales-analytics', label: 'Sales Analytics', icon: TrendingUp },
+  { path: '/sales-analytics', label: 'Website Analytics', icon: TrendingUp },
 ];
 
 // Section 2: Module Headings and their pages (NO dropdowns below!)
@@ -64,18 +63,8 @@ export const moduleSections = [
     ],
   },
   {
-    id: 'lms',
-    title: 'LMS Analytics',
-    items: [
-      { path: '/lms-analytics/course-catalog', label: 'Course Catalog', icon: BookOpen },
-      { path: '/lms-analytics/learner-profile', label: 'Learner Profile', icon: Users },
-      { path: '/lms-analytics/quiz-builder', label: 'Quiz Builder', icon: HelpCircle },
-      { path: '/lms-analytics/activity-feed', label: 'Activity Feed', icon: Sparkles },
-    ],
-  },
-  {
     id: 'sales',
-    title: 'Sales Analytics',
+    title: 'Website Analytics',
     items: [
       { path: '/sales-analytics/leads', label: 'Leads', icon: Target },
       { path: '/sales-analytics/deals', label: 'Deals', icon: DollarSign },
@@ -128,8 +117,6 @@ export const quickActions = [
   { id: 'new-project', label: 'Create project', path: '/projects?action=new', icon: GanttChartSquare, modules: ['projects'] },
   { id: 'new-task', label: 'Create task', path: '/projects/tasks?action=new', icon: CheckSquare, modules: ['projects'] },
   { id: 'new-timesheet', label: 'Log time', path: '/projects/timesheets?action=new', icon: Clock, modules: ['projects'] },
-  { id: 'new-course', label: 'Create course', path: '/lms-analytics/course-catalog?action=new', icon: BookOpen, modules: ['lms'] },
-  { id: 'new-quiz', label: 'Create quiz', path: '/lms-analytics/quiz-builder?action=new', icon: HelpCircle, modules: ['lms'] },
   { id: 'new-event', label: 'Schedule event', path: '/calendar?action=new', icon: CalendarDays, modules: ['workspace'] },
   { id: 'reports', label: 'Export a report', path: '/reports', icon: FileBarChart, modules: ['workspace'] },
 ];
@@ -138,7 +125,6 @@ export const quickActions = [
 export function moduleForPath(path) {
   if (path.startsWith('/crm')) return 'crm';
   if (path.startsWith('/projects')) return 'projects';
-  if (path.startsWith('/lms')) return 'lms';
   if (path.startsWith('/sales')) return 'sales';
   return 'workspace';
 }

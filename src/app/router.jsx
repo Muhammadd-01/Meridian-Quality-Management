@@ -10,7 +10,6 @@ const Dashboard = lazy(() => import('../features/dashboard/Dashboard'));
 const TrafficOverview = lazy(() => import('../features/traffic/TrafficOverview'));
 const Projects = lazy(() => import('../features/projects/Projects'));
 const CRM = lazy(() => import('../features/crm/CRM'));
-const LMSAnalytics = lazy(() => import('../features/lms-analytics/LMSAnalytics'));
 const SalesAnalytics = lazy(() => import('../features/sales-analytics/SalesAnalytics'));
 
 // Authentication Pages
@@ -29,13 +28,7 @@ const Contacts = lazy(() => import('../features/crm/contacts/Contacts'));
 const Activities = lazy(() => import('../features/crm/activities/Activities'));
 const CallsEmails = lazy(() => import('../features/crm/calls-emails/CallsEmails'));
 
-// LMS Analytics Subpages
-const CourseCatalog = lazy(() => import('../features/lms-analytics/course-catalog/CourseCatalog'));
-const LearnerProfile = lazy(() => import('../features/lms-analytics/learner-profile/LearnerProfile'));
-const QuizBuilder = lazy(() => import('../features/lms-analytics/quiz-builder/QuizBuilder'));
-const ActivityFeed = lazy(() => import('../features/lms-analytics/activity-feed/ActivityFeed'));
-
-// Sales Analytics Subpages
+// Website Analytics Subpages
 const Leads = lazy(() => import('../features/sales-analytics/leads/Leads'));
 const Deals = lazy(() => import('../features/sales-analytics/deals/Deals'));
 const Quotations = lazy(() => import('../features/sales-analytics/quotations/Quotations'));
@@ -75,14 +68,7 @@ export default function AppRouter() {
           <Route path="/crm/activities" element={<Activities />} />
           <Route path="/crm/calls-emails" element={<CallsEmails />} />
 
-          {/* LMS Analytics */}
-          <Route path="/lms-analytics" element={<LMSAnalytics />} />
-          <Route path="/lms-analytics/course-catalog" element={<CourseCatalog />} />
-          <Route path="/lms-analytics/learner-profile" element={<LearnerProfile />} />
-          <Route path="/lms-analytics/quiz-builder" element={<QuizBuilder />} />
-          <Route path="/lms-analytics/activity-feed" element={<ActivityFeed />} />
-
-          {/* Sales Analytics */}
+          {/* Website Analytics */}
           <Route path="/sales-analytics" element={<SalesAnalytics />} />
           <Route path="/sales-analytics/leads" element={<Leads />} />
           <Route path="/sales-analytics/deals" element={<Deals />} />

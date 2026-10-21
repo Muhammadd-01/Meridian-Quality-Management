@@ -19,15 +19,6 @@ export const leadSourceData = [
   { name: 'Cold Call', value: 7, fill: '#d0504c' },
 ];
 
-export const enrollmentTrends = [
-  { month: 'May', enrollments: 45, completions: 20 },
-  { month: 'Jun', enrollments: 62, completions: 35 },
-  { month: 'Jul', enrollments: 78, completions: 48 },
-  { month: 'Aug', enrollments: 95, completions: 60 },
-  { month: 'Sep', enrollments: 110, completions: 75 },
-  { month: 'Oct', enrollments: 130, completions: 88 },
-];
-
 export const projectStatusDistribution = [
   { name: 'Active', value: 4, fill: '#3e7ead' },
   { name: 'In Progress', value: 4, fill: '#24997c' },
@@ -39,10 +30,8 @@ export const projectStatusDistribution = [
 export const recentActivities = [
   { id: 1, action: 'ISO 9001 audit milestone completed', module: 'Projects', time: '10 min ago', type: 'success' },
   { id: 2, action: 'New lead from Textile Corp Pakistan', module: 'CRM', time: '25 min ago', type: 'info' },
-  { id: 3, action: '15 learners completed Internal Auditor Training', module: 'LMS', time: '1 hour ago', type: 'primary' },
   { id: 4, action: 'Deal closed with PharmaCare - PKR 3.5M', module: 'Sales', time: '2 hours ago', type: 'success' },
   { id: 5, action: 'Customer Complaint Analysis overdue', module: 'Projects', time: '3 hours ago', type: 'danger' },
-  { id: 6, action: 'New course published: GMP for Pharmaceuticals', module: 'LMS', time: '4 hours ago', type: 'primary' },
   { id: 7, action: 'Follow-up scheduled with BuildRight Construction', module: 'CRM', time: '5 hours ago', type: 'info' },
   { id: 8, action: 'Monthly sales target achieved for October', module: 'Sales', time: '6 hours ago', type: 'success' },
 ];

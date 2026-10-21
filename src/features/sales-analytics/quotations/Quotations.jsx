@@ -172,7 +172,7 @@ export default function Quotations() {
         title="Quotations"
         subtitle="Manage commercial consulting fee estimates, audit quotations, and line-item scopes of work."
         breadcrumbs={[
-          { label: 'Sales Analytics', href: '/sales-analytics' },
+          { label: 'Website Analytics', href: '/sales-analytics' },
           { label: 'Quotations' },
         ]}
         actions={

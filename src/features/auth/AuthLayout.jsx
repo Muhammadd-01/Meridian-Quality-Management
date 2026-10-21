@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Hexagon, Users, GanttChartSquare, BookOpenCheck, TrendingUp, FileBarChart, CheckCircle2, ShieldCheck, Sparkles,
+  Hexagon, Users, GanttChartSquare, TrendingUp, FileBarChart, CheckCircle2, ShieldCheck, Sparkles,
 } from 'lucide-react';
 
 const FEATURES = [
   { icon: Users, label: 'CRM', text: 'Companies, contacts, activities and calls' },
   { icon: TrendingUp, label: 'Sales', text: 'Leads, deals, quotations and pipeline' },
   { icon: GanttChartSquare, label: 'Projects', text: 'Milestones, tasks, team and timesheets' },
-  { icon: BookOpenCheck, label: 'Learning', text: 'Courses, learners and assessments' },
+  { icon: FileBarChart, label: 'Reports', text: 'Reports, calendar and audit log' },
 ];
 
 /** Sample workspace cards that float over the brand panel (illustrative UI preview). */
@@ -88,10 +88,10 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
             <Sparkles size={13} className="text-accent-300" /> One workspace for quality professionals
           </span>
           <h2 className="font-display text-[40px] xl:text-[46px] leading-[1.08] font-extrabold tracking-tight mt-5">
-            Clients, projects and training — <span className="bg-gradient-to-r from-primary-200 via-accent-200 to-accent-300 bg-clip-text text-transparent">all in one place.</span>
+            Clients, projects and sales — <span className="bg-gradient-to-r from-primary-200 via-accent-200 to-accent-300 bg-clip-text text-transparent">all in one place.</span>
           </h2>
           <p className="text-[15px] text-white/65 mt-4 leading-relaxed">
-            Track every engagement from first enquiry to certification: CRM, sales pipeline, project delivery and learning, with reports you can export in one click.
+            Track every engagement from first enquiry to certification: CRM, sales pipeline, project delivery and website analytics, with reports you can export in one click.
           </p>
           <PreviewCards />
         </div>

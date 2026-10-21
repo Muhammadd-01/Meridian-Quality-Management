@@ -135,7 +135,7 @@ export default function CommandPalette({ open, onClose }) {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search pages, actions, customers, deals, tasks, courses…"
+            placeholder="Search pages, actions, customers, deals, tasks…"
             className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-500 outline-none"
             role="combobox"
             aria-expanded="true"
@@ -150,7 +150,7 @@ export default function CommandPalette({ open, onClose }) {
           {flat.length === 0 ? (
             <div className="py-10 text-center">
               <p className="text-sm font-medium text-gray-900">No results for “{query}”</p>
-              <p className="text-xs text-gray-500 mt-1">Try a company, lead, deal, task, course or page name.</p>
+              <p className="text-xs text-gray-500 mt-1">Try a company, lead, deal, task or page name.</p>
             </div>
           ) : (
             groups.map(group => (

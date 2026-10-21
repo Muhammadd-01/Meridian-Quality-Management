@@ -16,8 +16,7 @@ const groupLinks = {
   Main: { label: 'Dashboards', to: '/dashboard' },
   CRM: { label: 'CRM', to: '/crm' },
   'Project Management': { label: 'Project Management', to: '/projects' },
-  'LMS Analytics': { label: 'LMS Analytics', to: '/lms-analytics' },
-  'Sales Analytics': { label: 'Sales Analytics', to: '/sales-analytics' },
+  'Website Analytics': { label: 'Website Analytics', to: '/sales-analytics' },
   Workspace: { label: 'Workspace' },
 };
 

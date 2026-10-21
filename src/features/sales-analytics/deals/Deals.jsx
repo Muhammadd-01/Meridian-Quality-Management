@@ -177,7 +177,7 @@ export default function Deals() {
         title="Deals"
         subtitle="Manage deal stages, contract probability, weighted sales forecast, and account pipeline."
         breadcrumbs={[
-          { label: 'Sales Analytics', href: '/sales-analytics' },
+          { label: 'Website Analytics', href: '/sales-analytics' },
           { label: 'Deals' },
         ]}
         actions={

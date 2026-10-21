@@ -198,7 +198,7 @@ export default function Pipeline() {
         title="Pipeline"
         subtitle="Visual Kanban pipeline tracking opportunities across consultation and audit closure stages."
         breadcrumbs={[
-          { label: 'Sales Analytics', href: '/sales-analytics' },
+          { label: 'Website Analytics', href: '/sales-analytics' },
           { label: 'Pipeline' },
         ]}
         actions={

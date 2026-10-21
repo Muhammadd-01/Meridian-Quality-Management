@@ -15,7 +15,7 @@ const isOverdue = (t) => {
   return isValid(d) && t.status !== 'Completed' && differenceInCalendarDays(d, today()) < 0;
 };
 
-export const REPORT_MODULES = ['CRM', 'Sales', 'Projects', 'LMS'];
+export const REPORT_MODULES = ['CRM', 'Sales', 'Projects'];
 
 export const REPORTS = [
   // ------------------------------------------------------------------ CRM
@@ -277,44 +277,6 @@ export const REPORTS = [
         rows,
         chart: { xKey: 'project', bars: [{ key: 'budget', label: 'Budget', color: '#b0e4d0' }, { key: 'spent', label: 'Spent', color: '#187f65' }] },
         summary: [{ label: 'Projects', value: projects.length }, { label: 'Overall utilisation', value: pct(sum(projects, p => p.spent), sum(projects, p => p.budget)) }],
-      };
-    },
-  },
-  // ------------------------------------------------------------------ LMS
-  {
-    id: 'lms-courses',
-    module: 'LMS',
-    title: 'Course performance',
-    description: 'Enrolment, activity, completion and scores per course.',
-    formula: 'Values come from each course record. Active share = active ÷ enrolled learners.',
-    entities: ['courses'],
-    dateField: { entity: 'courses', field: 'startDate' },
-    build: ({ courses }) => {
-      const rows = courses.map(c => ({ id: c.id, course: c.name, category: c.category, enrolled: c.enrolledLearners || 0, active: c.activeLearners || 0, completion: c.completionRate || 0, avgScore: c.avgScore || 0 }));
-      const enrolled = sum(courses, c => c.enrolledLearners);
-      const weightedCompletion = enrolled ? sum(courses, c => (c.completionRate || 0) * (c.enrolledLearners || 0)) / enrolled : 0;
-      return {
-        columns: [{ key: 'course', label: 'Course' }, { key: 'category', label: 'Category' }, { key: 'enrolled', label: 'Enrolled' }, { key: 'active', label: 'Active' }, { key: 'activeShare', label: 'Active Share', accessor: r => pct(r.active, r.enrolled) }, { key: 'completion', label: 'Completion', accessor: r => `${r.completion}%` }, { key: 'avgScore', label: 'Avg Score' }],
-        rows,
-        chart: { xKey: 'course', bars: [{ key: 'enrolled', label: 'Enrolled', color: '#b0e4d0' }, { key: 'active', label: 'Active', color: '#187f65' }] },
-        summary: [{ label: 'Courses', value: courses.length }, { label: 'Enrolments', value: enrolled }, { label: 'Completion (enrolment-weighted)', value: `${weightedCompletion.toFixed(1)}%` }],
-      };
-    },
-  },
-  {
-    id: 'lms-learners',
-    module: 'LMS',
-    title: 'Learner progress',
-    description: 'Courses completed, hours and assessment results per learner.',
-    formula: 'Completion = completed ÷ enrolled courses for each learner.',
-    entities: ['learners'],
-    build: ({ learners }) => {
-      const rows = learners.map(l => ({ id: l.id, learner: l.name, department: l.department, enrolled: l.enrolledCount || 0, completed: l.completedCount || 0, hours: l.hoursLearned || 0, avgQuiz: l.avgQuizScore || 0 }));
-      return {
-        columns: [{ key: 'learner', label: 'Learner' }, { key: 'department', label: 'Department' }, { key: 'enrolled', label: 'Enrolled' }, { key: 'completed', label: 'Completed' }, { key: 'completion', label: 'Completion', accessor: r => pct(r.completed, r.enrolled) }, { key: 'hours', label: 'Hours' }, { key: 'avgQuiz', label: 'Avg Quiz Score' }],
-        rows,
-        chart: { xKey: 'learner', bars: [{ key: 'enrolled', label: 'Enrolled', color: '#b0e4d0' }, { key: 'completed', label: 'Completed', color: '#187f65' }] },
-        summary: [{ label: 'Learners', value: learners.length }, { label: 'Hours learned', value: `${sum(learners, l => l.hoursLearned)}h` }],
       };
     },
   },

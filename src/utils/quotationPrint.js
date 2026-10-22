@@ -22,17 +22,17 @@ export function printQuotation(q) {
   const a = quotationAmounts(q);
   win.document.write(`<!DOCTYPE html><html><head><title>${esc(q.quoteNumber)}</title>
   <style>
-    body{font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1e211f;padding:32px;max-width:820px;margin:auto}
-    .head{display:flex;justify-content:space-between;border-bottom:2px solid #187f65;padding-bottom:12px;margin-bottom:20px}
-    h1{font-size:20px;margin:0;color:#187f65} .muted{color:#5a625c;font-size:12px;margin:2px 0}
+    body{font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;color:#17212B;padding:32px;max-width:820px;margin:auto}
+    .head{display:flex;justify-content:space-between;border-bottom:2px solid #2C5F6F;padding-bottom:12px;margin-bottom:20px}
+    h1{font-size:20px;margin:0;color:#2C5F6F} .muted{color:#475569;font-size:12px;margin:2px 0}
     table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px}
-    th{background:#f7f8f7;text-align:left;padding:8px;border-bottom:1px solid #e4e7e5;color:#5a625c}
-    td{padding:8px;border-bottom:1px solid #eff1f0} .r{text-align:right}
+    th{background:#F4F6F8;text-align:left;padding:8px;border-bottom:1px solid #E2E8F0;color:#475569}
+    td{padding:8px;border-bottom:1px solid #F1F5F9} .r{text-align:right}
     .totals{margin-left:auto;width:280px;font-size:12px;margin-top:12px}
     .totals div{display:flex;justify-content:space-between;padding:3px 0}
-    .grand{font-weight:700;font-size:14px;border-top:1px solid #e4e7e5;padding-top:6px!important}
-    .terms{margin-top:24px;font-size:11px;color:#5a625c;background:#f7f8f7;padding:10px;border-radius:6px}
-    .note{margin-top:16px;font-size:10px;color:#757f79}
+    .grand{font-weight:700;font-size:14px;border-top:1px solid #E2E8F0;padding-top:6px!important}
+    .terms{margin-top:24px;font-size:11px;color:#475569;background:#F4F6F8;padding:10px;border-radius:6px}
+    .note{margin-top:16px;font-size:10px;color:#64748B}
   </style></head><body>
   <div class="head">
     <div><h1>Meridian Quality Management</h1><p class="muted">ISO 9001 / Six Sigma / GMP Advisory Services</p></div>

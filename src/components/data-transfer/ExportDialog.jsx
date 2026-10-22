@@ -116,7 +116,7 @@ export default function ExportDialog({
                     checked={scope === s.id}
                     disabled={s.count === 0}
                     onChange={() => setScope(s.id)}
-                    className="accent-[#187f65]"
+                    className="accent-[#2C5F6F]"
                   />
                   {s.label}
                 </span>

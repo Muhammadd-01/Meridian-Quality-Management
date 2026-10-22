@@ -30,9 +30,9 @@ import { useSettings } from '../../lib/settings';
 import { formatCurrency, formatNumber, formatPercent, formatDate, formatRelative } from '../../utils/format';
 
 // Original dashboard chart palette (kept unchanged).
-const COLORS = ['#24997c', '#6174bc', '#3e7ead', '#dc9a2c', '#d0504c'];
-const SOURCE_COLORS = { Website: '#24997c', Referral: '#6174bc', LinkedIn: '#3e7ead', Conference: '#dc9a2c', 'Cold Call': '#d0504c' };
-const STATUS_COLORS = { Active: '#3e7ead', 'In Progress': '#24997c', 'On Track': '#3e7ead', Completed: '#1e9e6b', Pending: '#dc9a2c', Delayed: '#d0504c', Overdue: '#d0504c' };
+const COLORS = ['#357A8E', '#7A5CC8', '#2F95C8', '#D97706', '#DC2626'];
+const SOURCE_COLORS = { Website: '#357A8E', Referral: '#7A5CC8', LinkedIn: '#2F95C8', Conference: '#D97706', 'Cold Call': '#DC2626' };
+const STATUS_COLORS = { Active: '#2F95C8', 'In Progress': '#357A8E', 'On Track': '#2F95C8', Completed: '#16A34A', Pending: '#D97706', Delayed: '#DC2626', Overdue: '#DC2626' };
 const tooltipStyle = { borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' };
 
 const toDay = (v) => {
@@ -278,8 +278,8 @@ export default function Dashboard() {
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#24997c" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#24997c" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#357A8E" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#357A8E" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -287,8 +287,8 @@ export default function Dashboard() {
               <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} />
               <Tooltip formatter={(v) => formatCurrency(v)} contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Area type="monotone" dataKey="revenue" stroke="#24997c" strokeWidth={2} fill="url(#colorRevenue)" name="Revenue" animationDuration={900} />
-              <Area type="monotone" dataKey="target" stroke="#6174bc" strokeWidth={2} fill="none" strokeDasharray="5 5" name="Target" animationDuration={900} />
+              <Area type="monotone" dataKey="revenue" stroke="#357A8E" strokeWidth={2} fill="url(#colorRevenue)" name="Revenue" animationDuration={900} />
+              <Area type="monotone" dataKey="target" stroke="#7A5CC8" strokeWidth={2} fill="none" strokeDasharray="5 5" name="Target" animationDuration={900} />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -345,7 +345,7 @@ export default function Dashboard() {
               <XAxis dataKey="stage" tick={{ fontSize: 11 }} stroke="#9ca3af" />
               <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={formatNumber} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v, n, item) => [`${formatCurrency(v)} · ${item.payload.deals} deal(s)`, 'Value']} />
-              <Bar dataKey="value" name="Value" fill="#24997c" radius={[6, 6, 0, 0]} animationDuration={900} />
+              <Bar dataKey="value" name="Value" fill="#357A8E" radius={[6, 6, 0, 0]} animationDuration={900} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -362,7 +362,7 @@ export default function Dashboard() {
               <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} stroke="#9ca3af" width={70} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v}%`, 'Workload']} />
               <Bar dataKey="workload" radius={[0, 6, 6, 0]} animationDuration={900}>
-                {workload.map(w => <Cell key={w.name} fill={w.workload >= 90 ? '#d0504c' : w.workload >= 75 ? '#dc9a2c' : '#24997c'} />)}
+                {workload.map(w => <Cell key={w.name} fill={w.workload >= 90 ? '#DC2626' : w.workload >= 75 ? '#D97706' : '#357A8E'} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

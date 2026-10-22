@@ -94,7 +94,7 @@ export default function Login() {
             )}
           />
           <label htmlFor="login-remember" className="flex items-center gap-2.5 cursor-pointer select-none w-max">
-            <input id="login-remember" type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 accent-[#187f65]" />
+            <input id="login-remember" type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 accent-[#2C5F6F]" />
             <span className="text-[12.5px] text-gray-600">Keep me signed in on this device</span>
           </label>
         </form>

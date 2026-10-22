@@ -43,7 +43,7 @@ function smoothPath(pts) {
  * cards). `responsive` stretches to the container width; `fill` adds a soft
  * gradient area. The line draws in on mount.
  */
-export function Sparkline({ values = [], width = 64, height = 20, color = '#187f65', fill = false, responsive = false, strokeWidth = 1.6 }) {
+export function Sparkline({ values = [], width = 64, height = 20, color = '#2C5F6F', fill = false, responsive = false, strokeWidth = 1.6 }) {
   const gradientId = useId().replace(/:/g, '');
   if (!values.length) return null;
   const max = Math.max(...values, 1);

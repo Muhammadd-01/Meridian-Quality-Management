@@ -222,16 +222,16 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
             <fieldset className="p-3 rounded-lg border border-gray-200 space-y-2">
               <legend className="px-1 text-xs font-semibold text-gray-900">Rows that match existing records</legend>
               <label className="flex items-center gap-2 text-sm">
-                <input type="radio" name="dup-mode" checked={mode === 'skip'} onChange={() => { setMode('skip'); setConfirmUpdate(false); }} className="accent-[#187f65]" />
+                <input type="radio" name="dup-mode" checked={mode === 'skip'} onChange={() => { setMode('skip'); setConfirmUpdate(false); }} className="accent-[#2C5F6F]" />
                 Skip duplicate entries (recommended)
               </label>
               <label className="flex items-center gap-2 text-sm">
-                <input type="radio" name="dup-mode" checked={mode === 'update'} onChange={() => setMode('update')} className="accent-[#187f65]" />
+                <input type="radio" name="dup-mode" checked={mode === 'update'} onChange={() => setMode('update')} className="accent-[#2C5F6F]" />
                 Update existing records with values from the file
               </label>
               {mode === 'update' && (
                 <label className="flex items-start gap-2 text-xs text-danger-600 bg-danger-50 p-2 rounded-md">
-                  <input type="checkbox" checked={confirmUpdate} onChange={(e) => setConfirmUpdate(e.target.checked)} className="mt-0.5 accent-[#d0504c]" />
+                  <input type="checkbox" checked={confirmUpdate} onChange={(e) => setConfirmUpdate(e.target.checked)} className="mt-0.5 accent-[#DC2626]" />
                   I understand {counts.duplicates} existing record(s) will be overwritten by mapped values from this file.
                 </label>
               )}

@@ -41,7 +41,7 @@ export const REPORTS = [
           { key: 'rate', label: 'Completion Rate', accessor: r => pct(r.completed, r.total) },
         ],
         rows,
-        chart: { xKey: 'type', bars: [{ key: 'completed', label: 'Completed', color: '#187f65' }, { key: 'scheduled', label: 'Scheduled', color: '#3e7ead' }, { key: 'overdue', label: 'Overdue', color: '#d0504c' }], stacked: true },
+        chart: { xKey: 'type', bars: [{ key: 'completed', label: 'Completed', color: '#2C5F6F' }, { key: 'scheduled', label: 'Scheduled', color: '#2F95C8' }, { key: 'overdue', label: 'Overdue', color: '#DC2626' }], stacked: true },
         summary: [
           { label: 'Activities', value: activities.length },
           { label: 'Completion rate', value: pct(activities.filter(a => a.status === 'Completed').length, activities.length) },
@@ -65,7 +65,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'owner', label: 'Owner' }, { key: 'calls', label: 'Calls' }, { key: 'emails', label: 'Emails' }, { key: 'inbound', label: 'Inbound' }, { key: 'outbound', label: 'Outbound' }],
         rows,
-        chart: { xKey: 'owner', bars: [{ key: 'calls', label: 'Calls', color: '#187f65' }, { key: 'emails', label: 'Emails', color: '#3e7ead' }], stacked: true },
+        chart: { xKey: 'owner', bars: [{ key: 'calls', label: 'Calls', color: '#2C5F6F' }, { key: 'emails', label: 'Emails', color: '#2F95C8' }], stacked: true },
         summary: [{ label: 'Communications', value: communications.length }],
       };
     },
@@ -84,7 +84,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'relationship', label: 'Relationship' }, { key: 'companies', label: 'Companies' }, { key: 'activeDeals', label: 'Active Deals' }, { key: 'value', label: 'Total Value', accessor: r => formatCurrency(r.value) }],
         rows,
-        chart: { xKey: 'relationship', bars: [{ key: 'companies', label: 'Companies', color: '#187f65' }] },
+        chart: { xKey: 'relationship', bars: [{ key: 'companies', label: 'Companies', color: '#2C5F6F' }] },
         summary: [{ label: 'Companies', value: companies.length }, { label: 'Portfolio value', value: formatCurrency(sum(companies, c => c.totalSpent)) }],
       };
     },
@@ -109,7 +109,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'status', label: 'Status' }, { key: 'leads', label: 'Leads' }, { key: 'share', label: 'Share' }, { key: 'value', label: 'Expected Value', accessor: r => formatCurrency(r.value) }],
         rows,
-        chart: { xKey: 'status', bars: [{ key: 'leads', label: 'Leads', color: '#187f65' }] },
+        chart: { xKey: 'status', bars: [{ key: 'leads', label: 'Leads', color: '#2C5F6F' }] },
         summary: [
           { label: 'Leads', value: leads.length },
           { label: 'Qualified or later', value: leads.filter(l => ['Qualified', 'Proposal', 'Won'].includes(l.status)).length },
@@ -135,7 +135,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'source', label: 'Source' }, { key: 'leads', label: 'Leads' }, { key: 'qualified', label: 'Qualified+' }, { key: 'won', label: 'Won' }, { key: 'conversion', label: 'Conversion' }, { key: 'value', label: 'Pipeline Value', accessor: r => formatCurrency(r.value) }],
         rows,
-        chart: { xKey: 'source', bars: [{ key: 'leads', label: 'Leads', color: '#b0e4d0' }, { key: 'qualified', label: 'Qualified+', color: '#48b594' }, { key: 'won', label: 'Won', color: '#146553' }] },
+        chart: { xKey: 'source', bars: [{ key: 'leads', label: 'Leads', color: '#AACDD7' }, { key: 'qualified', label: 'Qualified+', color: '#429BB7' }, { key: 'won', label: 'Won', color: '#093F50' }] },
         summary: [{ label: 'Sources', value: rows.length }],
       };
     },
@@ -159,7 +159,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'stage', label: 'Stage' }, { key: 'deals', label: 'Deals' }, { key: 'value', label: 'Value', accessor: r => formatCurrency(r.value) }, { key: 'weighted', label: 'Weighted Value', accessor: r => formatCurrency(r.weighted) }],
         rows,
-        chart: { xKey: 'stage', bars: [{ key: 'value', label: 'Value', color: '#b0e4d0' }, { key: 'weighted', label: 'Weighted', color: '#187f65' }], currency: true },
+        chart: { xKey: 'stage', bars: [{ key: 'value', label: 'Value', color: '#AACDD7' }, { key: 'weighted', label: 'Weighted', color: '#2C5F6F' }], currency: true },
         summary: [
           { label: 'Open pipeline', value: formatCurrency(sum(open, d => d.value)) },
           { label: 'Weighted pipeline', value: formatCurrency(Math.round(sum(open, d => (d.value || 0) * (d.probability || 0) / 100))) },
@@ -187,7 +187,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'owner', label: 'Owner' }, { key: 'open', label: 'Open Deals' }, { key: 'openValue', label: 'Open Value', accessor: r => formatCurrency(r.openValue) }, { key: 'won', label: 'Won' }, { key: 'wonValue', label: 'Won Value', accessor: r => formatCurrency(r.wonValue) }, { key: 'winRate', label: 'Win Rate' }],
         rows,
-        chart: { xKey: 'owner', bars: [{ key: 'openValue', label: 'Open value', color: '#b0e4d0' }, { key: 'wonValue', label: 'Won value', color: '#187f65' }], currency: true },
+        chart: { xKey: 'owner', bars: [{ key: 'openValue', label: 'Open value', color: '#AACDD7' }, { key: 'wonValue', label: 'Won value', color: '#2C5F6F' }], currency: true },
         summary: [{ label: 'Owners', value: rows.length }],
       };
     },
@@ -207,7 +207,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'status', label: 'Status' }, { key: 'quotations', label: 'Quotations' }, { key: 'value', label: 'Total Value', accessor: r => formatCurrency(r.value) }],
         rows,
-        chart: { xKey: 'status', bars: [{ key: 'quotations', label: 'Quotations', color: '#187f65' }] },
+        chart: { xKey: 'status', bars: [{ key: 'quotations', label: 'Quotations', color: '#2C5F6F' }] },
         summary: [{ label: 'Quotations', value: quotations.length }, { label: 'Acceptance rate', value: pct(acc, acc + dec) }],
       };
     },
@@ -230,7 +230,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'assignee', label: 'Assignee' }, { key: 'total', label: 'Tasks' }, { key: 'open', label: 'Open' }, { key: 'completed', label: 'Completed' }, { key: 'overdue', label: 'Overdue' }, { key: 'estimated', label: 'Est. Hours' }, { key: 'logged', label: 'Logged Hours' }],
         rows,
-        chart: { xKey: 'assignee', bars: [{ key: 'completed', label: 'Completed', color: '#187f65' }, { key: 'open', label: 'Open', color: '#3e7ead' }, { key: 'overdue', label: 'Overdue', color: '#d0504c' }] },
+        chart: { xKey: 'assignee', bars: [{ key: 'completed', label: 'Completed', color: '#2C5F6F' }, { key: 'open', label: 'Open', color: '#2F95C8' }, { key: 'overdue', label: 'Overdue', color: '#DC2626' }] },
         summary: [
           { label: 'Tasks', value: tasks.length },
           { label: 'Overdue', value: tasks.filter(isOverdue).length },
@@ -257,7 +257,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'project', label: 'Project' }, { key: 'entries', label: 'Entries' }, { key: 'hours', label: 'Total Hours' }, { key: 'approved', label: 'Approved' }, { key: 'pending', label: 'Pending' }, { key: 'rejected', label: 'Rejected' }],
         rows,
-        chart: { xKey: 'project', bars: [{ key: 'approved', label: 'Approved', color: '#187f65' }, { key: 'pending', label: 'Pending', color: '#dda92c' }, { key: 'rejected', label: 'Rejected', color: '#d0504c' }], stacked: true },
+        chart: { xKey: 'project', bars: [{ key: 'approved', label: 'Approved', color: '#2C5F6F' }, { key: 'pending', label: 'Pending', color: '#FF9F1F' }, { key: 'rejected', label: 'Rejected', color: '#DC2626' }], stacked: true },
         summary: [{ label: 'Hours logged', value: `${sum(timesheets, t => t.hours)}h` }],
       };
     },
@@ -275,7 +275,7 @@ export const REPORTS = [
       return {
         columns: [{ key: 'project', label: 'Project' }, { key: 'status', label: 'Status' }, { key: 'budget', label: 'Budget', accessor: r => `$${r.budget.toLocaleString()}` }, { key: 'spent', label: 'Spent', accessor: r => `$${r.spent.toLocaleString()}` }, { key: 'utilisation', label: 'Utilisation' }, { key: 'progress', label: 'Progress' }],
         rows,
-        chart: { xKey: 'project', bars: [{ key: 'budget', label: 'Budget', color: '#b0e4d0' }, { key: 'spent', label: 'Spent', color: '#187f65' }] },
+        chart: { xKey: 'project', bars: [{ key: 'budget', label: 'Budget', color: '#AACDD7' }, { key: 'spent', label: 'Spent', color: '#2C5F6F' }] },
         summary: [{ label: 'Projects', value: projects.length }, { label: 'Overall utilisation', value: pct(sum(projects, p => p.spent), sum(projects, p => p.budget)) }],
       };
     },

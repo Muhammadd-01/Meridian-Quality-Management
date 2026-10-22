@@ -9,7 +9,7 @@ import useCollection from '../../hooks/useCollection';
 import { REPORTS, REPORT_MODULES } from './reportDefinitions';
 import { formatCurrency, formatNumber } from '../../utils/format';
 
-const tooltipStyle = { borderRadius: '8px', border: '1px solid #e4e7e5', fontSize: '12px' };
+const tooltipStyle = { borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '12px' };
 const dayOf = (v) => String(v || '').slice(0, 10);
 
 export default function Reports() {
@@ -146,7 +146,7 @@ export default function Reports() {
                 <div className="p-5">
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={result.rows} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#eff1f0" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                       <XAxis dataKey={result.chart.xKey} tick={{ fontSize: 11 }} stroke="#adb5bd" interval={0} tickFormatter={(v) => (String(v).length > 14 ? `${String(v).slice(0, 13)}…` : v)} />
                       <YAxis tick={{ fontSize: 11 }} stroke="#adb5bd" tickFormatter={formatNumber} width={52} />
                       <Tooltip contentStyle={tooltipStyle} formatter={(v) => (result.chart.currency ? formatCurrency(v) : Number(v).toLocaleString())} />

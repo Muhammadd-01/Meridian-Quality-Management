@@ -45,7 +45,7 @@ export default function TrafficTable({
       sortable: true,
       render: r => (
         <div className="flex items-center gap-2">
-          <Sparkline values={r.spark} width={72} height={22} color={r.trend !== null && r.trend < 0 ? '#d0504c' : '#1e9e6b'} />
+          <Sparkline values={r.spark} width={72} height={22} color={r.trend !== null && r.trend < 0 ? '#DC2626' : '#16A34A'} />
           <TrendBadge value={r.trend} />
         </div>
       ),

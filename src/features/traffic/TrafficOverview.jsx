@@ -36,7 +36,7 @@ const CHANNELS = ['All', 'Search', 'Direct', 'Social', 'Referral', 'Email'];
 const tooltipStyle = { borderRadius: '5px', fontSize: '12px' };
 
 // Series colours use the theme: spruce-green sessions, gold users.
-const SERIES = { sessions: '#24997c', users: '#c4901d', prior: '#9aa39e' };
+const SERIES = { sessions: '#357A8E', users: '#F78D00', prior: '#94A3B8' };
 
 const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -136,11 +136,11 @@ export default function TrafficOverview() {
       info: METRIC_DEFINITIONS.sessions, ...changeProps(current.sessions, previous.sessions, compare),
     },
     {
-      title: 'Users', value: current.users, icon: Users, color: 'bg-success-50 text-success-600', spark: sparkUsers, sparkColor: '#48b594',
+      title: 'Users', value: current.users, icon: Users, color: 'bg-success-50 text-success-600', spark: sparkUsers, sparkColor: '#429BB7',
       info: METRIC_DEFINITIONS.users, ...changeProps(current.users, previous.users, compare),
     },
     {
-      title: 'Bounce Rate', value: current.bounceRate === null ? '—' : `${current.bounceRate.toFixed(1)}%`, icon: MousePointerClick, color: 'bg-danger-50 text-danger-600', spark: sparkBounce, sparkColor: '#d0504c',
+      title: 'Bounce Rate', value: current.bounceRate === null ? '—' : `${current.bounceRate.toFixed(1)}%`, icon: MousePointerClick, color: 'bg-danger-50 text-danger-600', spark: sparkBounce, sparkColor: '#DC2626',
       info: METRIC_DEFINITIONS.bounceRate, positiveIsGood: false, ...changeProps(current.bounceRate, previous.bounceRate, compare),
     },
     {
@@ -161,7 +161,7 @@ export default function TrafficOverview() {
       {/* Hero header */}
       <section className="relative overflow-hidden rounded-3xl hero-spruce hero-grid text-white p-5 md:p-6 mb-4 shadow-lg animate-rise-in">
         <span className="hero-orb w-72 h-72 -top-24 -right-16 bg-[radial-gradient(circle,rgba(255,255,255,0.12),transparent_70%)]" aria-hidden="true" />
-        <span className="hero-orb w-64 h-64 -bottom-32 left-[20%] bg-[radial-gradient(circle,rgba(255,214,130,0.14),transparent_70%)] animate-float" aria-hidden="true" />
+        <span className="hero-orb w-64 h-64 -bottom-32 left-[20%] bg-[radial-gradient(circle,rgba(255,179,71,0.14),transparent_70%)] animate-float" aria-hidden="true" />
         <div className="relative flex flex-col gap-4">
           <div className="min-w-0">
             <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10.5px] font-bold tracking-wide bg-white/[0.08] text-white/85">
@@ -194,7 +194,7 @@ export default function TrafficOverview() {
               ))}
             </div>
             <label className="btn-glass cursor-pointer !font-medium">
-              <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="accent-[#7ed0b4]" />
+              <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="accent-[#7AB0C1]" />
               Compare
             </label>
             <button type="button" onClick={() => scrollToId('traffic-referrers')} className="btn-glass">
@@ -288,11 +288,11 @@ export default function TrafficOverview() {
             </div>
             <div className="flex items-center gap-3 text-xs" role="group" aria-label="Chart series">
               <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" checked={series.sessions} onChange={(e) => setSeries(s => ({ ...s, sessions: e.target.checked }))} className="accent-[#187f65]" />
+                <input type="checkbox" checked={series.sessions} onChange={(e) => setSeries(s => ({ ...s, sessions: e.target.checked }))} className="accent-[#2C5F6F]" />
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: SERIES.sessions }} aria-hidden="true" /> Sessions
               </label>
               <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" checked={series.users} onChange={(e) => setSeries(s => ({ ...s, users: e.target.checked }))} className="accent-[#e8830f]" />
+                <input type="checkbox" checked={series.users} onChange={(e) => setSeries(s => ({ ...s, users: e.target.checked }))} className="accent-[#F78D00]" />
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: SERIES.users }} aria-hidden="true" /> Users
               </label>
               {compare && (
@@ -364,7 +364,7 @@ export default function TrafficOverview() {
             ) : (
               <>
                 <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className="-mx-1 mb-3"><Sparkline values={sparkSessions.slice(-14)} width={240} height={46} color="#1e9e6b" fill responsive strokeWidth={2} /></div>
+                  <div className="-mx-1 mb-3"><Sparkline values={sparkSessions.slice(-14)} width={240} height={46} color="#16A34A" fill responsive strokeWidth={2} /></div>
                   <p className="text-sm font-semibold text-gray-700">Realtime feed not connected</p>
                   <p className="text-xs text-gray-500 mt-1">
                     The current source ({provider.label.toLowerCase()}) has no realtime visitor stream. This panel never shows simulated live visitors.

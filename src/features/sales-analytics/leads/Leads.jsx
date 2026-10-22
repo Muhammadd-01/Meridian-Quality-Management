@@ -420,7 +420,7 @@ export default function Leads() {
                 {duplicateMatches.map(d => <li key={d.id}>{d.contactName} · {d.company} · {d.email} ({d.status})</li>)}
               </ul>
               <label className="flex items-center gap-2">
-                <input type="checkbox" checked={allowDuplicate} onChange={(e) => setAllowDuplicate(e.target.checked)} className="accent-[#187f65]" />
+                <input type="checkbox" checked={allowDuplicate} onChange={(e) => setAllowDuplicate(e.target.checked)} className="accent-[#2C5F6F]" />
                 This is a different lead — save anyway
               </label>
             </div>

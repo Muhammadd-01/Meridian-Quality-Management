@@ -306,7 +306,7 @@ export default function Tasks() {
                   <input
                     type="checkbox"
                     aria-label="Select all tasks on this page"
-                    className="accent-[#187f65]"
+                    className="accent-[#2C5F6F]"
                     checked={pagination.paginatedData.length > 0 && pagination.paginatedData.every(t => selectedIds.has(t.id))}
                     onChange={(e) => setSelectedIds(prev => {
                       const next = new Set(prev);
@@ -336,7 +336,7 @@ export default function Tasks() {
                       <input
                         type="checkbox"
                         aria-label={`Select ${task.title}`}
-                        className="accent-[#187f65]"
+                        className="accent-[#2C5F6F]"
                         checked={selectedIds.has(task.id)}
                         onChange={() => setSelectedIds(prev => {
                           const next = new Set(prev);

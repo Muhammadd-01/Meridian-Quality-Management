@@ -68,11 +68,11 @@ const mrrData = [
 
 // Deal sources breakdown
 const dealSourcesData = [
-  { name: 'Organic Search', value: 240, fill: '#24997c' },
-  { name: 'Referral', value: 180, fill: '#6174bc' },
-  { name: 'Paid Ads', value: 110, fill: '#3e7ead' },
-  { name: 'Email Campaign', value: 75, fill: '#dc9a2c' },
-  { name: 'Events', value: 43, fill: '#d0504c' },
+  { name: 'Organic Search', value: 240, fill: '#357A8E' },
+  { name: 'Referral', value: 180, fill: '#7A5CC8' },
+  { name: 'Paid Ads', value: 110, fill: '#2F95C8' },
+  { name: 'Email Campaign', value: 75, fill: '#D97706' },
+  { name: 'Events', value: 43, fill: '#DC2626' },
 ];
 
 // Revenue by region
@@ -520,8 +520,8 @@ export default function CRM() {
             <AreaChart data={mrrData}>
               <defs>
                 <linearGradient id="crmActualGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#24997c" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#24997c" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#357A8E" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#357A8E" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -529,7 +529,7 @@ export default function CRM() {
               <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" domain={[130, 200]} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Area type="monotone" dataKey="actual" stroke="#24997c" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" isAnimationActive={true} animationDuration={1400} />
+              <Area type="monotone" dataKey="actual" stroke="#357A8E" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" isAnimationActive={true} animationDuration={1400} />
               <Area type="monotone" dataKey="forecast" stroke="#9ca3af" strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" isAnimationActive={true} animationDuration={1400} />
             </AreaChart>
           </ResponsiveContainer>
@@ -583,7 +583,7 @@ export default function CRM() {
               <XAxis type="number" tick={{ fontSize: 10 }} stroke="#9ca3af" tickFormatter={(v) => `$${v}K`} />
               <YAxis type="category" dataKey="region" tick={{ fontSize: 10 }} stroke="#9ca3af" width={85} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
-              <Bar dataKey="revenue" fill="#24997c" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
+              <Bar dataKey="revenue" fill="#357A8E" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -40,7 +40,7 @@ export default function DataTable({
                     aria-label="Select all rows on this page"
                     checked={allSelected}
                     onChange={() => onToggleAll?.(visibleIds, !allSelected)}
-                    className="accent-[#187f65]"
+                    className="accent-[#2C5F6F]"
                   />
                 </th>
               )}
@@ -82,7 +82,7 @@ export default function DataTable({
                         aria-label={`Select row ${idx + 1}`}
                         checked={!!selected}
                         onChange={() => onToggleRow?.(row.id)}
-                        className="accent-[#187f65]"
+                        className="accent-[#2C5F6F]"
                       />
                     </td>
                   )}

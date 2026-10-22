@@ -130,7 +130,7 @@ export default function Register() {
 
         <div>
           <label htmlFor="register-terms" className="flex items-start gap-2.5 cursor-pointer select-none">
-            <input id="register-terms" type="checkbox" checked={form.agreeTerms} onChange={set('agreeTerms')} className="w-4 h-4 mt-0.5 accent-[#187f65]" aria-describedby={errors.agreeTerms ? 'register-terms-error' : undefined} />
+            <input id="register-terms" type="checkbox" checked={form.agreeTerms} onChange={set('agreeTerms')} className="w-4 h-4 mt-0.5 accent-[#2C5F6F]" aria-describedby={errors.agreeTerms ? 'register-terms-error' : undefined} />
             <span className="text-[12.5px] text-gray-600">I agree to the <span className="font-semibold text-primary">Terms of Service</span> and <span className="font-semibold text-primary">Privacy Policy</span>.</span>
           </label>
           {errors.agreeTerms && <p id="register-terms-error" className="form-error">{errors.agreeTerms}</p>}

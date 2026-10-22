@@ -146,7 +146,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
   const iconBtn = 'relative grid place-items-center w-8 h-8 rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md';
 
   return (
-    <header className={`sticky top-0 ${searchOpen ? "z-[70]" : "z-30"} bg-surface-base border-b border-gray-200 h-[65px] flex items-center px-3 md:px-5 gap-2 md:gap-3 shrink-0`}>
+    <header className={`app-header sticky top-0 ${searchOpen ? "z-[70]" : "z-30"} h-[72px] flex items-center px-3 md:px-5 gap-2 md:gap-3 shrink-0`}>
       {/* Mobile menu toggle */}
       <button
         type="button"
@@ -161,7 +161,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
       <button
         type="button"
         onClick={() => setSearchOpen(true)}
-        className="group hidden sm:flex items-center gap-2.5 h-10 pl-1.5 pr-1.5 xl:pr-2 w-10 xl:w-72 min-w-0 shrink rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-primary-300 hover:bg-white transition-all text-left"
+        className="group hidden sm:flex items-center gap-2.5 h-10 pl-1.5 pr-1.5 xl:pr-2 w-10 xl:w-72 min-w-0 shrink rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-info-500 hover:bg-white hover:shadow-[0_0_0_4px_rgb(66_155_183/0.15)] transition-all text-left"
         aria-label="Search pages, actions and records"
         aria-keyshortcuts={isMac ? 'Meta+K' : 'Control+K'}
       >
@@ -235,7 +235,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                     </div>
                   ))}
                   <div className="col-span-2 lg:col-span-1 relative overflow-hidden rounded-lg hero-spruce hero-grid text-white p-4 flex flex-col">
-                    <span className="hero-orb w-32 h-32 -top-10 -right-10 bg-[radial-gradient(circle,rgba(255,214,130,0.25),transparent_70%)]" aria-hidden="true" />
+                    <span className="hero-orb w-32 h-32 -top-10 -right-10 bg-[radial-gradient(circle,rgba(255,179,71,0.25),transparent_70%)]" aria-hidden="true" />
                     <span className="relative icon-tile w-9 h-9 bg-white/10 text-accent-300"><Sparkles size={16} aria-hidden="true" /></span>
                     <p className="relative text-sm font-bold mt-3">Reports & exports</p>
                     <p className="relative text-xs text-white/70 mt-1 leading-relaxed">13 reports with formulas, date filters and CSV / Excel / PDF export.</p>

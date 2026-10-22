@@ -8,10 +8,10 @@ export function useToast() {
 }
 
 const TYPES = {
-  success: { title: 'Success', icon: CheckCircle2, tile: 'bg-success-50 text-success-600', bar: 'from-primary-400 to-success-500' },
-  error: { title: 'Something went wrong', icon: AlertCircle, tile: 'bg-danger-50 text-danger-600', bar: 'from-danger-400 to-danger-600' },
-  warning: { title: 'Heads up', icon: AlertTriangle, tile: 'bg-warning-50 text-warning-600', bar: 'from-warning-400 to-accent-500' },
-  info: { title: 'Notice', icon: Info, tile: 'bg-primary-50 text-primary-600', bar: 'from-primary-300 to-accent-400' },
+  success: { title: 'Success', icon: CheckCircle2, tile: 'bg-success-50 text-success-600', bar: 'from-success-600 to-[#4ADE80]' },
+  error: { title: 'Something went wrong', icon: AlertCircle, tile: 'bg-danger-50 text-danger-600', bar: 'from-danger-600 to-danger-400' },
+  warning: { title: 'Heads up', icon: AlertTriangle, tile: 'bg-warning-50 text-warning-600', bar: 'from-warning-600 to-accent-500' },
+  info: { title: 'Notice', icon: Info, tile: 'bg-info-50 text-info-500', bar: 'from-info-500 to-primary-600' },
 };
 
 /**
@@ -34,7 +34,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={addToast}>
       {children}
-      <div className="fixed top-[78px] right-4 z-[100] flex flex-col gap-2.5 w-[min(23rem,calc(100vw-2rem))] pointer-events-none" role="status" aria-live="polite">
+      <div className="fixed top-[86px] right-4 z-[100] flex flex-col gap-2.5 w-[min(23rem,calc(100vw-2rem))] pointer-events-none" role="status" aria-live="polite">
         {toasts.map(t => {
           const cfg = TYPES[t.type] || TYPES.info;
           const Icon = cfg.icon;
@@ -45,7 +45,7 @@ export function ToastProvider({ children }) {
               style={{ '--toast-duration': `${t.duration}ms` }}
             >
               <div className="flex items-start gap-3 p-3.5 pr-10">
-                <span className={`grid place-items-center w-9 h-9 rounded-xl shrink-0 ${cfg.tile}`}><Icon size={18} aria-hidden="true" /></span>
+                <span className={`grid place-items-center w-10 h-10 rounded-lg shrink-0 ${cfg.tile}`}><Icon size={18} aria-hidden="true" /></span>
                 <div className="min-w-0 pt-0.5">
                   <p className="text-[13px] font-bold text-gray-900">{cfg.title}</p>
                   <p className="text-[12.5px] text-gray-600 mt-0.5 leading-snug">{t.message}</p>

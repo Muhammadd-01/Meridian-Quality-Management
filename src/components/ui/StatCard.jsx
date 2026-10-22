@@ -11,6 +11,17 @@ import InfoTip from './InfoTip';
  *  - changeType: 'increase' | 'decrease' | 'neutral'
  *  - positiveIsGood: set false for metrics where a rise is bad (e.g. bounce rate)
  */
+// KPI icon tone, read from the colour classes a page passes in.
+const TONES = [
+  [/accent|orange/, 'accent'],
+  [/success|green|emerald|teal|lime/, 'success'],
+  [/warning|amber|yellow/, 'warning'],
+  [/danger|red|rose/, 'danger'],
+  [/violet|purple|indigo|fuchsia|pink/, 'violet'],
+  [/info|blue|sky|cyan/, 'info'],
+];
+const toneOf = (classes = '') => TONES.find(([re]) => re.test(classes))?.[1] || 'primary';
+
 export default function StatCard({ title, value, change, changeType = 'increase', icon: Icon, iconColor = 'bg-primary/10 text-primary', subtitle, info, to, positiveIsGood = true, footer }) {
   // Check if value is numeric or formatted string
   const renderValue = () => {
@@ -46,14 +57,14 @@ export default function StatCard({ title, value, change, changeType = 'increase'
   const body = (
     <div className="relative">
       <div className="min-w-0">
-        <p className={`text-[11px] font-bold text-gray-500 uppercase tracking-[0.06em] flex items-center gap-1 min-h-[2.25rem] ${Icon ? 'pr-12' : ''}`}>
+        <p className={`text-[13px] font-medium text-gray-500 flex items-center gap-1 min-h-[2.75rem] ${Icon ? 'pr-14' : ''}`}>
           {title}
           {info && <InfoTip text={info} />}
         </p>
-        <h3 className="font-display text-[clamp(1.2rem,0.95rem+0.75vw,1.65rem)] leading-tight font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">{renderValue()}</h3>
+        <h3 className="font-display text-[clamp(1.25rem,0.95rem+0.9vw,1.875rem)] leading-tight font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">{renderValue()}</h3>
         {change !== undefined && change !== null && change !== '' && (
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-            <span className={`inline-flex items-center gap-0.5 text-xs font-bold ${changeColor}`}>
+            <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${good === null ? 'bg-gray-100' : good ? 'bg-success-50' : 'bg-danger-50'} ${changeColor}`}>
               <ChangeIcon size={12} aria-hidden="true" />
               <span className="sr-only">{changeType === 'increase' ? 'Up' : changeType === 'decrease' ? 'Down' : 'No change'} </span>
               {change}
@@ -65,8 +76,8 @@ export default function StatCard({ title, value, change, changeType = 'increase'
         {footer}
       </div>
       {Icon && (
-        <div className={`icon-tile absolute top-0 right-0 ${iconColor}`} aria-hidden="true">
-          <Icon size={17} />
+        <div className={`kpi-icon ${toneOf(iconColor)} absolute top-0 right-0`} aria-hidden="true">
+          <Icon size={19} />
         </div>
       )}
     </div>

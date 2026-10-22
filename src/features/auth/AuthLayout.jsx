@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Hexagon, Users, GanttChartSquare, TrendingUp, FileBarChart, CheckCircle2, ShieldCheck, Sparkles,
+  Users, GanttChartSquare, TrendingUp, FileBarChart, CheckCircle2, ShieldCheck, Sparkles,
 } from 'lucide-react';
 
 const FEATURES = [
@@ -29,7 +29,7 @@ function PreviewCards() {
         </div>
         <div className="mt-3 flex -space-x-2">
           {['SA', 'AK', 'FZ', 'OF'].map((i, n) => (
-            <span key={i} className="w-6 h-6 rounded-full grid place-items-center text-[9px] font-bold ring-2 ring-[#16302a]" style={{ background: ['#24997c', '#c4901d', '#3e7ead', '#8b6fd6'][n] }}>{i}</span>
+            <span key={i} className="w-6 h-6 rounded-full grid place-items-center text-[9px] font-bold ring-2 ring-[#093F50]" style={{ background: ['#357A8E', '#F78D00', '#2F95C8', '#8b6fd6'][n] }}>{i}</span>
           ))}
         </div>
       </div>
@@ -70,17 +70,11 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
     <div className="min-h-screen flex bg-surface-canvas relative overflow-hidden">
       {/* Brand panel */}
       <aside className="hidden lg:flex relative w-[52%] xl:w-[55%] flex-col justify-between p-12 xl:p-16 text-white hero-spruce hero-grid overflow-hidden rounded-r-[40px] shadow-2xl">
-        <span className="hero-orb w-[520px] h-[520px] -top-48 -right-40 bg-[radial-gradient(circle,rgba(255,214,130,0.22),transparent_70%)] animate-float" style={{ animationDuration: '10s' }} aria-hidden="true" />
-        <span className="hero-orb w-[460px] h-[460px] -bottom-56 -left-32 bg-[radial-gradient(circle,rgba(72,181,148,0.35),transparent_70%)] animate-float" style={{ animationDuration: '12s', animationDelay: '-3s' }} aria-hidden="true" />
+        <span className="hero-orb w-[520px] h-[520px] -top-48 -right-40 bg-[radial-gradient(circle,rgba(255,179,71,0.22),transparent_70%)] animate-float" style={{ animationDuration: '10s' }} aria-hidden="true" />
+        <span className="hero-orb w-[460px] h-[460px] -bottom-56 -left-32 bg-[radial-gradient(circle,rgba(66,155,183,0.35),transparent_70%)] animate-float" style={{ animationDuration: '12s', animationDelay: '-3s' }} aria-hidden="true" />
 
-        <Link to="/dashboard" className="relative inline-flex items-center gap-3 group w-max">
-          <span className="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-primary-300 to-primary-700 shadow-glow-primary transition-transform duration-500 group-hover:rotate-[-12deg] group-hover:scale-105">
-            <Hexagon className="w-6 h-6 fill-white/20 stroke-white" />
-          </span>
-          <span>
-            <span className="block text-xl font-extrabold tracking-tight leading-5">Meridian</span>
-            <span className="block text-[10px] uppercase tracking-[0.16em] text-white/55 font-bold">Quality Management Professionals</span>
-          </span>
+        <Link to="/dashboard" className="relative inline-flex items-center group w-max" aria-label="Meridian Quality Management Professionals — Dashboard">
+          <img src="/brand/meridian-logo-on-dark.png" alt="Meridian Quality Management Professionals" width="570" height="247" className="h-[112px] w-auto -ml-2 transition-transform duration-500 group-hover:scale-[1.03]" />
         </Link>
 
         <div className="relative max-w-xl auth-stagger">
@@ -88,7 +82,7 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
             <Sparkles size={13} className="text-accent-300" /> One workspace for quality professionals
           </span>
           <h2 className="font-display text-[40px] xl:text-[46px] leading-[1.08] font-extrabold tracking-tight mt-5">
-            Clients, projects and sales — <span className="bg-gradient-to-r from-primary-200 via-accent-200 to-accent-300 bg-clip-text text-transparent">all in one place.</span>
+            Clients, projects and sales — <span className="bg-gradient-to-r from-info-300 via-accent-300 to-accent-500 bg-clip-text text-transparent">all in one place.</span>
           </h2>
           <p className="text-[15px] text-white/65 mt-4 leading-relaxed">
             Track every engagement from first enquiry to certification: CRM, sales pipeline, project delivery and website analytics, with reports you can export in one click.
@@ -99,7 +93,7 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
         <div className="relative grid grid-cols-2 xl:grid-cols-4 gap-3">
           {FEATURES.map(f => (
             <div key={f.label} className="group rounded-2xl bg-white/[0.06] border border-white/10 p-3 transition-all duration-300 hover:bg-white/[0.12] hover:-translate-y-1">
-              <f.icon size={16} className="text-primary-200 transition-transform duration-300 group-hover:scale-110" />
+              <f.icon size={16} className="text-accent-300 transition-transform duration-300 group-hover:scale-110" />
               <p className="text-[12.5px] font-bold mt-2">{f.label}</p>
               <p className="text-[11px] text-white/55 leading-snug mt-0.5">{f.text}</p>
             </div>
@@ -115,14 +109,14 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
         <div className="relative flex-1 flex items-center justify-center p-5 sm:p-10">
           <div className="w-full max-w-[460px] auth-stagger">
             {/* Compact brand on small screens */}
-            <Link to="/dashboard" className="lg:hidden inline-flex items-center gap-2.5 mb-6">
-              <span className="grid place-items-center w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-700 text-white shadow-glow-primary"><Hexagon className="w-5 h-5 fill-white/20 stroke-white" /></span>
-              <span className="text-lg font-extrabold tracking-tight text-gray-900">Meridian</span>
+            <Link to="/dashboard" className="lg:hidden inline-flex items-center mb-6" aria-label="Meridian Quality Management Professionals — Dashboard">
+              <img src="/brand/meridian-logo.png" alt="Meridian Quality Management Professionals" width="570" height="247" className="h-16 w-auto logo-light" />
+              <img src="/brand/meridian-logo-on-dark.png" alt="" width="570" height="247" className="h-16 w-auto logo-dark" />
             </Link>
 
-            <div className="card !rounded-[28px] p-6 sm:p-8 shadow-xl">
+            <div className="card !rounded-[24px] p-6 sm:p-8 shadow-xl">
               {eyebrow && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 text-[11px] font-bold">
+                <span className="eyebrow inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 !text-[11px]">
                   <ShieldCheck size={12} /> {eyebrow}
                 </span>
               )}

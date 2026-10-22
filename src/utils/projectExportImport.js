@@ -112,17 +112,17 @@ export function exportProjectsToPDF(projects, filename = 'meridian-projects') {
       <head>
         <title>${filename}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #1e211f; }
-          h1 { font-size: 20px; font-weight: bold; margin-bottom: 4px; color: #187f65; }
-          p.meta { font-size: 12px; color: #5a625c; margin-bottom: 20px; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #17212B; }
+          h1 { font-size: 20px; font-weight: bold; margin-bottom: 4px; color: #2C5F6F; }
+          p.meta { font-size: 12px; color: #475569; margin-bottom: 20px; }
           table { width: 100%; border-collapse: collapse; font-size: 11px; }
-          th { background: #f7f8f7; color: #5a625c; text-align: left; padding: 8px 10px; border-bottom: 2px solid #e4e7e5; text-transform: uppercase; }
-          td { padding: 8px 10px; border-bottom: 1px solid #eff1f0; }
-          tr:nth-child(even) { background-color: #fafbfa; }
+          th { background: #F4F6F8; color: #475569; text-align: left; padding: 8px 10px; border-bottom: 2px solid #E2E8F0; text-transform: uppercase; }
+          td { padding: 8px 10px; border-bottom: 1px solid #F1F5F9; }
+          tr:nth-child(even) { background-color: #F8FAFC; }
           .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10px; }
           .badge-high { background: #fee2e2; color: #dc2626; }
           .badge-med { background: #fef3c7; color: #d97706; }
-          .badge-low { background: #e8f5f1; color: #187f65; }
+          .badge-low { background: #E8F1F3; color: #2C5F6F; }
           @media print {
             body { padding: 0; }
             button { display: none; }

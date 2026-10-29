@@ -163,7 +163,7 @@ export default function Activities() {
           value={scheduledCount}
           subtitle="Upcoming actions"
           icon={Clock}
-          iconColor="bg-info/10 text-info"
+          iconColor="primrose"
         />
         <StatCard
           title="Completed"

@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import PageHeroIcon from '../../components/ui/PageHeroIcon';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -46,13 +45,45 @@ const leadSchema = z.object({
   notes: z.string().optional(),
 });
 
+// Meridian palette for charts (teal, teal 2, sea, orange, primrose, burnt orange)
+const CHART = { teal: '#145D68', sea: '#4F9299', orange: '#F78D00', primrose: '#D9C55E', ink: '#0C4A58', burnt: '#A45B0B' };
+
+const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+// Probability chip: green when near-certain, teal when likely, orange when contested
+const probBadge = (prob) => {
+  const p = parseInt(prob, 10);
+  if (p >= 90) return 'badge-success';
+  if (p >= 75) return 'badge-primary';
+  if (p >= 60) return 'badge-accent';
+  return 'badge-warning';
+};
+
+// Stage colours used by the stage list and the pipeline board
+const STAGE_DOT = {
+  New: 'bg-primary-300',
+  Qualified: 'bg-primary-600',
+  Proposal: 'bg-accent',
+  Negotiation: 'bg-primrose-500',
+  Won: 'bg-success',
+};
+
+const PIPELINE_STAGES = [
+  { name: 'New', count: 12, value: 184000 },
+  { name: 'Qualified', count: 18, value: 412000 },
+  { name: 'Proposal', count: 14, value: 528000 },
+  { name: 'Negotiation', count: 9, value: 396000 },
+  { name: 'Won', count: 9, value: 240000 },
+];
+const maxStageValue = Math.max(...PIPELINE_STAGES.map(st => st.value));
+
 // Top Deals Cards data matching reference
 const topDealsData = [
-  { id: 'td-1', code: 'CR', color: 'bg-rose-500', company: 'Cascade Retail Grp', location: 'Chicago, IL · Renewal', value: 210000, rep: 'Renee Foster', prob: '92%', probColor: 'text-rose-600 bg-rose-50' },
-  { id: 'td-2', code: 'VR', color: 'bg-amber-500', company: 'Vantage Retail', location: 'Austin, TX · Expansion', value: 142500, rep: 'Marco Diaz', prob: '68%', probColor: 'text-amber-600 bg-amber-50' },
-  { id: 'td-3', code: 'NW', color: 'bg-emerald-500', company: 'Northwind Corp', location: 'Seattle, WA · New Business', value: 96000, rep: 'Renee Foster', prob: '81%', probColor: 'text-emerald-600 bg-emerald-50' },
-  { id: 'td-4', code: 'ML', color: 'bg-purple-500', company: 'Meridian Labs', location: 'Boston, MA · New Business', value: 54200, rep: 'Marco Diaz', prob: '54%', probColor: 'text-purple-600 bg-purple-50' },
-  { id: 'td-5', code: 'BP', color: 'bg-blue-500', company: 'BrightPath Inc', location: 'Denver, CO · Closed Won', value: 27800, rep: 'Carlos Mendez', prob: '95%', probColor: 'text-blue-600 bg-blue-50' },
+  { id: 'td-1', code: 'CR', color: 'bg-primary-800 text-white', company: 'Cascade Retail Grp', location: 'Chicago, IL · Renewal', value: 210000, rep: 'Renee Foster', prob: '92%' },
+  { id: 'td-2', code: 'VR', color: 'bg-accent text-primary-950', company: 'Vantage Retail', location: 'Austin, TX · Expansion', value: 142500, rep: 'Marco Diaz', prob: '68%' },
+  { id: 'td-3', code: 'NW', color: 'bg-primary-600 text-white', company: 'Northwind Corp', location: 'Seattle, WA · New Business', value: 96000, rep: 'Renee Foster', prob: '81%' },
+  { id: 'td-4', code: 'ML', color: 'bg-primrose on-primrose', company: 'Meridian Labs', location: 'Boston, MA · New Business', value: 54200, rep: 'Marco Diaz', prob: '54%' },
+  { id: 'td-5', code: 'BP', color: 'bg-primary-400 text-white', company: 'BrightPath Inc', location: 'Denver, CO · Closed Won', value: 27800, rep: 'Carlos Mendez', prob: '95%' },
 ];
 
 // Revenue analytics MRR data
@@ -68,11 +99,11 @@ const mrrData = [
 
 // Deal sources breakdown
 const dealSourcesData = [
-  { name: 'Organic Search', value: 240, fill: '#357A8E' },
-  { name: 'Referral', value: 180, fill: '#7A5CC8' },
-  { name: 'Paid Ads', value: 110, fill: '#2F95C8' },
-  { name: 'Email Campaign', value: 75, fill: '#D97706' },
-  { name: 'Events', value: 43, fill: '#DC2626' },
+  { name: 'Organic Search', value: 240, fill: CHART.teal },
+  { name: 'Referral', value: 180, fill: CHART.orange },
+  { name: 'Paid Ads', value: 110, fill: CHART.sea },
+  { name: 'Email Campaign', value: 75, fill: CHART.primrose },
+  { name: 'Events', value: 43, fill: CHART.burnt },
 ];
 
 // Revenue by region
@@ -269,130 +300,196 @@ export default function CRM() {
 
   return (
     <div className="space-y-4">
-      {/* ============ Top Header & Workspace Banner ============ */}
-      <div className="page-hero mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
-        <PageHeroIcon icon={Users} />
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-gray-900">Deals Workspace</h1>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-success-50 text-success text-[11px] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> Live
-            </span>
+      {/* ============ Hero: Meridian field-notes banner ============ */}
+      <section className="hero-meridian p-5 sm:p-7 xl:p-9 xl:min-h-[360px] animate-rise-in" data-no-reveal>
+        <div className="orbit-art hidden xl:block" aria-hidden="true">
+          <span className="halo" />
+          <span className="ring" />
+          <span className="ring two" />
+          <div className="orbit-core">
+            <span className="block text-[9px] font-bold tracking-[0.15em]">MEQMP / PIPELINE</span>
+            <strong className="block text-[24px] leading-[0.95] font-extrabold tracking-[-0.05em] mt-6 tabular-nums">{formatCurrency(totalPipeline)}</strong>
+            <small className="block text-[10px] leading-snug mt-3 opacity-80">Pipeline value across every stage.</small>
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">312 open deals · {formatCurrency(totalPipeline)} pipeline · Enterprise + Mid-Market</p>
+          <span className="orbit-tag" style={{ top: '13%', left: '6%' }}>01 / QUALIFY</span>
+          <span className="orbit-tag" style={{ right: '3%', top: '38%' }}>02 / PROPOSE</span>
+          <span className="orbit-tag" style={{ bottom: '12%', left: '14%' }}>03 / CLOSE</span>
+          <span className="orbit-cross" style={{ right: '16%', bottom: '20%' }} />
         </div>
-        <button className="btn-primary btn-sm" onClick={openCreate}>
-          <Plus size={15} /> New Deal
-        </button>
-      </div>
 
-      {/* ============ Executive Metric Strip (6 Metrics) ============ */}
-      <div className="card p-4 animate-slide-up">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-gray-100 gap-y-3 md:gap-y-0">
-          <div className="px-3 py-1">
-            <p className="text-[10px] uppercase font-semibold text-gray-400">Pipeline Value</p>
-            <p className="text-base font-bold text-gray-800 mt-1">
-              <AnimatedCounter value={totalPipeline} formatter={(v) => formatCurrency(v)} />
-            </p>
-            <p className="text-[10px] text-success font-medium mt-0.5 flex items-center gap-0.5">
-              <ArrowUpRight size={10} /> +9.4%
-            </p>
+        <div className="relative xl:max-w-[54%]">
+          <p className="hero-label">MERIDIAN / CRM · DEALS WORKSPACE</p>
+          <p className="hero-eyebrow mt-5 flex items-center gap-2">
+            <span className="live-dot text-accent" aria-hidden="true" /> Live · Enterprise + Mid-Market
+          </p>
+          <h1 className="font-display text-[34px] sm:text-[44px] xl:text-[52px] leading-[0.95] font-extrabold tracking-[-0.05em] mt-3">
+            Deals <em>Workspace</em>
+          </h1>
+          <p className="text-[14px] leading-relaxed text-white/75 mt-4 max-w-md">
+            312 open deals · {formatCurrency(totalPipeline)} pipeline · Enterprise + Mid-Market
+          </p>
+          <div className="flex flex-wrap gap-2.5 mt-6">
+            <button type="button" className="btn-primrose" onClick={openCreate}>
+              <Plus size={15} aria-hidden="true" /> New Deal <span className="arrow" aria-hidden="true">↗</span>
+            </button>
+            <button type="button" className="btn-line-light" onClick={() => scrollToId('crm-pipeline-board')}>
+              Pipeline board <span className="arrow" aria-hidden="true">↘</span>
+            </button>
+            <button type="button" className="btn-line-light" onClick={handleExport}>
+              <Download size={14} aria-hidden="true" /> Export CSV
+            </button>
           </div>
-          <div className="px-3 py-1">
-            <p className="text-[10px] uppercase font-semibold text-gray-400">Active Deals</p>
-            <p className="text-base font-bold text-gray-800 mt-1">
-              <AnimatedCounter value={totalLeads} />
-            </p>
-            <div className="flex items-end gap-0.5 h-3 mt-1">
-              {[30, 45, 60, 40, 75, 90, 80].map((h, i) => (
-                <div key={i} className="flex-1 bg-amber-400 rounded-xs" style={{ height: `${h}%` }} />
+          <div className="hero-meta mt-7">
+            <span>312 open deals</span>
+            <span>· 62 on the board</span>
+            <span>· 31% lead → close</span>
+            <span>· 14 closing this week</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ Primrose ticker: top deals ============ */}
+      <div className="ticker" role="region" aria-label="Top deals">
+        <div className="ticker-track">
+          {[0, 1].map(copy => (
+            <React.Fragment key={copy}>
+              {topDealsData.map(td => (
+                <span key={`${copy}-${td.id}`} className="inline-flex items-center gap-2.5" aria-hidden={copy === 1 ? 'true' : undefined}>
+                  {td.company}<b>{formatCurrency(td.value)}</b><span className="sep">· {td.prob} ✦</span>
+                </span>
               ))}
-            </div>
-            <p className="text-[10px] text-success font-medium mt-0.5">+8.6%</p>
-          </div>
-          <div className="px-3 py-1">
-            <p className="text-[10px] uppercase font-semibold text-gray-400">Win Rate</p>
-            <p className="text-base font-bold text-gray-800 mt-1">
-              <AnimatedCounter value={59} suffix="%" />
-            </p>
-            <p className="text-[10px] text-success font-medium mt-0.5">+3 pts</p>
-          </div>
-          <div className="px-3 py-1">
-            <p className="text-[10px] uppercase font-semibold text-gray-400">Avg Deal Size</p>
-            <p className="text-base font-bold text-gray-800 mt-1">
-              <AnimatedCounter value={842000} formatter={(v) => formatCurrency(v)} />
-            </p>
-            <p className="text-[10px] text-success font-medium mt-0.5">+6.1%</p>
-          </div>
-          <div className="px-3 py-1">
-            <p className="text-[10px] uppercase font-semibold text-gray-400">Avg Sales Cycle</p>
-            <p className="text-base font-bold text-gray-800 mt-1">
-              <AnimatedCounter value={38} suffix=" days" />
-            </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">-2 days vs plan</p>
-          </div>
-          <div className="px-3 py-1">
-            <p className="text-[10px] uppercase font-semibold text-gray-400">Closing This Week</p>
-            <p className="text-base font-bold text-gray-800 mt-1">
-              <AnimatedCounter value={14} /> · {formatCurrency(268000)}
-            </p>
-            <p className="text-[10px] text-amber-600 font-medium mt-0.5">3 need action</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ============ Top Deals Carousel Strip ============ */}
-      <div>
-        <div className="flex items-center justify-between mb-2 px-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500">Top Deals</h2>
-          <button className="text-xs text-primary font-semibold hover:underline">View All Deals</button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {topDealsData.map(td => (
-            <div key={td.id} className="card p-3.5 hover:shadow-card-hover transition-all border-l-4 border-l-primary">
-              <div className="flex items-center justify-between">
-                <span className={`w-7 h-7 rounded-lg ${td.color} text-white flex items-center justify-center text-[10px] font-bold`}>
-                  {td.code}
-                </span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${td.probColor}`}>
-                  {td.prob}
-                </span>
-              </div>
-              <p className="text-xs font-bold text-gray-800 mt-2 truncate">{td.company}</p>
-              <p className="text-[10px] text-gray-400 truncate">{td.location}</p>
-              <p className="text-sm font-bold text-gray-900 mt-2">{formatCurrency(td.value)}</p>
-              <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
-                <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-semibold text-gray-700">
-                  {td.rep.charAt(0)}
-                </div>
-                <span className="text-[10px] text-gray-500 truncate">{td.rep}</span>
-              </div>
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </div>
 
-      {/* ============ Pipeline & Kanban Section ============ */}
+      {/* ============ 01 / Executive Metric Strip (6 Metrics) ============ */}
+      <section className="card p-4 animate-slide-up data-wall" aria-labelledby="crm-metrics-title">
+        <div className="flex items-end justify-between gap-3 px-3 pb-3 mb-1 border-b border-gray-100">
+          <div>
+            <p className="kicker">01 / Executive metrics</p>
+            <h2 id="crm-metrics-title" className="text-[17px] font-extrabold tracking-tight text-gray-900 mt-1">Pipeline at a <span className="serif-em text-kicker">glance.</span></h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-gray-100 gap-y-3 md:gap-y-0 pt-2">
+          <div className="px-3 py-2">
+            <p className="metric-no">01</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.1em] text-gray-500 mt-1.5">Pipeline Value</p>
+            <p className="text-[19px] font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">
+              <AnimatedCounter value={totalPipeline} formatter={(v) => formatCurrency(v)} />
+            </p>
+            <p className="text-[10px] text-success font-semibold mt-0.5 flex items-center gap-0.5">
+              <ArrowUpRight size={10} /> +9.4%
+            </p>
+          </div>
+          <div className="px-3 py-2">
+            <p className="metric-no">02</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.1em] text-gray-500 mt-1.5">Active Deals</p>
+            <p className="text-[19px] font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">
+              <AnimatedCounter value={totalLeads} />
+            </p>
+            <div className="flex items-end gap-0.5 h-3 mt-1">
+              {[30, 45, 60, 40, 75, 90, 80].map((h, i) => (
+                <div key={i} className={`flex-1 rounded-xs ${i === 5 ? 'bg-accent' : 'bg-primary-300'}`} style={{ height: `${h}%` }} />
+              ))}
+            </div>
+            <p className="text-[10px] text-success font-semibold mt-0.5">+8.6%</p>
+          </div>
+          <div className="px-3 py-2">
+            <p className="metric-no">03</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.1em] text-gray-500 mt-1.5">Win Rate</p>
+            <p className="text-[19px] font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">
+              <AnimatedCounter value={59} suffix="%" />
+            </p>
+            <p className="text-[10px] text-success font-semibold mt-0.5">+3 pts</p>
+          </div>
+          <div className="px-3 py-2">
+            <p className="metric-no">04</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.1em] text-gray-500 mt-1.5">Avg Deal Size</p>
+            <p className="text-[19px] font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">
+              <AnimatedCounter value={842000} formatter={(v) => formatCurrency(v)} />
+            </p>
+            <p className="text-[10px] text-success font-semibold mt-0.5">+6.1%</p>
+          </div>
+          <div className="px-3 py-2">
+            <p className="metric-no">05</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.1em] text-gray-500 mt-1.5">Avg Sales Cycle</p>
+            <p className="text-[19px] font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">
+              <AnimatedCounter value={38} suffix=" days" />
+            </p>
+            <p className="text-[10px] text-gray-500 mt-0.5">-2 days vs plan</p>
+          </div>
+          <div className="px-3 py-2">
+            <p className="metric-no">06</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.1em] text-gray-500 mt-1.5">Closing This Week</p>
+            <p className="text-[19px] font-extrabold tracking-tight text-gray-900 mt-1 tabular-nums">
+              <AnimatedCounter value={14} /> · {formatCurrency(268000)}
+            </p>
+            <p className="text-[10px] text-accent-700 font-semibold mt-0.5">3 need action</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 02 / Top Deals ============ */}
+      <section aria-labelledby="crm-top-deals-title">
+        <div className="flex items-end justify-between gap-3 mb-3 px-1">
+          <div>
+            <p className="kicker">02 / Opportunities</p>
+            <h2 id="crm-top-deals-title" className="text-[17px] font-extrabold tracking-tight text-gray-900 mt-1">Top Deals <span className="serif-em text-kicker">in play.</span></h2>
+          </div>
+          <button type="button" onClick={() => scrollToId('crm-recent-deals')} className="text-xs text-primary font-bold hover:underline underline-offset-4 shrink-0">View All Deals ↗</button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {topDealsData.map((td, i) => (
+            <div key={td.id} className="card card-lift deal-card p-4 flex flex-col">
+              <div className="flex items-center justify-between">
+                <span className={`w-8 h-8 rounded-lg ${td.color} flex items-center justify-center text-[10px] font-extrabold tracking-wide`}>
+                  {td.code}
+                </span>
+                <span className={`${probBadge(td.prob)} text-[10px] px-2`}>
+                  {td.prob}
+                </span>
+              </div>
+              <p className="text-[10px] font-bold tracking-[0.14em] text-kicker mt-3">{String(i + 1).padStart(2, '0')} / DEAL</p>
+              <p className="text-[13px] font-extrabold text-gray-900 mt-1 truncate">{td.company}</p>
+              <p className="text-[10.5px] text-gray-500 truncate">{td.location}</p>
+              <p className="text-[18px] font-extrabold tracking-tight text-gray-900 mt-3 tabular-nums">{formatCurrency(td.value)}</p>
+              <span className="deal-rule mt-2" aria-hidden="true" />
+              <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center text-[9px] font-bold text-primary-700 shrink-0">
+                    {td.rep.charAt(0)}
+                  </div>
+                  <span className="text-[10.5px] text-gray-600 truncate">{td.rep}</span>
+                </div>
+                <span className="deal-arrow w-7 h-7 rounded-full border border-gray-200 grid place-items-center text-xs text-gray-500 shrink-0" aria-hidden="true">↗</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ============ 03 / Pipeline & Kanban Section ============ */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left Column: Quick Stats & Filters */}
         <div className="space-y-4">
           {/* Pipeline Stages Summary */}
           <div className="card p-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Pipeline Stages</h3>
-            <div className="space-y-2">
-              {[
-                { name: 'New', count: 12, value: 184000, color: 'bg-primary' },
-                { name: 'Qualified', count: 18, value: 412000, color: 'bg-info' },
-                { name: 'Proposal', count: 14, value: 528000, color: 'bg-amber-500' },
-                { name: 'Negotiation', count: 9, value: 396000, color: 'bg-purple-500' },
-                { name: 'Won', count: 9, value: 240000, color: 'bg-success' },
-              ].map((st, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-gray-50/70 hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${st.color}`} />
-                    <span className="text-xs font-medium text-gray-700">{st.name}</span>
+            <p className="kicker mb-1">03 / Stages</p>
+            <h3 className="text-[15px] font-extrabold text-gray-900 mb-3">Pipeline Stages</h3>
+            <div className="space-y-1.5">
+              {PIPELINE_STAGES.map((st) => (
+                <div key={st.name} className="ledger-row p-2 rounded-lg">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${STAGE_DOT[st.name]}`} />
+                      <span className="text-xs font-semibold text-gray-800">{st.name}</span>
+                    </div>
+                    <span className="text-xs text-gray-500 tabular-nums">{st.count} · {formatCurrency(st.value)} <span className="ledger-arrow inline-block" aria-hidden="true">↗</span></span>
                   </div>
-                  <span className="text-xs text-gray-500">{st.count} · {formatCurrency(st.value)}</span>
+                  <div className="h-1 rounded-full bg-gray-100 overflow-hidden mt-1.5">
+                    <div className={`h-full rounded-full ${STAGE_DOT[st.name]}`} style={{ width: `${(st.value / maxStageValue) * 100}%` }} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -400,16 +497,19 @@ export default function CRM() {
 
           {/* Quick Filters */}
           <div className="card p-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">Quick Filters</h3>
+            <p className="kicker mb-1">Filter</p>
+            <h3 className="text-[15px] font-extrabold text-gray-900 mb-2.5">Quick Filters</h3>
             <div className="flex flex-wrap gap-1.5">
               {['All', 'Enterprise', 'Mid-Market', 'SMB', 'At Risk', 'Renewal', 'Hot Lead'].map(f => (
                 <button
                   key={f}
+                  type="button"
                   onClick={() => setQuickFilter(f)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                  aria-pressed={quickFilter === f}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
                     quickFilter === f
-                      ? 'bg-primary text-white shadow-xs'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'chip-active'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:-translate-y-px'
                   }`}
                 >
                   {f}
@@ -420,29 +520,32 @@ export default function CRM() {
 
           {/* Top Reps */}
           <div className="card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Top Reps</h3>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="kicker mb-1">Leaderboard</p>
+                <h3 className="text-[15px] font-extrabold text-gray-900">Top Reps</h3>
+              </div>
               <span className="badge-secondary text-[9px]">Quarter</span>
             </div>
             <div className="space-y-3">
               {[
                 { name: 'Renee Foster', percent: 142, color: 'bg-primary' },
                 { name: 'Marco Diaz', percent: 128, color: 'bg-accent' },
-                { name: 'Carlos Mendez', percent: 104, color: 'bg-info' },
+                { name: 'Carlos Mendez', percent: 104, color: 'bg-primrose-500' },
               ].map((rep, i) => (
                 <div key={i}>
                   <div className="flex items-center justify-between text-xs mb-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-gray-400">{i + 1}</span>
+                      <span className="text-[10px] font-extrabold text-kicker tabular-nums">{String(i + 1).padStart(2, '0')}</span>
                       <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">
                         {rep.name.charAt(0)}
                       </div>
                       <span className="font-medium text-gray-700">{rep.name}</span>
                     </div>
-                    <span className="font-bold text-primary">{rep.percent}%</span>
+                    <span className="font-bold text-primary tabular-nums">{rep.percent}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                    <div className={`h-full rounded-full ${rep.color}`} style={{ width: `${Math.min(100, rep.percent / 1.5)}%` }} />
+                    <div className={`h-full rounded-full progress-fill ${rep.color}`} style={{ width: `${Math.min(100, rep.percent / 1.5)}%` }} />
                   </div>
                 </div>
               ))}
@@ -451,13 +554,14 @@ export default function CRM() {
         </div>
 
         {/* Right 3-Columns: Deal Pipeline Board (Kanban) */}
-        <div className="lg:col-span-3 card p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div id="crm-pipeline-board" className="lg:col-span-3 card p-4 scroll-mt-24">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
             <div>
-              <h2 className="text-[15px] font-bold text-gray-800">Deal Pipeline Board</h2>
-              <p className="text-[11px] text-gray-400">Drag deals across stages · 62 active opportunities</p>
+              <p className="kicker">04 / Pipeline board</p>
+              <h2 className="text-[17px] font-extrabold tracking-tight text-gray-900 mt-1">Deal Pipeline <span className="serif-em text-kicker">Board</span></h2>
+              <p className="text-[11px] text-gray-500 mt-0.5">Drag deals across stages · 62 active opportunities</p>
             </div>
-            <span className="badge-primary text-[10px] self-start sm:self-auto">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primrose on-primrose text-[10px] font-extrabold tracking-wide self-start sm:self-auto">
               ⚡ 31% lead → close
             </span>
           </div>
@@ -465,36 +569,33 @@ export default function CRM() {
           {/* Kanban Columns */}
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 overflow-x-auto pb-2">
             {Object.entries(initialBoard).map(([stage, items]) => (
-              <div key={stage} className="bg-gray-50/70 p-2.5 rounded-xl border border-gray-100 flex flex-col min-w-[170px]">
-                <div className="flex items-center justify-between mb-2 px-1">
-                  <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${
-                      stage === 'Won' ? 'bg-success' : stage === 'Negotiation' ? 'bg-purple-500' : stage === 'Proposal' ? 'bg-amber-500' : stage === 'Qualified' ? 'bg-info' : 'bg-primary'
-                    }`} />
+              <div key={stage} className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 flex flex-col min-w-[170px] relative overflow-hidden">
+                <span className={`absolute inset-x-0 top-0 h-[3px] ${STAGE_DOT[stage]}`} aria-hidden="true" />
+                <div className="flex items-center justify-between mb-2 px-1 pt-1">
+                  <span className="text-xs font-extrabold text-gray-800 flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${STAGE_DOT[stage]}`} />
                     {stage}
                   </span>
-                  <span className="text-[10px] font-bold text-gray-400">{items.length}</span>
+                  <span className="text-[10px] font-extrabold text-gray-500 tabular-nums">{String(items.length).padStart(2, '0')}</span>
                 </div>
                 <div className="space-y-2 flex-1">
                   {items.map(deal => (
-                    <div key={deal.id} className="bg-white p-2.5 rounded-lg border border-gray-200/80 shadow-xs hover:shadow transition-shadow">
-                      <p className="text-xs font-bold text-gray-800 truncate">{deal.title}</p>
-                      <p className="text-xs font-semibold text-gray-900 mt-0.5">{formatCurrency(deal.value)}</p>
+                    <div key={deal.id} className="bg-white p-2.5 rounded-lg border border-gray-200/80 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-primary-300 transition-all">
+                      <p className="text-xs font-bold text-gray-900 truncate">{deal.title}</p>
+                      <p className="text-xs font-extrabold text-gray-900 mt-0.5 tabular-nums">{formatCurrency(deal.value)}</p>
                       <div className="flex flex-wrap gap-1 mt-2">
-                        <span className="badge-secondary text-[9px] px-1.5 py-0.2">{deal.tag}</span>
+                        <span className="badge-secondary text-[9px] px-1.5 py-0">{deal.tag}</span>
                         {deal.subTag && (
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-medium ${
-                            deal.subTag === 'At Risk' ? 'bg-danger-50 text-danger' : deal.subTag === 'Hot' ? 'bg-amber-50 text-amber-600' : 'bg-info-50 text-info'
-                          }`}>
+                          <span className={`${deal.subTag === 'At Risk' ? 'badge-danger' : deal.subTag === 'Hot' ? 'badge-accent' : 'badge-info'} text-[9px] px-1.5 py-0`}>
                             {deal.subTag}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-                        <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold text-primary">
+                        <div className="w-5 h-5 rounded-full bg-primary-50 flex items-center justify-center text-[9px] font-bold text-primary-700">
                           {deal.rep}
                         </div>
-                        <span className="text-[10px] font-semibold text-gray-500">{deal.prob}</span>
+                        <span className="text-[10px] font-bold text-gray-500 tabular-nums">{deal.prob}</span>
                       </div>
                     </div>
                   ))}
@@ -509,10 +610,11 @@ export default function CRM() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Revenue Analytics (Actual vs Forecast) */}
         <div className="card p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-start justify-between gap-2 mb-3">
             <div>
-              <h3 className="text-sm font-bold text-gray-800">Revenue Analytics</h3>
-              <p className="text-[10px] text-gray-400">MRR trending +11% above plan</p>
+              <p className="kicker">05 / Revenue</p>
+              <h3 className="text-[15px] font-extrabold text-gray-900 mt-1">Revenue Analytics</h3>
+              <p className="text-[10.5px] text-gray-500">MRR trending +11% above plan</p>
             </div>
             <span className="badge-secondary text-[10px]">Actual vs Forecast</span>
           </div>
@@ -520,29 +622,30 @@ export default function CRM() {
             <AreaChart data={mrrData}>
               <defs>
                 <linearGradient id="crmActualGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#357A8E" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#357A8E" stopOpacity={0} />
+                  <stop offset="5%" stopColor={CHART.teal} stopOpacity={0.28} />
+                  <stop offset="95%" stopColor={CHART.teal} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#9ca3af" />
-              <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" domain={[130, 200]} />
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} domain={[130, 200]} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Area type="monotone" dataKey="actual" stroke="#357A8E" strokeWidth={2} fill="url(#crmActualGrad)" name="Actual MRR" isAnimationActive={true} animationDuration={1400} />
-              <Area type="monotone" dataKey="forecast" stroke="#9ca3af" strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" isAnimationActive={true} animationDuration={1400} />
+              <Area type="monotone" dataKey="actual" stroke={CHART.teal} strokeWidth={2.4} fill="url(#crmActualGrad)" name="Actual MRR" activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff' }} isAnimationActive={true} animationDuration={1400} />
+              <Area type="monotone" dataKey="forecast" stroke={CHART.orange} strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" isAnimationActive={true} animationDuration={1400} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* Deal Sources Donut */}
         <div className="card p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-start justify-between gap-2 mb-3">
             <div>
-              <h3 className="text-sm font-bold text-gray-800">Deal Sources</h3>
-              <p className="text-[10px] text-gray-400">Where opportunities originate</p>
+              <p className="kicker">06 / Sources</p>
+              <h3 className="text-[15px] font-extrabold text-gray-900 mt-1">Deal Sources</h3>
+              <p className="text-[10.5px] text-gray-500">Where opportunities originate</p>
             </div>
-            <span className="badge-info text-[10px]">648 leads</span>
+            <span className="badge-primary text-[10px]">648 leads</span>
           </div>
           <div className="relative">
             <ResponsiveContainer width="100%" height={180}>
@@ -554,11 +657,11 @@ export default function CRM() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-[10px] text-gray-400">Leads</span>
-              <span className="text-lg font-bold text-gray-800">648</span>
+              <span className="text-[10px] text-gray-500">Leads</span>
+              <span className="text-lg font-extrabold text-gray-900">648</span>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2 text-[10px] text-gray-500">
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2 text-[10px] text-gray-600">
             {dealSourcesData.map((s, i) => (
               <span key={i} className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.fill }} />
@@ -570,31 +673,39 @@ export default function CRM() {
 
         {/* Revenue by Region */}
         <div className="card p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-start justify-between gap-2 mb-3">
             <div>
-              <h3 className="text-sm font-bold text-gray-800">Revenue by Region</h3>
-              <p className="text-[10px] text-gray-400">North America leads; APAC fastest growing</p>
+              <p className="kicker">07 / Regions</p>
+              <h3 className="text-[15px] font-extrabold text-gray-900 mt-1">Revenue by Region</h3>
+              <p className="text-[10.5px] text-gray-500">North America leads; APAC fastest growing</p>
             </div>
             <span className="badge-secondary text-[10px]">This quarter</span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={regionalData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis type="number" tick={{ fontSize: 10 }} stroke="#9ca3af" tickFormatter={(v) => `$${v}K`} />
-              <YAxis type="category" dataKey="region" tick={{ fontSize: 10 }} stroke="#9ca3af" width={85} />
+              <defs>
+                <linearGradient id="crmRegionGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor={CHART.teal} />
+                  <stop offset="100%" stopColor={CHART.sea} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}K`} />
+              <YAxis type="category" dataKey="region" tick={{ fontSize: 10 }} width={85} />
               <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
-              <Bar dataKey="revenue" fill="#357A8E" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
+              <Bar dataKey="revenue" fill="url(#crmRegionGrad)" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* ============ Recent Deals Table & CRUD ============ */}
-      <div className="card p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      {/* ============ 08 / Recent Deals Table & CRUD ============ */}
+      <div id="crm-recent-deals" className="card p-4 scroll-mt-24">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-[15px] font-bold text-gray-800">Recent Deals</h2>
-            <p className="text-[11px] text-gray-400">312 opportunities · saved view: "Enterprise Pipeline"</p>
+            <p className="kicker">08 / Ledger</p>
+            <h2 className="text-[17px] font-extrabold tracking-tight text-gray-900 mt-1">Recent <span className="serif-em text-kicker">Deals</span></h2>
+            <p className="text-[11px] text-gray-500">312 opportunities · saved view: "Enterprise Pipeline"</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             <SearchInput value={query} onChange={setQuery} placeholder="Search deals..." className="w-full sm:w-56" />

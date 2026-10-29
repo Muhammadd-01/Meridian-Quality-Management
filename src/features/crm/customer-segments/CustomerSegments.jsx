@@ -169,7 +169,7 @@ export default function CustomerSegments() {
           value={formatNumber(totalAccounts)}
           subtitle="Clients segmented"
           icon={Users}
-          iconColor="bg-info/10 text-info"
+          iconColor="primrose"
         />
         <StatCard
           title="Primary Cohort"

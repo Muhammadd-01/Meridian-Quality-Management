@@ -22,6 +22,18 @@ import CompanyRelations from './CompanyRelations';
 import { initialCompanies } from '../../../data/crmData';
 import { formatCurrency, formatNumber, generateId } from '../../../utils/format';
 
+
+// Logo tiles use the Meridian palette, whatever colour class a stored record carries.
+const LOGO_TONES = [
+  'bg-primary-800 text-white',
+  'bg-accent text-primary-950',
+  'bg-primary-500 text-white',
+  'bg-primrose on-primrose',
+  'bg-primary-950 text-primrose',
+  'bg-accent-700 text-white',
+];
+const logoTone = (company) => LOGO_TONES[[...String(company?.name || '')].reduce((h, ch) => h + ch.charCodeAt(0), 0) % LOGO_TONES.length];
+
 export default function Companies() {
   const [companies, setCompanies] = useLocalStorage('meridian-companies', initialCompanies);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
@@ -157,11 +169,12 @@ export default function Companies() {
         actions={
           <div className="flex items-center gap-2">
             <DataTransferActions entityType="companies" records={companies} setRecords={setCompanies} filtered={filteredCompanies} />
-            <div className="hidden sm:flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
+            <div className="hidden sm:flex items-center border border-white/25 rounded-lg overflow-hidden bg-white/[0.08]">
               <button
                 onClick={() => setViewMode('grid')}
+                aria-pressed={viewMode === 'grid'}
                 className={`p-2 text-xs font-medium transition-colors ${
-                  viewMode === 'grid' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-50'
+                  viewMode === 'grid' ? 'bg-primrose on-primrose' : 'text-white/75 hover:bg-white/10 hover:text-white'
                 }`}
                 title="Grid View"
               >
@@ -169,8 +182,9 @@ export default function Companies() {
               </button>
               <button
                 onClick={() => setViewMode('table')}
+                aria-pressed={viewMode === 'table'}
                 className={`p-2 text-xs font-medium transition-colors ${
-                  viewMode === 'table' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-50'
+                  viewMode === 'table' ? 'bg-primrose on-primrose' : 'text-white/75 hover:bg-white/10 hover:text-white'
                 }`}
                 title="Table View"
               >
@@ -205,7 +219,7 @@ export default function Companies() {
           value={partnerCount}
           subtitle="Accreditation bodies"
           icon={ShieldCheck}
-          iconColor="bg-info/10 text-info"
+          iconColor="primrose"
         />
         <StatCard
           title="Cumulative Portfolio"
@@ -264,7 +278,7 @@ export default function Companies() {
               <div className="p-5">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-white text-sm shadow-sm ${comp.logoColor || 'bg-primary'}`}>
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm ${logoTone(comp)}`}>
                       {comp.logoText || 'CO'}
                     </div>
                     <div>
@@ -361,7 +375,7 @@ export default function Companies() {
                   <tr key={comp.id}>
                     <td>
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-xs shrink-0 ${comp.logoColor || 'bg-primary'}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${logoTone(comp)}`}>
                           {comp.logoText || 'CO'}
                         </div>
                         <div>
@@ -589,7 +603,7 @@ export default function Companies() {
         >
           <div className="space-y-4">
             <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-              <div className={`w-14 h-14 rounded-xl flex items-center justify-center font-bold text-white text-lg ${viewCompany.logoColor || 'bg-primary'}`}>
+              <div className={`w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg ${logoTone(viewCompany)}`}>
                 {viewCompany.logoText || 'CO'}
               </div>
               <div>

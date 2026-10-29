@@ -160,7 +160,7 @@ export default function Contacts() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard title="Total Contacts" value={contacts.length} subtitle={demoCount ? `${demoCount} demo records` : 'Directory records'} icon={ContactIcon} iconColor="bg-primary/10 text-primary" />
         <StatCard title="Active" value={activeCount} subtitle="Currently engaged" icon={CheckCircle2} iconColor="bg-success/10 text-success" />
-        <StatCard title="Organizations" value={companyCount} subtitle="Companies represented" icon={Building2} iconColor="bg-info/10 text-info" />
+        <StatCard title="Organizations" value={companyCount} subtitle="Companies represented" icon={Building2} iconColor="primrose" />
         <StatCard title="Linked to Leads" value={leadLinked} subtitle="Matched by contact name" icon={Target} iconColor="bg-accent/10 text-accent" />
       </div>
 

@@ -13,6 +13,7 @@ import InfoTip from './InfoTip';
  */
 // KPI icon tone, read from the colour classes a page passes in.
 const TONES = [
+  [/primrose/, 'primrose'],
   [/accent|orange/, 'accent'],
   [/success|green|emerald|teal|lime/, 'success'],
   [/warning|amber|yellow/, 'warning'],

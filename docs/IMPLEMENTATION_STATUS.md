@@ -14,7 +14,7 @@ Working checklist for the platform enhancement programme. Update it as phases la
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Design system | Done | Matched to the DreamsCore Tailwind reference: Plus Jakarta Sans, spruce sidebar `#14201c`, primary `#187f65` scale, gold accent, 5px radii, reference shadows, gradient/glass buttons, soft badges. Neutral greys and status tints are CSS variables (`src/styles/index.css`). |
+| Design system | Done | Meridian brand palette from the company "about" page: teal `#093F50`, teal 2 `#145D68` (primary), primrose `#F2E6A2` (highlights), paper `#F5F3EC` (canvas), ink `#102C32`, sage greys (`#627579`, `#CBD5D1`) and orange `#F78D00` (accent). Tokens live in `tailwind.config.js` (incl. a `primrose` scale) and the CSS variables at the top of `src/styles/index.css`; dark mode uses `#071A1F` surfaces with primrose focus rings and light-teal text for `text-primary*`. |
 | Light / Dark / System mode | Done | Header theme menu; saved per browser (`meridian-color-mode`), applied before first paint. Sidebar style (spruce / light) is a separate option; dark mode always uses the dark sidebar. |
 | Header | Done | Search pill, Explore mega-menu (all modules + recent pages), Apps launcher, Quick Create, theme, fullscreen, notifications (All / Unread / Alerts, grouped Today / Earlier), profile menu with live task stats. Language switcher and messages from the reference are not included (no translations, no messaging backend). |
 | Sidebar | Done | Favourite tiles (pin/unpin from any link, stored locally), collapsible module groups, live local-storage meter, dot-texture background. Page bar under the header shows the title and breadcrumb trail. |
@@ -35,6 +35,7 @@ Working checklist for the platform enhancement programme. Update it as phases la
 | Tasks / Timesheets | Done | Overdue badges + filter, bulk status/delete, weekly summary, live project lists. |
 | Quiz Builder | Done | Answer-key validation, publish guard, short-answer preview. |
 | Companies | Done | Related leads/deals/quotations/projects + activity timeline. |
+| CRM look | Done | Deals Workspace (`/crm`) has a teal "field notes" hero with the about page's orbit rings and a floating primrose pipeline card, a primrose ticker of top deals (pauses on hover), numbered section kickers, a metric strip, deal cards with hover arrows, palette-coloured stages, board and charts. CRM sub-pages get the teal `PageHeader` brand variant automatically (primrose primary button, glass secondary buttons). Company logo tiles map stored colour classes to palette tones at render time; data is unchanged. |
 | Contacts directory | Done | `/crm/contacts`, entity `contacts` (`meridian-contacts`). Seed derived from contact names on demo company and lead records, labelled "Demo". Search, filters, import/export, duplicate check, audit log, Quick Create, related leads/deals and activity/call/email timeline (matched by contact name). |
 | Task subtasks & comments | Done | Task detail view (eye icon) on Tasks. Stored on the task record (`subtasks`, `comments`); counts shown in the table; flat exports add a subtasks summary and comment count. Comment author is the local Settings profile name. |
 | Project milestones | Done | Project detail view: list, add (with due date not after project due date), complete/reopen, remove; completion % shown in the detail view and milestone count on cards. Stored on the project record (`milestones`). Not included in the Projects page's flat-file export. |
@@ -53,3 +54,4 @@ Working checklist for the platform enhancement programme. Update it as phases la
 - Workflows exercised in the browser: quick-create deep link, form validation, duplicate warning, lead → deal conversion, audit entries.
 - Import/export, scoring, traffic metrics and every report were checked with a Node script against the real modules.
 - There is no automated test suite in the repository.
+- CRM palette restyle (2026-10-29): `vite build` passes; `/crm` and all five CRM sub-pages render with no console errors in light and dark mode and no horizontal overflow at 360 px; Dashboard spot-checked with the new tokens.

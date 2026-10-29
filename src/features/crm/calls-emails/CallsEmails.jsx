@@ -161,7 +161,7 @@ export default function CallsEmails() {
           value={totalCalls}
           subtitle="Audio consultations"
           icon={PhoneCall}
-          iconColor="bg-info/10 text-info"
+          iconColor="primrose"
         />
         <StatCard
           title="Emails Sent/Received"
@@ -280,9 +280,9 @@ export default function CallsEmails() {
                         <div>
                           <div className="flex items-center gap-1 font-semibold text-gray-800 text-xs">
                             {isOutbound ? (
-                              <ArrowUpRight size={13} className="text-emerald-600" />
+                              <ArrowUpRight size={13} className="text-accent-600" />
                             ) : (
-                              <ArrowDownLeft size={13} className="text-blue-600" />
+                              <ArrowDownLeft size={13} className="text-primary-600" />
                             )}
                             {c.direction}
                           </div>

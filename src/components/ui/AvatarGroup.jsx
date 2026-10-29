@@ -1,9 +1,9 @@
 import React from 'react';
 
 const colors = [
-  'bg-primary/20 text-primary',
+  'bg-primary-100 text-brand-strong',
   'bg-info/20 text-info',
-  'bg-accent/20 text-accent',
+  'bg-accent-50 text-accent-700',
   'bg-warning/20 text-warning',
   'bg-success/20 text-success',
   'bg-danger/20 text-danger',

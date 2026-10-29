@@ -125,8 +125,8 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
     >
       <ol className="flex items-center gap-2 mb-5 text-[11px] font-semibold" aria-label="Import progress">
         {STEPS.map((s, i) => (
-          <li key={s} className={`flex items-center gap-1.5 ${i === step ? 'text-primary' : i < step ? 'text-gray-600' : 'text-gray-400'}`} aria-current={i === step ? 'step' : undefined}>
-            <span className={`grid place-items-center w-5 h-5 rounded-full text-[10px] ${i <= step ? 'bg-primary text-white' : 'bg-gray-100'}`}>{i + 1}</span>
+          <li key={s} className={`flex items-center gap-1.5 ${i === step ? 'text-brand' : i < step ? 'text-gray-600' : 'text-gray-400'}`} aria-current={i === step ? 'step' : undefined}>
+            <span className={`grid place-items-center w-5 h-5 rounded-full text-[10px] ${i <= step ? 'bg-primary text-primary-ink' : 'bg-gray-100'}`}>{i + 1}</span>
             <span className="hidden sm:inline">{s}</span>
             {i < STEPS.length - 1 && <span className="w-4 h-px bg-gray-200" aria-hidden="true" />}
           </li>
@@ -145,12 +145,12 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
             onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
             onDragLeave={() => setDragActive(false)}
             onDrop={(e) => { e.preventDefault(); setDragActive(false); handleFile(e.dataTransfer.files?.[0]); }}
-            className={`flex flex-col items-center justify-center gap-2 p-8 rounded-xl border-2 border-dashed text-center transition-colors ${dragActive ? 'border-primary bg-primary/5' : 'border-gray-300 bg-gray-50'}`}
+            className={`flex flex-col items-center justify-center gap-2 p-8 rounded-xl border-2 border-dashed text-center transition-colors ${dragActive ? 'border-primary bg-primary-50' : 'border-gray-300 bg-gray-50'}`}
           >
-            {busy ? <Loader2 size={28} className="text-primary animate-spin" aria-hidden="true" /> : <UploadCloud size={28} className="text-primary" aria-hidden="true" />}
+            {busy ? <Loader2 size={28} className="text-brand animate-spin" aria-hidden="true" /> : <UploadCloud size={28} className="text-brand" aria-hidden="true" />}
             <p className="text-sm text-gray-900">
               Drag &amp; drop a file here or{' '}
-              <button type="button" className="text-primary font-semibold hover:underline" onClick={() => inputRef.current?.click()}>browse to upload</button>
+              <button type="button" className="text-brand font-semibold hover:underline" onClick={() => inputRef.current?.click()}>browse to upload</button>
             </p>
             <p className="text-xs text-gray-500">Supports CSV, XLSX, JSON · max 10 MB</p>
             <input
@@ -180,7 +180,7 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
       {step === 1 && parsed && (
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-gray-900">
-            <FileText size={16} className="text-primary" aria-hidden="true" />
+            <FileText size={16} className="text-brand" aria-hidden="true" />
             <span className="font-medium truncate">{file?.name}</span>
             <span className="text-xs text-gray-500">· {parsed.rows.length} rows · {parsed.columns.length} columns</span>
           </div>
@@ -213,7 +213,7 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
       {step === 2 && (
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-3 rounded-lg bg-primary-50"><p className="text-lg font-bold text-primary">{counts.valid}</p><p className="text-[11px] text-gray-600">New records</p></div>
+            <div className="p-3 rounded-lg bg-primary-50"><p className="text-lg font-bold text-brand">{counts.valid}</p><p className="text-[11px] text-gray-600">New records</p></div>
             <div className="p-3 rounded-lg bg-accent-50"><p className="text-lg font-bold text-accent-600">{counts.duplicates}</p><p className="text-[11px] text-gray-600">Match existing</p></div>
             <div className="p-3 rounded-lg bg-danger-50"><p className="text-lg font-bold text-danger-600">{counts.errors}</p><p className="text-[11px] text-gray-600">Rows with errors</p></div>
           </div>
@@ -222,16 +222,16 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
             <fieldset className="p-3 rounded-lg border border-gray-200 space-y-2">
               <legend className="px-1 text-xs font-semibold text-gray-900">Rows that match existing records</legend>
               <label className="flex items-center gap-2 text-sm">
-                <input type="radio" name="dup-mode" checked={mode === 'skip'} onChange={() => { setMode('skip'); setConfirmUpdate(false); }} className="accent-[#2C5F6F]" />
+                <input type="radio" name="dup-mode" checked={mode === 'skip'} onChange={() => { setMode('skip'); setConfirmUpdate(false); }} />
                 Skip duplicate entries (recommended)
               </label>
               <label className="flex items-center gap-2 text-sm">
-                <input type="radio" name="dup-mode" checked={mode === 'update'} onChange={() => setMode('update')} className="accent-[#2C5F6F]" />
+                <input type="radio" name="dup-mode" checked={mode === 'update'} onChange={() => setMode('update')} />
                 Update existing records with values from the file
               </label>
               {mode === 'update' && (
                 <label className="flex items-start gap-2 text-xs text-danger-600 bg-danger-50 p-2 rounded-md">
-                  <input type="checkbox" checked={confirmUpdate} onChange={(e) => setConfirmUpdate(e.target.checked)} className="mt-0.5 accent-[#DC2626]" />
+                  <input type="checkbox" checked={confirmUpdate} onChange={(e) => setConfirmUpdate(e.target.checked)} className="mt-0.5" />
                   I understand {counts.duplicates} existing record(s) will be overwritten by mapped values from this file.
                 </label>
               )}
@@ -277,10 +277,10 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
 
       {step === 3 && result && (
         <div className="text-center py-4 space-y-3">
-          <CheckCircle2 size={36} className="mx-auto text-primary" aria-hidden="true" />
+          <CheckCircle2 size={36} className="mx-auto text-brand" aria-hidden="true" />
           <h3 className="text-base font-semibold text-gray-900">Import complete</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-            <div className="p-2 rounded-lg bg-gray-50"><p className="font-bold text-primary">{result.created}</p><p className="text-[11px] text-gray-500">Created</p></div>
+            <div className="p-2 rounded-lg bg-gray-50"><p className="font-bold text-brand">{result.created}</p><p className="text-[11px] text-gray-500">Created</p></div>
             <div className="p-2 rounded-lg bg-gray-50"><p className="font-bold text-info">{result.updated}</p><p className="text-[11px] text-gray-500">Updated</p></div>
             <div className="p-2 rounded-lg bg-gray-50"><p className="font-bold text-accent-600">{result.skipped}</p><p className="text-[11px] text-gray-500">Skipped</p></div>
             <div className="p-2 rounded-lg bg-gray-50"><p className="font-bold text-danger">{result.failed}</p><p className="text-[11px] text-gray-500">Failed</p></div>

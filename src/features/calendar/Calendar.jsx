@@ -13,7 +13,7 @@ import useQuickAction from '../../hooks/useQuickAction';
 import { generateId } from '../../utils/format';
 
 const SOURCES = {
-  event: { label: 'Events', dot: 'bg-primary', chip: 'bg-primary-50 text-primary-700' },
+  event: { label: 'Events', dot: 'bg-primary-500', chip: 'bg-primary-100 text-brand-strong' },
   task: { label: 'Task due dates', dot: 'bg-info', chip: 'bg-info-50 text-info-600' },
   activity: { label: 'CRM activities', dot: 'bg-accent', chip: 'bg-accent-50 text-accent-600' },
   deal: { label: 'Deal close dates', dot: 'bg-success', chip: 'bg-success-50 text-success-600' },
@@ -146,10 +146,10 @@ export default function Calendar() {
                     aria-pressed={selected}
                     aria-label={`${format(day, 'EEEE, MMMM d')}: ${dayItems.length} item${dayItems.length === 1 ? '' : 's'}`}
                     className={`min-h-[64px] sm:min-h-[92px] rounded-lg border p-1.5 text-left flex flex-col transition-colors ${
-                      selected ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50'
+                      selected ? 'border-primary-400 bg-primary-50' : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50'
                     } ${isSameMonth(day, month) ? '' : 'opacity-45'}`}
                   >
-                    <span className={`text-xs font-semibold w-6 h-6 grid place-items-center rounded-full ${isToday(day) ? 'bg-primary text-white' : 'text-gray-700'}`}>{format(day, 'd')}</span>
+                    <span className={`text-xs font-semibold w-6 h-6 grid place-items-center rounded-full ${isToday(day) ? 'bg-primrose-fill ring-1 ring-primary-400' : 'text-gray-700'}`}>{format(day, 'd')}</span>
                     <span className="hidden sm:flex flex-col gap-0.5 mt-1 w-full">
                       {dayItems.slice(0, 2).map(i => (
                         <span key={i.id} className={`truncate text-[10px] px-1.5 py-0.5 rounded ${SOURCES[i.source].chip}`}>{i.title}</span>
@@ -187,7 +187,7 @@ export default function Calendar() {
                     <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${SOURCES[i.source].dot}`} aria-hidden="true" />
                     <div className="flex-1 min-w-0">
                       {i.to ? (
-                        <button type="button" onClick={() => openItem(i)} className="text-sm font-medium text-gray-800 hover:text-primary text-left">{i.title}</button>
+                        <button type="button" onClick={() => openItem(i)} className="text-sm font-medium text-gray-800 hover:text-brand text-left">{i.title}</button>
                       ) : (
                         <p className="text-sm font-medium text-gray-800">{i.title}</p>
                       )}

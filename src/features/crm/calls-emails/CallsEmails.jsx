@@ -154,7 +154,7 @@ export default function CallsEmails() {
           value={comms.length}
           subtitle="Calls and emails combined"
           icon={MessageSquare}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Phone Logs"
@@ -185,7 +185,7 @@ export default function CallsEmails() {
           onClick={() => setActiveTab('all')}
           className={`pb-3 px-3 text-sm font-semibold transition-colors border-b-2 ${
             activeTab === 'all'
-              ? 'border-primary text-primary'
+              ? 'border-primary-400 text-brand-strong'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -195,7 +195,7 @@ export default function CallsEmails() {
           onClick={() => setActiveTab('calls')}
           className={`pb-3 px-3 text-sm font-semibold transition-colors border-b-2 flex items-center gap-1.5 ${
             activeTab === 'calls'
-              ? 'border-primary text-primary'
+              ? 'border-primary-400 text-brand-strong'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -205,7 +205,7 @@ export default function CallsEmails() {
           onClick={() => setActiveTab('emails')}
           className={`pb-3 px-3 text-sm font-semibold transition-colors border-b-2 flex items-center gap-1.5 ${
             activeTab === 'emails'
-              ? 'border-primary text-primary'
+              ? 'border-primary-400 text-brand-strong'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -273,7 +273,7 @@ export default function CallsEmails() {
                     <td>
                       <div className="flex items-center gap-2">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                          isCall ? 'bg-info/10 text-info' : 'bg-accent/10 text-accent'
+                          isCall ? 'bg-info-50 text-info-700' : 'bg-accent-50 text-accent-700'
                         }`}>
                           {isCall ? <Phone size={15} /> : <Mail size={15} />}
                         </div>
@@ -282,7 +282,7 @@ export default function CallsEmails() {
                             {isOutbound ? (
                               <ArrowUpRight size={13} className="text-accent-600" />
                             ) : (
-                              <ArrowDownLeft size={13} className="text-primary-600" />
+                              <ArrowDownLeft size={13} className="text-brand" />
                             )}
                             {c.direction}
                           </div>
@@ -314,7 +314,7 @@ export default function CallsEmails() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => setViewItem(c)}
-                          className="p-1.5 text-gray-500 hover:text-primary rounded-lg hover:bg-gray-100"
+                          className="p-1.5 text-gray-500 hover:text-brand rounded-lg hover:bg-gray-100"
                           title="View Details"
                         >
                           <Eye size={14} />

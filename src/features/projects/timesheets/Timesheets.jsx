@@ -171,7 +171,7 @@ export default function Timesheets() {
           value={`${totalHours} hrs`}
           subtitle="Cumulative hours"
           icon={Clock}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Approved Hours"
@@ -254,7 +254,7 @@ export default function Timesheets() {
                 <tr key={ts.id}>
                   <td>
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold text-2xs flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-full bg-primary-100 text-brand font-bold text-2xs flex items-center justify-center">
                         {ts.employee.split(' ').map(w => w[0]).join('').slice(0, 2)}
                       </div>
                       <span className="text-xs font-semibold text-gray-900">{ts.employee}</span>
@@ -274,7 +274,7 @@ export default function Timesheets() {
                     <span className="text-2xs text-gray-500">{ts.startTime} - {ts.endTime}</span>
                   </td>
                   <td>
-                    <span className="text-xs font-bold text-primary">{ts.hours} hrs</span>
+                    <span className="text-xs font-bold text-brand">{ts.hours} hrs</span>
                   </td>
                   <td><StatusBadge status={ts.status} /></td>
                   <td>

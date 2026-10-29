@@ -112,17 +112,17 @@ export function exportProjectsToPDF(projects, filename = 'meridian-projects') {
       <head>
         <title>${filename}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #17212B; }
-          h1 { font-size: 20px; font-weight: bold; margin-bottom: 4px; color: #2C5F6F; }
-          p.meta { font-size: 12px; color: #475569; margin-bottom: 20px; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #102C32; }
+          h1 { font-size: 20px; font-weight: bold; margin-bottom: 4px; color: #093F50; }
+          p.meta { font-size: 12px; color: #52676A; margin-bottom: 20px; }
           table { width: 100%; border-collapse: collapse; font-size: 11px; }
-          th { background: #F4F6F8; color: #475569; text-align: left; padding: 8px 10px; border-bottom: 2px solid #E2E8F0; text-transform: uppercase; }
-          td { padding: 8px 10px; border-bottom: 1px solid #F1F5F9; }
-          tr:nth-child(even) { background-color: #F8FAFC; }
+          th { background: #F5F3EC; color: #52676A; text-align: left; padding: 8px 10px; border-bottom: 2px solid #C9D9D8; text-transform: uppercase; }
+          td { padding: 8px 10px; border-bottom: 1px solid #DFE7E3; }
+          tr:nth-child(even) { background-color: #FBF8E8; }
           .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10px; }
-          .badge-high { background: #fee2e2; color: #dc2626; }
-          .badge-med { background: #fef3c7; color: #d97706; }
-          .badge-low { background: #E8F1F3; color: #2C5F6F; }
+          .badge-high { background: #FBEEEC; color: #B83A2C; }
+          .badge-med { background: #FDF1DD; color: #A45B0B; }
+          .badge-low { background: #E2EDEC; color: #093F50; }
           @media print {
             body { padding: 0; }
             button { display: none; }

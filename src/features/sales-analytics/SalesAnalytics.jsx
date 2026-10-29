@@ -31,23 +31,22 @@ import { initialSales, salesReps, dealStatuses } from '../../data/sales';
 import { revenueData } from '../../data/dashboard';
 import { formatCurrency, formatDate, formatPercent } from '../../utils/format';
 import { exportToCSV } from '../../utils/csv';
-
-const COLORS = ['#357A8E', '#7A5CC8', '#2F95C8', '#D97706', '#DC2626', '#16A34A'];
+import { CHART, TOOLTIP_STYLE } from '../../lib/chartColors';
 
 // Customer segments
 const segmentData = [
-  { name: 'Enterprise', value: 38, fill: '#357A8E' },
-  { name: 'Mid-Market', value: 25, fill: '#7A5CC8' },
-  { name: 'SMB', value: 18, fill: '#2F95C8' },
-  { name: 'Startup', value: 19, fill: '#D97706' },
+  { name: 'Enterprise', value: 38, fill: CHART.teal },
+  { name: 'Mid-Market', value: 25, fill: CHART.primrose },
+  { name: 'SMB', value: 18, fill: CHART.orange },
+  { name: 'Startup', value: 19, fill: CHART.soft },
 ];
 
 // Sales funnel data
 const funnelStages = [
-  { name: 'Leads Captured', count: '6,840', pct: '100%', drop: '32.1% drop', color: 'bg-primary' },
-  { name: 'Qualified (SQL)', count: '4,644', pct: '67.9%', drop: '39.5% drop', color: 'bg-primary-600' },
-  { name: 'Demo Scheduled', count: '2,811', pct: '41.1%', drop: '28.6% drop', color: 'bg-amber-500' },
-  { name: 'Proposal Sent', count: '2,007', pct: '29.3%', drop: '41.2% drop', color: 'bg-accent' },
+  { name: 'Leads Captured', count: '6,840', pct: '100%', drop: '32.1% drop', color: 'bg-teal-800', text: 'text-primrose' },
+  { name: 'Qualified (SQL)', count: '4,644', pct: '67.9%', drop: '39.5% drop', color: 'bg-teal-600' },
+  { name: 'Demo Scheduled', count: '2,811', pct: '41.1%', drop: '28.6% drop', color: 'bg-primary-400', text: 'text-primary-ink' },
+  { name: 'Proposal Sent', count: '2,007', pct: '29.3%', drop: '41.2% drop', color: 'bg-accent', text: 'text-primary-ink' },
   { name: 'Closed Won', count: '1,180', pct: '17.2%', drop: null, color: 'bg-success' },
 ];
 
@@ -72,11 +71,11 @@ const atRiskDeals = [
 
 // Hot opportunities
 const hotOpportunities = [
-  { name: 'Meridian Health Systems', stage: 'Negotiation', value: '$152K', color: 'text-primary' },
+  { name: 'Meridian Health Systems', stage: 'Negotiation', value: '$152K', color: 'text-brand' },
   { name: 'Falcon Aerospace', stage: 'Commissioning', value: '$254K', color: 'text-success' },
   { name: 'Coastal Grid Energy', stage: 'Technical Review', value: '$189K', color: 'text-info' },
-  { name: 'Ridgeline Logistics', stage: 'Legal Review', value: '$142K', color: 'text-accent' },
-  { name: 'Brightwave Analytics', stage: 'Early Discovery', value: '$97K', color: 'text-amber-500' },
+  { name: 'Ridgeline Logistics', stage: 'Legal Review', value: '$142K', color: 'text-accent-700' },
+  { name: 'Brightwave Analytics', stage: 'Early Discovery', value: '$97K', color: 'text-teal-500' },
 ];
 
 // Upcoming renewals
@@ -177,16 +176,19 @@ export default function SalesAnalytics() {
   return (
     <div className="space-y-4">
       {/* ============ Top Header & Action Buttons ============ */}
-      <div className="page-hero mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
+      <div className="page-hero is-brand mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
         <PageHeroIcon icon={TrendingUp} />
+        <span className="hero-rings hidden md:block" aria-hidden="true" />
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-gray-900">Revenue Intelligence</h1>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-success-50 text-success text-[11px] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> Live — Q3 Pipeline
+          <p className="hero-eyebrow mb-1.5">Meridian / Website Analytics</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-white">Revenue Intelligence</h1>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primrose/15 text-primrose ring-1 ring-primrose/30 text-[11px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-primrose animate-pulse" /> Live — Q3 Pipeline
             </span>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">Sales flow overview — revenue vs pipeline & rep performance across all territories</p>
+          <span className="page-heading-accent" aria-hidden="true" />
+          <p className="text-xs text-white/70 mt-2">Sales flow overview — revenue vs pipeline & rep performance across all territories</p>
         </div>
         <div className="flex items-center gap-2">
           <ExportButton onClick={handleExport} label="Report" />
@@ -205,7 +207,7 @@ export default function SalesAnalytics() {
         </div>
         <div className="card p-3">
           <p className="text-[10px] uppercase font-semibold text-gray-400">Quota Attained</p>
-          <p className="text-lg font-bold text-primary mt-0.5">
+          <p className="text-lg font-bold text-brand mt-0.5">
             <AnimatedCounter value={84} suffix="%" />
           </p>
           <p className="text-[10px] text-gray-400 mt-0.5">Target: PKR 60M</p>
@@ -289,7 +291,7 @@ export default function SalesAnalytics() {
                 </div>
                 <div className="h-7 rounded-lg bg-gray-100 overflow-hidden relative">
                   <div
-                    className={`h-full ${stage.color} rounded-lg flex items-center justify-end pr-3 text-white text-xs font-bold transition-all`}
+                    className={`h-full ${stage.color} rounded-lg flex items-center justify-end pr-3 ${stage.text || 'text-white'} text-xs font-bold transition-all`}
                     style={{ width: `${100 - i * 18}%` }}
                   >
                     {stage.count}
@@ -334,7 +336,7 @@ export default function SalesAnalytics() {
                 <span className="font-bold text-gray-800">{formatCurrency(5180000)}</span>
               </div>
             </div>
-            <div className="mt-4 p-3 rounded-xl bg-primary-50/60 border border-primary/20 text-xs text-primary-900">
+            <div className="mt-4 p-3 rounded-xl bg-primary-50/60 border border-primary-300/70 text-xs text-brand-strong">
               💡 <strong>At current velocity:</strong> Q3 lands at 94.1% of quota. Closing 3 stalled enterprise deals (PKR 1.1M) pushes target past 100%.
             </div>
           </div>
@@ -355,10 +357,10 @@ export default function SalesAnalytics() {
             </div>
             <div className="flex items-center gap-1 text-[9px] text-gray-400">
               <span>Low</span>
-              <span className="w-2.5 h-2.5 rounded-xs bg-primary-100" />
-              <span className="w-2.5 h-2.5 rounded-xs bg-primary-300" />
-              <span className="w-2.5 h-2.5 rounded-xs bg-primary-500" />
-              <span className="w-2.5 h-2.5 rounded-xs bg-primary-800" />
+              <span className="w-2.5 h-2.5 rounded-xs bg-teal-100" />
+              <span className="w-2.5 h-2.5 rounded-xs bg-teal-300" />
+              <span className="w-2.5 h-2.5 rounded-xs bg-teal-500" />
+              <span className="w-2.5 h-2.5 rounded-xs bg-teal-800" />
               <span>High</span>
             </div>
           </div>
@@ -385,7 +387,7 @@ export default function SalesAnalytics() {
           </div>
           <div className="grid grid-cols-3 gap-3 mt-4 pt-3 border-t border-gray-100 text-center">
             <div><p className="text-[9px] text-gray-400">Peak Window</p><p className="text-xs font-bold text-gray-800 mt-0.5">Tue–Wed, 10a–12p</p></div>
-            <div><p className="text-[9px] text-gray-400">Rep of Week</p><p className="text-xs font-bold text-primary mt-0.5">Sarah Ahmed</p></div>
+            <div><p className="text-[9px] text-gray-400">Rep of Week</p><p className="text-xs font-bold text-brand mt-0.5">Sarah Ahmed</p></div>
             <div><p className="text-[9px] text-gray-400">Touches / Week</p><p className="text-xs font-bold text-gray-800 mt-0.5">1,340 avg</p></div>
           </div>
         </div>
@@ -402,7 +404,7 @@ export default function SalesAnalytics() {
                 <Pie data={segmentData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={3} dataKey="value" isAnimationActive={true} animationDuration={1400}>
                   {segmentData.map((e, i) => <Cell key={i} fill={e.fill} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -438,22 +440,22 @@ export default function SalesAnalytics() {
           <div className="flex justify-around items-end py-3 border-b border-gray-100">
             {/* 2nd Place */}
             <div className="text-center">
-              <div className="w-11 h-11 rounded-full bg-amber-100 border-2 border-white shadow mx-auto flex items-center justify-center font-bold text-xs text-amber-700">AK</div>
+              <div className="w-11 h-11 rounded-full bg-warning-100 border-2 border-white shadow mx-auto flex items-center justify-center font-bold text-xs text-warning-700">AK</div>
               <p className="text-[10px] font-bold text-gray-700 mt-1">Ali Khan</p>
-              <p className="text-[10px] font-semibold text-primary">{formatCurrency(1280000)}</p>
+              <p className="text-[10px] font-semibold text-brand">{formatCurrency(1280000)}</p>
             </div>
             {/* 1st Place */}
             <div className="text-center -mt-2">
               <span className="text-base">👑</span>
-              <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary shadow mx-auto flex items-center justify-center font-bold text-sm text-primary">SA</div>
+              <div className="w-14 h-14 rounded-full bg-primrose-fill border-2 border-primary-400 shadow mx-auto flex items-center justify-center font-bold text-sm">SA</div>
               <p className="text-xs font-bold text-gray-800 mt-1">Sarah Ahmed</p>
               <p className="text-xs font-bold text-success">{formatCurrency(1420000)}</p>
             </div>
             {/* 3rd Place */}
             <div className="text-center">
-              <div className="w-11 h-11 rounded-full bg-blue-100 border-2 border-white shadow mx-auto flex items-center justify-center font-bold text-xs text-blue-700">OF</div>
+              <div className="w-11 h-11 rounded-full bg-info-100 border-2 border-white shadow mx-auto flex items-center justify-center font-bold text-xs text-info-700">OF</div>
               <p className="text-[10px] font-bold text-gray-700 mt-1">Omar Farooq</p>
-              <p className="text-[10px] font-semibold text-primary">{formatCurrency(1060000)}</p>
+              <p className="text-[10px] font-semibold text-brand">{formatCurrency(1060000)}</p>
             </div>
           </div>
           <div className="space-y-2 mt-3">
@@ -512,7 +514,7 @@ export default function SalesAnalytics() {
             <div key={i} className="p-3 rounded-xl bg-gray-50 border border-gray-100 text-center relative">
               <p className="text-[10px] text-gray-400">{step.label}</p>
               <p className="text-base font-bold text-gray-800 mt-1">{step.value}</p>
-              <p className="text-[9px] text-primary font-semibold mt-1">{step.rate}</p>
+              <p className="text-[9px] text-brand font-semibold mt-1">{step.rate}</p>
             </div>
           ))}
         </div>
@@ -570,7 +572,7 @@ export default function SalesAnalytics() {
                 <span className="font-bold text-gray-800">{formatCurrency(2490000)} (54%)</span>
               </div>
               <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: '54%' }} />
+                <div className="h-full bg-gradient-to-r from-primary-300 to-primary-500 rounded-full" style={{ width: '54%' }} />
               </div>
             </div>
             <div>
@@ -627,11 +629,11 @@ export default function SalesAnalytics() {
               <span className="badge-success text-[9px] mb-1 inline-block">High Impact</span>
               <p className="font-medium text-gray-800">Reps who follow up within 1 hour of demo close <strong>2.4x more often</strong>.</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-amber-50/60 border border-amber/20 text-xs">
+            <div className="p-2.5 rounded-xl bg-warning-50/60 border border-warning/20 text-xs">
               <span className="badge-warning text-[9px] mb-1 inline-block">Action Needed</span>
               <p className="font-medium text-gray-800">3 deals have sat in Negotiation for 14+ days — flag for manager review.</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-primary-50/60 border border-primary/20 text-xs">
+            <div className="p-2.5 rounded-xl bg-primary-50/60 border border-primary-300/70 text-xs">
               <span className="badge-primary text-[9px] mb-1 inline-block">Opportunity</span>
               <p className="font-medium text-gray-800">Enterprise accounts with 2+ product lines renew at 94% — bundle ISO + SPC packages.</p>
             </div>
@@ -650,7 +652,7 @@ export default function SalesAnalytics() {
           <div className="grid grid-cols-4 gap-2 text-center py-2 mb-3 bg-gray-50 rounded-xl">
             <div><p className="text-[10px] text-gray-400">Win Rate</p><p className="text-base font-bold text-success">25%</p></div>
             <div><p className="text-[10px] text-gray-400">vs Top Rival</p><p className="text-base font-bold text-gray-800">20%</p></div>
-            <div><p className="text-[10px] text-gray-400">Avg Win Size</p><p className="text-base font-bold text-primary">$25.6K</p></div>
+            <div><p className="text-[10px] text-gray-400">Avg Win Size</p><p className="text-base font-bold text-brand">$25.6K</p></div>
             <div><p className="text-[10px] text-gray-400">Avg Loss Size</p><p className="text-base font-bold text-danger">$15.4K</p></div>
           </div>
           <div className="space-y-2 text-xs">

@@ -33,7 +33,7 @@ export default function WeeklySummary({ entries }) {
     <section className="card mb-6" aria-labelledby="weekly-summary-title">
       <div className="card-header flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <CalendarRange size={16} className="text-primary" aria-hidden="true" />
+          <CalendarRange size={16} className="text-brand" aria-hidden="true" />
           <h3 id="weekly-summary-title" className="text-sm font-semibold text-gray-800">
             Weekly Summary · {format(days[0], 'MMM d')} – {format(days[6], 'MMM d, yyyy')}
           </h3>

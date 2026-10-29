@@ -47,7 +47,7 @@ export default function ProjectMilestones({ project, onChange }) {
     <section className="p-3.5 rounded-xl border border-gray-200 bg-white" aria-labelledby="project-milestones-heading">
       <div className="flex items-center justify-between mb-2">
         <h4 id="project-milestones-heading" className="font-semibold text-gray-800 text-xs flex items-center gap-1.5">
-          <Flag size={13} className="text-primary" aria-hidden="true" /> Milestones
+          <Flag size={13} className="text-brand" aria-hidden="true" /> Milestones
         </h4>
         <span className="text-2xs font-semibold text-secondary-600">
           {pct === null ? 'None yet' : `${milestones.filter(m => m.completed).length} / ${milestones.length} complete · ${pct}%`}
@@ -64,7 +64,7 @@ export default function ProjectMilestones({ project, onChange }) {
                 <button
                   type="button"
                   onClick={() => toggle(m.id)}
-                  className={m.completed ? 'text-success' : 'text-gray-300 hover:text-primary'}
+                  className={m.completed ? 'text-success' : 'text-gray-300 hover:text-brand'}
                   aria-pressed={m.completed}
                   aria-label={m.completed ? `Reopen milestone "${m.title}"` : `Complete milestone "${m.title}"`}
                 >

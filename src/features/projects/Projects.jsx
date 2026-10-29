@@ -498,12 +498,12 @@ export default function Projects() {
   const getPriorityBadgeClass = (priority) => {
     switch (priority?.toLowerCase()) {
       case 'high':
-        return 'bg-red-50 text-red-600 border border-red-200';
+        return 'bg-danger-50 text-danger-600 border border-danger-200';
       case 'medium':
-        return 'bg-amber-50 text-amber-600 border border-amber-200';
+        return 'bg-warning-50 text-warning-600 border border-warning-200';
       case 'low':
       default:
-        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+        return 'bg-success-50 text-success-700 border border-success-200';
     }
   };
 
@@ -511,12 +511,12 @@ export default function Projects() {
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
       case 'in progress':
-        return 'bg-sky-50 text-sky-700 border border-sky-200';
+        return 'bg-info-50 text-info-700 border border-info-200';
       case 'delayed':
-        return 'bg-rose-50 text-rose-700 border border-rose-200';
+        return 'bg-danger-50 text-danger-700 border border-danger-200';
       case 'on track':
       case 'completed':
-        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+        return 'bg-success-50 text-success-700 border border-success-200';
       default:
         return 'bg-gray-50 text-gray-700 border border-gray-200';
     }
@@ -528,11 +528,14 @@ export default function Projects() {
       {/* ========================================================================= */}
       {/* 1. Breadcrumbs & Header Bar matching DreamsCore projects.html             */}
       {/* ========================================================================= */}
-      <div className="page-hero mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
+      <div className="page-hero is-brand mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-no-reveal>
         <PageHeroIcon icon={GanttChartSquare} />
+        <span className="hero-rings hidden md:block" aria-hidden="true" />
         <div>
-          <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-gray-900">Projects</h1>
-          <p className="text-xs text-secondary-500 mt-0.5">
+          <p className="hero-eyebrow mb-1.5">Meridian / Project Management</p>
+          <h1 className="font-display text-[24px] leading-tight font-extrabold tracking-tight text-white">Projects</h1>
+          <span className="page-heading-accent" aria-hidden="true" />
+          <p className="text-xs text-white/70 mt-2">
             {summaryStats.activeCount} active projects &middot; {summaryStats.formattedBudget} total budget
           </p>
         </div>
@@ -578,7 +581,7 @@ export default function Projects() {
         <div className="flex flex-col lg:flex-row lg:items-center gap-3">
           <div className="relative flex-1 lg:max-w-lg group">
             <label htmlFor="projects-search" className="sr-only">Search projects</label>
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-primary pointer-events-none" aria-hidden="true" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-brand pointer-events-none" aria-hidden="true" />
             <input
               id="projects-search"
               type="search"
@@ -650,7 +653,7 @@ export default function Projects() {
         <div className="flex flex-col md:flex-row md:items-center gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="picker">
-              <User size={14} className="text-primary shrink-0" aria-hidden="true" />
+              <User size={14} className="text-brand shrink-0" aria-hidden="true" />
               <label htmlFor="projects-lead" className="sr-only">Project lead</label>
               <select id="projects-lead" value={leadFilter} onChange={(e) => setLeadFilter(e.target.value)}>
                 <option value="All">All leads</option>
@@ -658,7 +661,7 @@ export default function Projects() {
               </select>
             </div>
             <div className="picker">
-              <ArrowUpDown size={14} className="text-primary shrink-0" aria-hidden="true" />
+              <ArrowUpDown size={14} className="text-brand shrink-0" aria-hidden="true" />
               <label htmlFor="projects-sort" className="sr-only">Sort projects by</label>
               <select id="projects-sort" value={sortField} onChange={(e) => setSortField(e.target.value)}>
                 <option value="name">Sort: Name</option>
@@ -734,7 +737,7 @@ export default function Projects() {
               <div
                 key={project.id}
                 className={`card p-4 hover:shadow-card-hover transition-all duration-200 relative group flex flex-col justify-between ${
-                  isSelected ? 'ring-2 ring-primary border-primary' : ''
+                  isSelected ? 'ring-2 ring-primary-400 border-primary-400' : ''
                 }`}
               >
                 <div>
@@ -745,10 +748,10 @@ export default function Projects() {
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleToggleSelect(project.id)}
-                        className="rounded border-gray-300 text-primary focus:ring-primary/20 size-4 cursor-pointer"
+                        className="rounded border-gray-300 text-brand focus:ring-primary/20 size-4 cursor-pointer"
                         title="Select project"
                       />
-                      <span className="size-9 rounded-2xl bg-primary text-white flex items-center justify-center text-sm shadow-xs ring-2 ring-primary/20">
+                      <span className="size-9 rounded-2xl bg-primrose-fill flex items-center justify-center text-sm shadow-xs ring-2 ring-primary-300/60">
                         <Layers size={17} />
                       </span>
                     </div>
@@ -760,7 +763,7 @@ export default function Projects() {
                   {/* Project Title */}
                   <h3
                     onClick={() => setViewProject(project)}
-                    className="text-[14px] font-bold text-gray-900 leading-snug hover:text-primary cursor-pointer transition-colors truncate"
+                    className="text-[14px] font-bold text-gray-900 leading-snug hover:text-brand cursor-pointer transition-colors truncate"
                     title={project.name}
                   >
                     {project.name}
@@ -800,9 +803,9 @@ export default function Projects() {
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           project.status === 'Delayed'
-                            ? 'bg-rose-500'
+                            ? 'bg-danger-500'
                             : project.status === 'Completed'
-                            ? 'bg-emerald-600'
+                            ? 'bg-success-600'
                             : 'bg-primary'
                         }`}
                         style={{ width: `${spentPct}%` }}
@@ -813,7 +816,7 @@ export default function Projects() {
                   {/* Lead and Due date */}
                   <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-gray-100">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <div className="size-6 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
+                      <div className="size-6 rounded-full bg-primary-100 text-brand text-[10px] font-bold flex items-center justify-center shrink-0">
                         {(project.lead || project.manager || 'A').charAt(0).toUpperCase()}
                       </div>
                       <span className="text-xs text-secondary-600 truncate font-medium">
@@ -821,7 +824,7 @@ export default function Projects() {
                       </span>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-xs font-semibold text-secondary-800 leading-none">
+                      <p className="text-xs font-semibold text-gray-900 leading-none">
                         {formatDate(project.dueDate)}
                       </p>
                       <p className="text-[10px] text-secondary-400 mt-0.5">Due Date</p>
@@ -834,7 +837,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => setViewProject(project)}
-                    className="btn btn-outline text-xs !py-1.5 flex-1 hover:border-primary hover:text-primary transition-colors"
+                    className="btn btn-outline text-xs !py-1.5 flex-1 transition-colors"
                   >
                     <Eye size={13} />
                     <span>View</span>
@@ -842,7 +845,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(project)}
-                    className="size-8 rounded-lg border border-gray-200 grid place-items-center text-secondary-600 hover:text-primary hover:bg-gray-50 transition-colors"
+                    className="size-8 rounded-lg border border-gray-200 grid place-items-center text-secondary-600 hover:text-brand hover:bg-gray-50 transition-colors"
                     title="Edit project"
                   >
                     <Pencil size={13} />
@@ -850,7 +853,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => setDeleteConfirm(project)}
-                    className="size-8 rounded-lg border border-gray-200 grid place-items-center text-secondary-600 hover:text-danger hover:bg-red-50 transition-colors"
+                    className="size-8 rounded-lg border border-gray-200 grid place-items-center text-secondary-600 hover:text-danger hover:bg-danger-50 transition-colors"
                     title="Delete project"
                   >
                     <Trash2 size={13} />
@@ -872,7 +875,7 @@ export default function Projects() {
                       type="checkbox"
                       checked={filteredProjects.length > 0 && selectedIds.size === filteredProjects.length}
                       onChange={handleSelectAll}
-                      className="rounded border-gray-300 text-primary focus:ring-primary/20 size-4 cursor-pointer"
+                      className="rounded border-gray-300 text-brand focus:ring-primary/20 size-4 cursor-pointer"
                     />
                   </th>
                   <th>Project Name</th>
@@ -895,19 +898,19 @@ export default function Projects() {
                   const budget = project.budget || 1;
 
                   return (
-                    <tr key={project.id} className={isSelected ? 'bg-primary/5' : ''}>
+                    <tr key={project.id} className={isSelected ? 'bg-primary-50' : ''}>
                       <td>
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggleSelect(project.id)}
-                          className="rounded border-gray-300 text-primary focus:ring-primary/20 size-4 cursor-pointer"
+                          className="rounded border-gray-300 text-brand focus:ring-primary/20 size-4 cursor-pointer"
                         />
                       </td>
                       <td>
                         <span
                           onClick={() => setViewProject(project)}
-                          className="font-semibold text-gray-900 hover:text-primary cursor-pointer"
+                          className="font-semibold text-gray-900 hover:text-brand cursor-pointer"
                         >
                           {project.name}
                         </span>
@@ -931,7 +934,7 @@ export default function Projects() {
                         </span>
                       </td>
                       <td>
-                        <span className="text-xs font-semibold text-secondary-800">
+                        <span className="text-xs font-semibold text-gray-900">
                           ${Math.round(spent / 1000)}K / ${Math.round(budget / 1000)}K
                         </span>
                       </td>
@@ -950,7 +953,7 @@ export default function Projects() {
                           <button
                             type="button"
                             onClick={() => setViewProject(project)}
-                            className="size-7 rounded hover:bg-gray-100 grid place-items-center text-gray-500 hover:text-primary"
+                            className="size-7 rounded hover:bg-gray-100 grid place-items-center text-gray-500 hover:text-brand"
                             title="View"
                           >
                             <Eye size={14} />
@@ -958,7 +961,7 @@ export default function Projects() {
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(project)}
-                            className="size-7 rounded hover:bg-gray-100 grid place-items-center text-gray-500 hover:text-primary"
+                            className="size-7 rounded hover:bg-gray-100 grid place-items-center text-gray-500 hover:text-brand"
                             title="Edit"
                           >
                             <Pencil size={14} />
@@ -966,7 +969,7 @@ export default function Projects() {
                           <button
                             type="button"
                             onClick={() => setDeleteConfirm(project)}
-                            className="size-7 rounded hover:bg-red-50 grid place-items-center text-gray-500 hover:text-danger"
+                            className="size-7 rounded hover:bg-danger-50 grid place-items-center text-gray-500 hover:text-danger"
                             title="Delete"
                           >
                             <Trash2 size={14} />
@@ -1158,7 +1161,7 @@ export default function Projects() {
             {/* Header info */}
             <div className="flex items-start justify-between gap-3 p-3.5 rounded-xl bg-gray-50 border border-gray-200">
               <div className="flex items-start gap-3">
-                <span className="size-11 rounded-2xl bg-primary text-white flex items-center justify-center text-lg shadow-xs ring-2 ring-primary/20 shrink-0">
+                <span className="size-11 rounded-2xl bg-primrose-fill flex items-center justify-center text-lg shadow-xs ring-2 ring-primary-300/60 shrink-0">
                   <Layers size={20} />
                 </span>
                 <div>
@@ -1295,7 +1298,7 @@ export default function Projects() {
                   onClick={() => setExportFormat(fmt.id)}
                   className={`p-3 rounded-xl border text-center flex flex-col items-center gap-1.5 transition-all ${
                     exportFormat === fmt.id
-                      ? 'border-primary bg-primary/5 text-primary font-bold shadow-xs'
+                      ? 'border-primary-400 bg-primary-100 text-brand-strong font-bold shadow-xs'
                       : 'border-gray-200 bg-white text-secondary-600 hover:bg-gray-50'
                   }`}
                 >
@@ -1417,7 +1420,7 @@ export default function Projects() {
                 onClick={() => fileInputRef.current?.click()}
                 className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer transition-colors border-2 border-dashed text-center ${
                   importDragActive
-                    ? 'border-primary bg-primary/10'
+                    ? 'border-primary-400 bg-primary-100'
                     : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
                 }`}
               >
@@ -1428,17 +1431,17 @@ export default function Projects() {
                   onChange={(e) => e.target.files && setImportFile(e.target.files[0])}
                   className="hidden"
                 />
-                <span className="size-11 rounded-full bg-primary/15 text-primary grid place-items-center mb-2">
+                <span className="size-11 rounded-full bg-primary-100 text-brand grid place-items-center mb-2">
                   <Upload size={20} />
                 </span>
                 <p className="font-semibold text-gray-800 text-xs">
                   {importFile ? importFile.name : 'Drag & drop a file here'}
                 </p>
                 <p className="text-2xs text-secondary-500 mt-0.5">
-                  or <span className="text-primary font-semibold underline">browse to upload</span>
+                  or <span className="text-brand font-semibold underline">browse to upload</span>
                 </p>
                 {importFile && (
-                  <p className="text-2xs text-emerald-700 font-semibold mt-2">
+                  <p className="text-2xs text-success-700 font-semibold mt-2">
                     Size: {(importFile.size / 1024).toFixed(1)} KB
                   </p>
                 )}
@@ -1452,7 +1455,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => downloadImportTemplate('csv')}
-                    className="text-primary hover:underline font-semibold"
+                    className="text-brand hover:underline font-semibold"
                   >
                     CSV
                   </button>
@@ -1460,7 +1463,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => downloadImportTemplate('xlsx')}
-                    className="text-primary hover:underline font-semibold"
+                    className="text-brand hover:underline font-semibold"
                   >
                     Excel
                   </button>
@@ -1468,7 +1471,7 @@ export default function Projects() {
                   <button
                     type="button"
                     onClick={() => downloadImportTemplate('json')}
-                    className="text-primary hover:underline font-semibold"
+                    className="text-brand hover:underline font-semibold"
                   >
                     JSON
                   </button>
@@ -1530,38 +1533,38 @@ export default function Projects() {
           ) : (
             /* Import Results Screen */
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-                <CheckCircle2 size={32} className="text-emerald-600 mx-auto mb-2" />
-                <h4 className="font-bold text-sm text-emerald-900">Import Processing Complete</h4>
-                <p className="text-xs text-emerald-700 mt-1">
+              <div className="p-4 rounded-xl bg-success-50 border border-success-200 text-center">
+                <CheckCircle2 size={32} className="text-success-600 mx-auto mb-2" />
+                <h4 className="font-bold text-sm text-success-900">Import Processing Complete</h4>
+                <p className="text-xs text-success-700 mt-1">
                   Your project dataset has been validated and applied to the workspace.
                 </p>
               </div>
 
               <div className="grid grid-cols-4 gap-2 text-center">
                 <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
-                  <p className="text-base font-bold text-emerald-600">{importResult.imported}</p>
+                  <p className="text-base font-bold text-success-600">{importResult.imported}</p>
                   <p className="text-2xs text-secondary-500">Imported</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
-                  <p className="text-base font-bold text-sky-600">{importResult.updated}</p>
+                  <p className="text-base font-bold text-info-600">{importResult.updated}</p>
                   <p className="text-2xs text-secondary-500">Updated</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
-                  <p className="text-base font-bold text-amber-600">{importResult.skipped}</p>
+                  <p className="text-base font-bold text-warning-600">{importResult.skipped}</p>
                   <p className="text-2xs text-secondary-500">Skipped</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
-                  <p className="text-base font-bold text-rose-600">{importResult.failed}</p>
+                  <p className="text-base font-bold text-danger-600">{importResult.failed}</p>
                   <p className="text-2xs text-secondary-500">Failed</p>
                 </div>
               </div>
 
               {importResult.errors && importResult.errors.length > 0 && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-2xs space-y-1 max-h-32 overflow-y-auto">
-                  <p className="font-bold text-rose-800">Errors encountered:</p>
+                <div className="p-3 rounded-xl bg-danger-50 border border-danger-200 text-2xs space-y-1 max-h-32 overflow-y-auto">
+                  <p className="font-bold text-danger-800">Errors encountered:</p>
                   {importResult.errors.map((err, i) => (
-                    <p key={i} className="text-rose-700">
+                    <p key={i} className="text-danger-700">
                       Row {err.row}: {err.error}
                     </p>
                   ))}

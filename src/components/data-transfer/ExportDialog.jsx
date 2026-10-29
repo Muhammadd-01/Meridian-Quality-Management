@@ -91,7 +91,7 @@ export default function ExportDialog({
               return (
                 <label
                   key={f.id}
-                  className={`flex flex-col items-center gap-1 p-3 rounded-lg border cursor-pointer text-center transition-colors ${active ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex flex-col items-center gap-1 p-3 rounded-lg border cursor-pointer text-center transition-colors ${active ? 'border-primary bg-primary-50 text-brand' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                 >
                   <input type="radio" name="export-format" value={f.id} checked={active} onChange={() => setFormat(f.id)} className="sr-only" />
                   <Icon size={18} aria-hidden="true" />
@@ -107,7 +107,7 @@ export default function ExportDialog({
           <legend className="form-label">Scope</legend>
           <div className="space-y-2">
             {scopes.map(s => (
-              <label key={s.id} className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border cursor-pointer ${scope === s.id ? 'border-primary bg-primary/5' : 'border-gray-200 hover:bg-gray-50'} ${s.count === 0 ? 'opacity-50' : ''}`}>
+              <label key={s.id} className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border cursor-pointer ${scope === s.id ? 'border-primary bg-primary-50' : 'border-gray-200 hover:bg-gray-50'} ${s.count === 0 ? 'opacity-50' : ''}`}>
                 <span className="flex items-center gap-2.5 text-sm text-gray-900">
                   <input
                     type="radio"
@@ -116,7 +116,6 @@ export default function ExportDialog({
                     checked={scope === s.id}
                     disabled={s.count === 0}
                     onChange={() => setScope(s.id)}
-                    className="accent-[#2C5F6F]"
                   />
                   {s.label}
                 </span>

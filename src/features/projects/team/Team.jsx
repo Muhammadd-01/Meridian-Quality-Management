@@ -109,7 +109,7 @@ export default function Team() {
         id: `team-${generateId()}`,
         ...formData,
         avatar: initials,
-        color: 'bg-primary text-white',
+        color: 'bg-primary text-primary-ink',
         joinedDate: new Date().toISOString().split('T')[0],
         assignedProjects: Number(formData.assignedProjects),
         activeTasks: Number(formData.activeTasks),
@@ -159,7 +159,7 @@ export default function Team() {
           value={team.length}
           subtitle="Consulting personnel"
           icon={Users}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Active on Engagements"
@@ -234,7 +234,7 @@ export default function Team() {
               <div className="p-5">
                 <div className="flex items-start justify-between gap-2 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-base shadow-sm ${member.color || 'bg-primary text-white'}`}>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-base shadow-sm ${member.color || 'bg-primary text-primary-ink'}`}>
                       {member.avatar || 'TM'}
                     </div>
                     <div>
@@ -280,7 +280,7 @@ export default function Team() {
                   </div>
                   <div>
                     <span className="text-2xs text-gray-400 uppercase tracking-wide block">Active Tasks</span>
-                    <span className="text-sm font-bold text-primary">{member.activeTasks} Tasks</span>
+                    <span className="text-sm font-bold text-brand">{member.activeTasks} Tasks</span>
                   </div>
                 </div>
               </div>

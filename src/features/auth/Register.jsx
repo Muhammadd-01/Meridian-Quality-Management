@@ -18,7 +18,7 @@ const STRENGTH = [
   { label: 'Too weak', color: 'bg-danger-500', text: 'text-danger-600' },
   { label: 'Weak', color: 'bg-danger-400', text: 'text-danger-600' },
   { label: 'Fair', color: 'bg-warning-500', text: 'text-warning-700' },
-  { label: 'Good', color: 'bg-primary-400', text: 'text-primary-700' },
+  { label: 'Good', color: 'bg-teal-500', text: 'text-teal-700' },
   { label: 'Strong', color: 'bg-success-500', text: 'text-success-700' },
 ];
 
@@ -83,7 +83,7 @@ export default function Register() {
           <div>
             <label htmlFor="register-role" className="block text-[12.5px] font-semibold text-gray-800 mb-1.5">Primary role</label>
             <div className="relative group">
-              <Briefcase size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors group-focus-within:text-primary" aria-hidden="true" />
+              <Briefcase size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors group-focus-within:text-brand" aria-hidden="true" />
               <select id="register-role" value={form.role} onChange={set('role')} className="form-select !py-2.5 pl-10">
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
@@ -110,8 +110,8 @@ export default function Register() {
                 {RULES.map(r => {
                   const ok = r.test(form.password);
                   return (
-                    <span key={r.id} className={`inline-flex items-center gap-1 text-[11px] transition-colors ${ok ? 'text-primary-700 font-semibold' : 'text-gray-400'}`}>
-                      <span className={`grid place-items-center w-3.5 h-3.5 rounded-full transition-all duration-300 ${ok ? 'bg-primary text-white scale-100' : 'bg-gray-200 scale-90'}`}><Check size={9} strokeWidth={3} aria-hidden="true" /></span>
+                    <span key={r.id} className={`inline-flex items-center gap-1 text-[11px] transition-colors ${ok ? 'text-brand-strong font-semibold' : 'text-gray-400'}`}>
+                      <span className={`grid place-items-center w-3.5 h-3.5 rounded-full transition-all duration-300 ${ok ? 'bg-primary text-primary-ink ring-1 ring-primary-500 scale-100' : 'bg-gray-200 scale-90'}`}><Check size={9} strokeWidth={3} aria-hidden="true" /></span>
                       {r.label}
                     </span>
                   );
@@ -130,8 +130,8 @@ export default function Register() {
 
         <div>
           <label htmlFor="register-terms" className="flex items-start gap-2.5 cursor-pointer select-none">
-            <input id="register-terms" type="checkbox" checked={form.agreeTerms} onChange={set('agreeTerms')} className="w-4 h-4 mt-0.5 accent-[#2C5F6F]" aria-describedby={errors.agreeTerms ? 'register-terms-error' : undefined} />
-            <span className="text-[12.5px] text-gray-600">I agree to the <span className="font-semibold text-primary">Terms of Service</span> and <span className="font-semibold text-primary">Privacy Policy</span>.</span>
+            <input id="register-terms" type="checkbox" checked={form.agreeTerms} onChange={set('agreeTerms')} className="w-4 h-4 mt-0.5" aria-describedby={errors.agreeTerms ? 'register-terms-error' : undefined} />
+            <span className="text-[12.5px] text-gray-600">I agree to the <span className="font-semibold text-brand">Terms of Service</span> and <span className="font-semibold text-brand">Privacy Policy</span>.</span>
           </label>
           {errors.agreeTerms && <p id="register-terms-error" className="form-error">{errors.agreeTerms}</p>}
         </div>
@@ -142,7 +142,7 @@ export default function Register() {
 
         <p className="text-[13px] text-center text-gray-500">
           Already have an account?{' '}
-          <Link to="/login" className="font-bold text-primary hover:text-primary-700 transition-colors">Sign in</Link>
+          <Link to="/login" className="font-bold text-brand hover:text-brand-strong transition-colors">Sign in</Link>
         </p>
       </form>
     </AuthLayout>

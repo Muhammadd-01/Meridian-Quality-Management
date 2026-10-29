@@ -23,15 +23,15 @@ const kindDot = {
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || '');
 
 const APPS = [
-  { label: 'Calendar', path: '/calendar', icon: CalendarDays, tone: 'bg-primary-50 text-primary-600' },
+  { label: 'Calendar', path: '/calendar', icon: CalendarDays, tone: 'bg-primary-100 text-brand' },
   { label: 'Tasks', path: '/projects/tasks', icon: CheckSquare, tone: 'bg-info-50 text-info-600' },
   { label: 'Contacts', path: '/crm/contacts', icon: Contact, tone: 'bg-accent-50 text-accent-600' },
   { label: 'Companies', path: '/crm/companies', icon: Building2, tone: 'bg-success-50 text-success-600' },
   { label: 'Reports', path: '/reports', icon: FileBarChart, tone: 'bg-danger-50 text-danger-600' },
   { label: 'Audit Log', path: '/audit-log', icon: History, tone: 'bg-gray-100 text-gray-700' },
   { label: 'Timesheets', path: '/projects/timesheets', icon: Clock, tone: 'bg-warning-50 text-warning-600' },
-  { label: 'Pipeline', path: '/sales-analytics/pipeline', icon: GitBranch, tone: 'bg-primary-50 text-primary-600' },
-  { label: 'Settings', path: '/settings', icon: Settings, tone: 'bg-info-50 text-info-600' },
+  { label: 'Pipeline', path: '/sales-analytics/pipeline', icon: GitBranch, tone: 'bg-teal-50 text-teal-700' },
+  { label: 'Settings', path: '/settings', icon: Settings, tone: 'bg-gray-100 text-gray-700' },
 ];
 
 const EXPLORE_COLUMNS = [
@@ -161,11 +161,11 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
       <button
         type="button"
         onClick={() => setSearchOpen(true)}
-        className="group hidden sm:flex items-center gap-2.5 h-10 pl-1.5 pr-1.5 xl:pr-2 w-10 xl:w-72 min-w-0 shrink rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-info-500 hover:bg-white hover:shadow-[0_0_0_4px_rgb(66_155_183/0.15)] transition-all text-left"
+        className="group hidden sm:flex items-center gap-2.5 h-10 pl-1.5 pr-1.5 xl:pr-2 w-10 xl:w-72 min-w-0 shrink rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:border-primary-400 hover:bg-white hover:shadow-[0_0_0_4px_rgb(242_230_162/0.6)] transition-all text-left"
         aria-label="Search pages, actions and records"
         aria-keyshortcuts={isMac ? 'Meta+K' : 'Control+K'}
       >
-        <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-50 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+        <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-100 text-brand group-hover:bg-primary group-hover:text-primary-ink transition-colors">
           <Search size={14} aria-hidden="true" />
         </span>
         <span className="hidden xl:block flex-1 text-[13px] truncate">Search records, pages, actions…</span>
@@ -195,7 +195,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
               <div role="dialog" aria-label="Explore the workspace" className="menu-panel pointer-events-auto w-full max-w-[1000px] overflow-hidden" style={{ transformOrigin: 'top center' }}>
                 <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-transparent">
                   <div className="flex items-center gap-3">
-                    <span className="icon-tile w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-700 text-white shadow-glow-primary"><Compass size={18} aria-hidden="true" /></span>
+                    <span className="icon-tile w-10 h-10 bg-primrose-fill shadow-glow-primary"><Compass size={18} aria-hidden="true" /></span>
                     <div>
                       <p className="text-sm font-extrabold text-gray-900">Explore Meridian</p>
                       <p className="text-xs text-gray-500">{allPages.length} workspaces · jump to any module or page</p>
@@ -205,7 +205,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                     <div className="hidden lg:flex items-center gap-1.5 flex-wrap justify-end">
                       <span className="text-[10.5px] font-bold uppercase tracking-wider text-gray-400 me-1">Recent</span>
                       {recent.slice(0, 4).map(p => (
-                        <Link key={p.path} to={p.path} className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-gray-200 bg-white text-[11.5px] font-semibold text-gray-600 hover:border-primary-300 hover:text-primary transition-colors">
+                        <Link key={p.path} to={p.path} className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-gray-200 bg-white text-[11.5px] font-semibold text-gray-600 hover:border-primary-300 hover:text-brand transition-colors">
                           <p.icon size={11} aria-hidden="true" /> {p.label}
                         </Link>
                       ))}
@@ -223,7 +223,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                           return (
                             <li key={item.path}>
                               <Link to={item.path} className={`menu-item !py-1.5 group ${active ? 'is-active' : ''}`}>
-                                <span className={`grid place-items-center w-7 h-7 rounded shrink-0 transition-colors ${active ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-primary-50 group-hover:text-primary'}`}>
+                                <span className={`grid place-items-center w-7 h-7 rounded shrink-0 transition-colors ${active ? 'bg-teal-800 text-primrose' : 'bg-gray-100 text-gray-500 group-hover:bg-primary group-hover:text-primary-ink'}`}>
                                   <Icon size={14} aria-hidden="true" />
                                 </span>
                                 <span className="truncate">{item.label}</span>
@@ -236,7 +236,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                   ))}
                   <div className="col-span-2 lg:col-span-1 relative overflow-hidden rounded-lg hero-spruce hero-grid text-white p-4 flex flex-col">
                     <span className="hero-orb w-32 h-32 -top-10 -right-10 bg-[radial-gradient(circle,rgba(255,179,71,0.25),transparent_70%)]" aria-hidden="true" />
-                    <span className="relative icon-tile w-9 h-9 bg-white/10 text-accent-300"><Sparkles size={16} aria-hidden="true" /></span>
+                    <span className="relative icon-tile w-9 h-9 bg-white/10 text-primrose"><Sparkles size={16} aria-hidden="true" /></span>
                     <p className="relative text-sm font-bold mt-3">Reports & exports</p>
                     <p className="relative text-xs text-white/70 mt-1 leading-relaxed">13 reports with formulas, date filters and CSV / Excel / PDF export.</p>
                     <Link to="/reports" className="relative btn-glass btn-sm mt-4 self-start group">
@@ -246,7 +246,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                 </div>
                 <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-gray-100 bg-gray-50 text-xs">
                   <span className="text-gray-500">{allPages.length} pages available</span>
-                  <button type="button" onClick={() => { explore.setOpen(false); setSearchOpen(true); }} className="font-semibold text-primary hover:text-primary-700 inline-flex items-center gap-1.5">
+                  <button type="button" onClick={() => { explore.setOpen(false); setSearchOpen(true); }} className="font-semibold text-brand hover:text-brand-strong inline-flex items-center gap-1.5">
                     Search everything <kbd className="kbd">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
                   </button>
                 </div>
@@ -314,7 +314,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
               const Icon = a.icon;
               return (
                 <Link key={a.id} to={a.path} role="menuitem" className="menu-item group">
-                  <span className="grid place-items-center w-7 h-7 rounded bg-primary-50 text-primary transition-transform group-hover:scale-110"><Icon size={14} aria-hidden="true" /></span>
+                  <span className="grid place-items-center w-7 h-7 rounded bg-primary-100 text-brand transition-transform group-hover:scale-110"><Icon size={14} aria-hidden="true" /></span>
                   {a.label}
                 </Link>
               );
@@ -422,13 +422,13 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                       role="tab"
                       aria-selected={notifFilter === val}
                       onClick={() => setNotifFilter(val)}
-                      className={`px-2.5 py-1 rounded-full text-[11.5px] font-semibold transition-colors ${notifFilter === val ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                      className={`px-2.5 py-1 rounded-full text-[11.5px] font-semibold transition-colors ${notifFilter === val ? 'bg-primary text-primary-ink shadow-xs' : 'text-gray-500 hover:bg-primary-50'}`}
                     >
                       {label}
                     </button>
                   ))}
                 </div>
-                <button type="button" onClick={markAllRead} disabled={unreadCount === 0} className="text-[11.5px] text-primary font-semibold hover:underline disabled:opacity-40 disabled:no-underline">Mark all read</button>
+                <button type="button" onClick={markAllRead} disabled={unreadCount === 0} className="text-[11.5px] text-brand font-semibold hover:underline disabled:opacity-40 disabled:no-underline">Mark all read</button>
               </div>
               <div className="max-h-[22rem] overflow-y-auto">
                 {notifGroups.length === 0 ? (
@@ -447,7 +447,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                         onClick={() => openNotification(n)}
                         className={`w-full text-left flex items-start gap-3 px-4 py-2.5 transition-colors hover:bg-gray-50 ${n.read ? '' : 'bg-primary-50/40'}`}
                       >
-                        <span className={`mt-0.5 grid place-items-center w-8 h-8 rounded-full shrink-0 ${n.kind === 'danger' ? 'bg-danger-50 text-danger-600' : n.kind === 'warning' ? 'bg-warning-50 text-warning-600' : 'bg-primary-50 text-primary'}`} aria-hidden="true">
+                        <span className={`mt-0.5 grid place-items-center w-8 h-8 rounded-full shrink-0 ${n.kind === 'danger' ? 'bg-danger-50 text-danger-600' : n.kind === 'warning' ? 'bg-warning-50 text-warning-600' : 'bg-primary-100 text-brand'}`} aria-hidden="true">
                           {n.kind === 'danger' || n.kind === 'warning' ? <AlertTriangle size={14} /> : <History size={14} />}
                         </span>
                         <span className="min-w-0 flex-1">
@@ -460,13 +460,13 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                           </span>
                           {n.detail && <span className="block text-[11.5px] text-gray-500 mt-0.5 truncate">{n.detail}</span>}
                         </span>
-                        {!n.read && <span className={`mt-2 w-2 h-2 rounded-full shrink-0 ${kindDot[n.kind] || 'bg-primary'}`} aria-hidden="true" />}
+                        {!n.read && <span className={`mt-2 w-2 h-2 rounded-full shrink-0 ${kindDot[n.kind] || 'bg-primary-500'}`} aria-hidden="true" />}
                       </button>
                     ))}
                   </div>
                 ))}
               </div>
-              <Link to="/audit-log" onClick={() => notif.setOpen(false)} className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-gray-100 text-xs font-semibold text-primary hover:bg-gray-50 transition-colors">
+              <Link to="/audit-log" onClick={() => notif.setOpen(false)} className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-gray-100 text-xs font-semibold text-brand hover:bg-gray-50 transition-colors">
                 View activity history <ArrowRight size={12} aria-hidden="true" />
               </Link>
             </div>
@@ -484,7 +484,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
           aria-haspopup="menu"
           aria-expanded={profile.open}
         >
-          <span className="relative w-8 h-8 rounded-full bg-gradient-to-br from-accent-300 to-primary-500 grid place-items-center text-[11px] font-extrabold text-white">
+          <span className="relative w-8 h-8 rounded-full bg-primrose-fill ring-1 ring-primary-400/60 grid place-items-center text-[11px] font-extrabold">
             {profileInitials}
             <span className="absolute -bottom-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-success-400 ring-2 ring-[color:var(--surface-raised)]" aria-hidden="true" />
           </span>
@@ -498,9 +498,9 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
           <div role="menu" className="menu-panel absolute right-0 top-full mt-2 w-72 z-50 overflow-hidden">
             <div className="relative p-4 hero-spruce hero-grid text-white">
               <div className="relative flex items-center gap-3">
-                <span className="w-11 h-11 rounded-full bg-gradient-to-br from-accent-300 to-primary-400 grid place-items-center text-sm font-extrabold ring-2 ring-white/20">{profileInitials}</span>
+                <span className="w-11 h-11 rounded-full bg-primrose-fill grid place-items-center text-sm font-extrabold ring-2 ring-primrose/30">{profileInitials}</span>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold truncate flex items-center gap-1.5">{settings.profile.name}<span className="text-[9px] font-extrabold uppercase px-1 rounded bg-accent-400/25 text-accent-200">Admin</span></p>
+                  <p className="text-sm font-bold truncate flex items-center gap-1.5">{settings.profile.name}<span className="text-[9px] font-extrabold uppercase px-1 rounded bg-primrose/20 text-primrose">Admin</span></p>
                   <p className="text-[11px] text-white/65 truncate">{settings.profile.email}</p>
                 </div>
               </div>

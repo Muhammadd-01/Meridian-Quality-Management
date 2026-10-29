@@ -23,7 +23,7 @@ const TONES = [
 ];
 const toneOf = (classes = '') => TONES.find(([re]) => re.test(classes))?.[1] || 'primary';
 
-export default function StatCard({ title, value, change, changeType = 'increase', icon: Icon, iconColor = 'bg-primary/10 text-primary', subtitle, info, to, positiveIsGood = true, footer }) {
+export default function StatCard({ title, value, change, changeType = 'increase', icon: Icon, iconColor = 'bg-primary-100 text-brand', subtitle, info, to, positiveIsGood = true, footer }) {
   // Check if value is numeric or formatted string
   const renderValue = () => {
     if (typeof value === 'number') {

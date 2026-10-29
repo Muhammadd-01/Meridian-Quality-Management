@@ -91,7 +91,7 @@ export default function TaskDetailModal({ task, onClose, onUpdate, onEdit }) {
         <section aria-labelledby="task-subtasks-heading">
           <div className="flex items-center justify-between mb-2">
             <h4 id="task-subtasks-heading" className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-              <ListChecks size={15} className="text-primary" aria-hidden="true" /> Subtasks
+              <ListChecks size={15} className="text-brand" aria-hidden="true" /> Subtasks
             </h4>
             <span className="text-xs text-gray-500">
               {subtasks.filter(s => s.done).length} / {subtasks.length} done
@@ -107,7 +107,7 @@ export default function TaskDetailModal({ task, onClose, onUpdate, onEdit }) {
                   <button
                     type="button"
                     onClick={() => toggleSubtask(s.id)}
-                    className={s.done ? 'text-success' : 'text-gray-300 hover:text-primary'}
+                    className={s.done ? 'text-success' : 'text-gray-300 hover:text-brand'}
                     aria-pressed={s.done}
                     aria-label={s.done ? `Mark "${s.title}" not done` : `Mark "${s.title}" done`}
                   >
@@ -143,7 +143,7 @@ export default function TaskDetailModal({ task, onClose, onUpdate, onEdit }) {
         {/* Comments */}
         <section aria-labelledby="task-comments-heading">
           <h4 id="task-comments-heading" className="text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-2">
-            <MessageSquare size={15} className="text-primary" aria-hidden="true" /> Comments ({comments.length})
+            <MessageSquare size={15} className="text-brand" aria-hidden="true" /> Comments ({comments.length})
           </h4>
           {comments.length === 0 ? (
             <p className="text-xs text-gray-400 mb-3">No comments yet.</p>

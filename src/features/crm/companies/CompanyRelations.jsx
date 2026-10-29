@@ -45,7 +45,7 @@ export default function CompanyRelations({ company }) {
           const Icon = g.icon;
           return (
             <div key={g.key} className="rounded-lg border border-gray-100 p-2.5 text-center">
-              <Icon size={15} className="mx-auto text-primary mb-1" aria-hidden="true" />
+              <Icon size={15} className="mx-auto text-brand mb-1" aria-hidden="true" />
               <p className="text-base font-bold text-gray-800">{g.items.length}</p>
               <p className="text-[11px] text-gray-500">{g.label}</p>
             </div>
@@ -86,9 +86,9 @@ export default function CompanyRelations({ company }) {
               return (
                 <li key={t.id} className="ml-4">
                   <span className="absolute -left-[9px] grid place-items-center w-[18px] h-[18px] rounded-full bg-white border border-gray-200" aria-hidden="true">
-                    <Icon size={10} className="text-primary" />
+                    <Icon size={10} className="text-brand" />
                   </span>
-                  <Link to={t.to} className="text-xs font-semibold text-gray-800 hover:text-primary">{t.title}</Link>
+                  <Link to={t.to} className="text-xs font-semibold text-gray-800 hover:text-brand">{t.title}</Link>
                   <p className="text-[11px] text-gray-500">{t.at} · {t.meta}</p>
                 </li>
               );

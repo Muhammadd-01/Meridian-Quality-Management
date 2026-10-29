@@ -197,7 +197,7 @@ export default function Deals() {
           value={formatCurrency(totalValue)}
           subtitle={`${deals.length} active opportunities`}
           icon={DollarSign}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Weighted Forecast"
@@ -268,7 +268,7 @@ export default function Deals() {
                     <p className="text-2xs text-gray-500">{d.company} • {d.contact}</p>
                   </td>
                   <td>
-                    <span className="text-xs font-bold text-primary">
+                    <span className="text-xs font-bold text-brand">
                       {formatCurrency(d.value)}
                     </span>
                   </td>
@@ -291,7 +291,7 @@ export default function Deals() {
                       {d.stage !== 'Closed Won' && d.stage !== 'Closed Lost' && (
                         <button
                           onClick={() => handleAdvanceStage(d)}
-                          className="p-1 text-primary hover:bg-primary/10 rounded"
+                          className="p-1 text-brand hover:bg-primary-100 rounded"
                           title="Advance Stage"
                           aria-label={`Advance ${d.name} to the next stage`}
                         >
@@ -320,7 +320,7 @@ export default function Deals() {
                       )}
                       <button
                         onClick={() => setViewDeal(d)}
-                        className="p-1 text-gray-400 hover:text-primary rounded"
+                        className="p-1 text-gray-400 hover:text-brand rounded"
                         title="View Details"
                         aria-label={`View ${d.name}`}
                       >
@@ -514,7 +514,7 @@ export default function Deals() {
             <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs">
               <div>
                 <span className="text-gray-400 block">Contract Value</span>
-                <span className="font-bold text-primary text-sm">{formatCurrency(viewDeal.value)}</span>
+                <span className="font-bold text-brand text-sm">{formatCurrency(viewDeal.value)}</span>
               </div>
               <div>
                 <span className="text-gray-400 block">Close Probability</span>

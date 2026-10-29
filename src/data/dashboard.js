@@ -12,19 +12,19 @@ export const revenueData = [
 ];
 
 export const leadSourceData = [
-  { name: 'Website', value: 35, fill: '#357A8E' },
-  { name: 'Referral', value: 28, fill: '#7A5CC8' },
-  { name: 'LinkedIn', value: 18, fill: '#2F95C8' },
-  { name: 'Conference', value: 12, fill: '#D97706' },
-  { name: 'Cold Call', value: 7, fill: '#DC2626' },
+  { name: 'Website', value: 35, fill: '#145D68' },
+  { name: 'Referral', value: 28, fill: '#E0CD68' },
+  { name: 'LinkedIn', value: 18, fill: '#1C7D86' },
+  { name: 'Conference', value: 12, fill: '#F78D00' },
+  { name: 'Cold Call', value: 7, fill: '#A45B0B' },
 ];
 
 export const projectStatusDistribution = [
-  { name: 'Active', value: 4, fill: '#2F95C8' },
-  { name: 'In Progress', value: 4, fill: '#357A8E' },
-  { name: 'Completed', value: 2, fill: '#16A34A' },
-  { name: 'Pending', value: 2, fill: '#D97706' },
-  { name: 'Overdue', value: 1, fill: '#DC2626' },
+  { name: 'Active', value: 4, fill: '#1C7D86' },
+  { name: 'In Progress', value: 4, fill: '#145D68' },
+  { name: 'Completed', value: 2, fill: '#093F50' },
+  { name: 'Pending', value: 2, fill: '#E0CD68' },
+  { name: 'Overdue', value: 1, fill: '#CF4A3B' },
 ];
 
 export const recentActivities = [

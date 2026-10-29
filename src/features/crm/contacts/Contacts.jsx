@@ -158,7 +158,7 @@ export default function Contacts() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard title="Total Contacts" value={contacts.length} subtitle={demoCount ? `${demoCount} demo records` : 'Directory records'} icon={ContactIcon} iconColor="bg-primary/10 text-primary" />
+        <StatCard title="Total Contacts" value={contacts.length} subtitle={demoCount ? `${demoCount} demo records` : 'Directory records'} icon={ContactIcon} iconColor="bg-primary-100 text-brand" />
         <StatCard title="Active" value={activeCount} subtitle="Currently engaged" icon={CheckCircle2} iconColor="bg-success/10 text-success" />
         <StatCard title="Organizations" value={companyCount} subtitle="Companies represented" icon={Building2} iconColor="primrose" />
         <StatCard title="Linked to Leads" value={leadLinked} subtitle="Matched by contact name" icon={Target} iconColor="bg-accent/10 text-accent" />
@@ -209,7 +209,7 @@ export default function Contacts() {
                   <tr key={c.id}>
                     <td>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-primary-100 text-brand flex items-center justify-center font-bold text-xs shrink-0">
                           {initials(c.name)}
                         </div>
                         <div>
@@ -232,7 +232,7 @@ export default function Contacts() {
                     </td>
                     <td>
                       <div className="flex items-center gap-1">
-                        <button type="button" onClick={() => setViewContact(c)} className="p-1.5 text-gray-500 hover:text-primary rounded-lg hover:bg-gray-100" aria-label={`View ${c.name}`} title="View Details">
+                        <button type="button" onClick={() => setViewContact(c)} className="p-1.5 text-gray-500 hover:text-brand rounded-lg hover:bg-gray-100" aria-label={`View ${c.name}`} title="View Details">
                           <Eye size={14} />
                         </button>
                         <button type="button" onClick={() => handleOpenEdit(c)} className="p-1.5 text-gray-500 hover:text-info rounded-lg hover:bg-gray-100" aria-label={`Edit ${c.name}`} title="Edit Contact">
@@ -347,7 +347,7 @@ export default function Contacts() {
         >
           <div className="space-y-4">
             <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-              <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+              <div className="w-14 h-14 rounded-full bg-primary-100 text-brand flex items-center justify-center font-bold text-lg">
                 {initials(viewContact.name)}
               </div>
               <div>
@@ -367,7 +367,7 @@ export default function Contacts() {
               <div className="flex items-start gap-2">
                 <Building2 size={14} className="text-gray-400 mt-0.5" aria-hidden="true" />
                 {viewContact.company ? (
-                  <Link to={`/crm/companies?q=${encodeURIComponent(viewContact.company)}`} className="font-semibold text-primary hover:underline">{viewContact.company}</Link>
+                  <Link to={`/crm/companies?q=${encodeURIComponent(viewContact.company)}`} className="font-semibold text-brand hover:underline">{viewContact.company}</Link>
                 ) : <span className="font-semibold text-gray-800">—</span>}
               </div>
             </div>
@@ -386,7 +386,7 @@ export default function Contacts() {
                 { label: 'Interactions', icon: Activity, count: related.timeline.length },
               ].map(g => (
                 <div key={g.label} className="rounded-lg border border-gray-100 p-2.5 text-center">
-                  <g.icon size={15} className="mx-auto text-primary mb-1" aria-hidden="true" />
+                  <g.icon size={15} className="mx-auto text-brand mb-1" aria-hidden="true" />
                   <p className="text-base font-bold text-gray-800">{g.count}</p>
                   <p className="text-[11px] text-gray-500">{g.label}</p>
                 </div>
@@ -417,7 +417,7 @@ export default function Contacts() {
                 <ol className="space-y-2">
                   {related.timeline.slice(0, 8).map(t => (
                     <li key={t.id} className="flex items-start gap-2">
-                      <t.icon size={14} className="text-primary mt-0.5 shrink-0" aria-hidden="true" />
+                      <t.icon size={14} className="text-brand mt-0.5 shrink-0" aria-hidden="true" />
                       <Link to={t.to} className="min-w-0 hover:underline">
                         <p className="text-xs font-medium text-gray-800 truncate">{t.title}</p>
                         <p className="text-2xs text-gray-400">{t.at || 'No date'} · {t.meta}</p>

@@ -53,13 +53,13 @@ export default function Sidebar({
         toggleBtn: 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
         sectionTitle: 'text-gray-400 hover:text-gray-600',
         logo: '/brand/meridian-logo-compact.png',
-        linkActive: 'is-active bg-primary-50 text-primary font-semibold',
-        linkInactive: 'text-gray-600 hover:text-primary hover:bg-primary-50',
+        linkActive: 'is-active bg-primary-100 text-brand-strong font-semibold',
+        linkInactive: 'text-gray-600 hover:text-brand hover:bg-primary-50',
         icon: 'text-gray-400 group-hover:text-gray-700',
         star: 'text-gray-300 hover:text-accent',
         tile: 'favorite-tile !bg-gray-50 !text-gray-600 hover:!bg-gray-100 hover:!text-gray-900',
-        tileActive: 'favorite-tile !bg-primary-50 !text-primary-700',
-        tileIcon: 'bg-white border border-gray-200 text-primary',
+        tileActive: 'favorite-tile !bg-primary-100 !text-brand-strong',
+        tileIcon: 'bg-white border border-gray-200 text-brand',
         widget: 'bg-gray-50 border border-gray-200',
         widgetText: 'text-gray-900',
         widgetSub: 'text-gray-500',
@@ -78,9 +78,9 @@ export default function Sidebar({
         sectionTitle: 'text-white/40 hover:text-white/70',
         logo: '/brand/meridian-logo-compact-on-dark.png',
         linkActive: 'is-active text-white font-semibold',
-        linkInactive: 'text-[color:var(--sidebar-text)] hover:text-white hover:bg-white/[0.06]',
+        linkInactive: 'text-[color:var(--sidebar-text)] hover:text-white hover:bg-white/[0.07]',
         icon: 'text-white/50 group-hover:text-white',
-        star: 'text-white/25 hover:text-accent-300',
+        star: 'text-white/25 hover:text-primrose',
         tile: 'favorite-tile',
         tileActive: 'favorite-tile is-active',
         tileIcon: 'bg-white/[0.08] text-white/80',
@@ -141,7 +141,7 @@ export default function Sidebar({
             type="button"
             onClick={() => toggleFavorite(item.path)}
             className={`absolute end-1.5 top-1/2 -translate-y-1/2 grid place-items-center w-6 h-6 rounded transition-all ${
-              pinned ? 'text-accent-400 opacity-100' : `${t.star} opacity-0 group-hover/link:opacity-100 focus-visible:opacity-100`
+              pinned ? `${isActive && !isLight ? 'text-accent-600' : 'text-accent-400'} opacity-100` : `${isActive && !isLight ? 'text-primary-ink/40 hover:text-accent-600' : t.star} opacity-0 group-hover/link:opacity-100 focus-visible:opacity-100`
             }`}
             aria-label={pinned ? `Remove ${item.label} from favorites` : `Add ${item.label} to favorites`}
             aria-pressed={pinned}
@@ -213,7 +213,7 @@ export default function Sidebar({
                     return (
                       <li key={f.path} className="relative">
                         <Link to={f.path} onClick={handleNavClick} className={`${active ? t.tileActive : t.tile} w-full`} aria-current={active ? 'page' : undefined}>
-                          <span className={`w-8 h-8 rounded grid place-items-center ${active ? 'bg-gradient-to-br from-accent-500 to-accent-300 text-primary-800 shadow-glow-accent' : t.tileIcon}`}>
+                          <span className={`w-8 h-8 rounded grid place-items-center ${active ? 'bg-primrose-fill shadow-glow-primary' : t.tileIcon}`}>
                             <Icon size={15} aria-hidden="true" />
                           </span>
                           <span className="text-[11px] font-semibold leading-tight line-clamp-1 w-full px-1">{f.label}</span>
@@ -235,7 +235,7 @@ export default function Sidebar({
                   <button
                     type="button"
                     onClick={() => setFavExpanded(x => !x)}
-                    className={`w-full mt-2 text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors ${isLight ? 'text-primary hover:text-primary-800' : 'text-accent-300 hover:text-accent-200'}`}
+                    className={`w-full mt-2 text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors ${isLight ? 'text-brand hover:text-brand-strong' : 'text-primrose hover:text-white'}`}
                   >
                     {favExpanded ? 'Show less' : `View ${favorites.length - FAVORITES_VISIBLE} more`}
                     <ChevronDown size={11} className={`transition-transform ${favExpanded ? 'rotate-180' : ''}`} aria-hidden="true" />
@@ -282,14 +282,14 @@ export default function Sidebar({
           <div className={`rounded-xl p-3 ${t.widget}`}>
             <div className="flex items-center justify-between gap-2">
               <span className={`flex items-center gap-1.5 text-xs font-bold ${t.widgetText}`}>
-                <Database size={13} className={isLight ? 'text-primary' : 'text-accent-300'} aria-hidden="true" /> Local storage
+                <Database size={13} className={isLight ? 'text-brand' : 'text-primrose'} aria-hidden="true" /> Local storage
               </span>
               <span className={`text-[11px] font-semibold tabular-nums ${t.widgetSub}`}>{formatSize(usage.bytes)} / 5 MB</span>
             </div>
             <div className={`mt-2 h-1.5 rounded-full overflow-hidden ${t.track}`} role="progressbar" aria-valuenow={Math.round(usagePct)} aria-valuemin={0} aria-valuemax={100} aria-label="Browser storage used">
-              <div className="h-full rounded-full bg-gradient-to-r from-accent-500 to-info-500 transition-[width] duration-700" style={{ width: `${Math.max(usagePct, 2)}%` }} />
+              <div className="h-full rounded-full sidebar-meter transition-[width] duration-700" style={{ width: `${Math.max(usagePct, 2)}%` }} />
             </div>
-            <Link to="/settings#data" onClick={handleNavClick} className={`mt-2 inline-flex items-center gap-1 text-[11px] font-semibold group ${isLight ? 'text-primary' : 'text-accent-300 hover:text-accent-200'}`}>
+            <Link to="/settings#data" onClick={handleNavClick} className={`mt-2 inline-flex items-center gap-1 text-[11px] font-semibold group ${isLight ? 'text-brand' : 'text-primrose hover:text-white'}`}>
               Manage data <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>
           </div>
@@ -301,14 +301,14 @@ export default function Sidebar({
         {isOpen ? (
           <div className="flex items-center justify-between gap-2">
             <Link to="/settings#profile" onClick={handleNavClick} className="flex items-center gap-2.5 min-w-0">
-              <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-800 ring-2 ring-white/20 grid place-items-center text-xs font-bold text-white shrink-0">
+              <div className="relative w-9 h-9 rounded-full bg-primrose-fill ring-2 ring-primrose/30 grid place-items-center text-xs font-extrabold shrink-0">
                 {initials}
                 <span className="absolute -bottom-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-success-400 ring-2 ring-[color:var(--sidebar-bg)]" aria-hidden="true" />
               </div>
               <div className="min-w-0">
                 <p className={`text-[13px] font-bold truncate flex items-center gap-1.5 ${t.userTitle}`}>
                   <span className="truncate">{settings.profile.name}</span>
-                  <span className="text-[8.5px] font-extrabold uppercase px-1.5 rounded-full bg-accent-500/20 text-[#FFC072] ring-1 ring-accent-500/40 tracking-wide shrink-0">Admin</span>
+                  <span className="text-[8.5px] font-extrabold uppercase px-1.5 rounded-full bg-primrose/15 text-primrose ring-1 ring-primrose/40 tracking-wide shrink-0">Admin</span>
                 </p>
                 <p className={`text-[11px] truncate ${isLight ? t.userSub : 'text-white/55'}`}>{settings.profile.title}</p>
               </div>

@@ -18,18 +18,18 @@ function PreviewCards() {
       {/* Project progress */}
       <div className="absolute left-0 top-2 w-[270px] rounded-2xl bg-white/[0.09] backdrop-blur-md border border-white/15 p-4 shadow-2xl animate-float" style={{ animationDuration: '7s' }}>
         <div className="flex items-center gap-2.5">
-          <span className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary-300 to-primary-600"><GanttChartSquare size={16} /></span>
+          <span className="grid place-items-center w-9 h-9 rounded-xl bg-primrose-fill"><GanttChartSquare size={16} /></span>
           <div className="min-w-0">
             <p className="text-[12.5px] font-bold truncate">ISO 9001 Implementation</p>
             <p className="text-[10.5px] text-white/55">12 of 18 tasks · due Nov 28</p>
           </div>
         </div>
         <div className="mt-3 h-1.5 rounded-full bg-white/10 overflow-hidden">
-          <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-primary-300 to-accent-300 auth-bar" />
+          <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-primary-200 to-accent-500 auth-bar" />
         </div>
         <div className="mt-3 flex -space-x-2">
           {['SA', 'AK', 'FZ', 'OF'].map((i, n) => (
-            <span key={i} className="w-6 h-6 rounded-full grid place-items-center text-[9px] font-bold ring-2 ring-[#093F50]" style={{ background: ['#357A8E', '#F78D00', '#2F95C8', '#8b6fd6'][n] }}>{i}</span>
+            <span key={i} className="w-6 h-6 rounded-full grid place-items-center text-[9px] font-bold ring-2 ring-[#093F50]" style={{ background: ['#145D68', '#F78D00', '#1C7D86', '#A45B0B'][n] }}>{i}</span>
           ))}
         </div>
       </div>
@@ -39,7 +39,7 @@ function PreviewCards() {
         <p className="text-[10.5px] font-bold uppercase tracking-wider text-white/55 mb-2.5">Audit checklist</p>
         {['Calibration records', 'Supplier evaluation', 'Internal audit plan'].map((item, i) => (
           <p key={item} className="flex items-center gap-2 text-[12px] py-1">
-            <CheckCircle2 size={14} className={`auth-check ${i < 2 ? 'text-primary-300' : 'text-white/30'}`} style={{ animationDelay: `${0.6 + i * 0.35}s` }} />
+            <CheckCircle2 size={14} className={`auth-check ${i < 2 ? 'text-primrose' : 'text-white/30'}`} style={{ animationDelay: `${0.6 + i * 0.35}s` }} />
             <span className={i < 2 ? 'text-white/90' : 'text-white/55'}>{item}</span>
           </p>
         ))}
@@ -49,11 +49,11 @@ function PreviewCards() {
       <div className="absolute left-10 bottom-0 w-[250px] rounded-2xl bg-white/[0.09] backdrop-blur-md border border-white/15 p-4 shadow-2xl animate-float" style={{ animationDuration: '9s', animationDelay: '-4s' }}>
         <div className="flex items-center justify-between">
           <p className="text-[12px] font-bold">Pipeline by stage</p>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-400/25 text-accent-200">Report</span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primrose/20 text-primrose">Report</span>
         </div>
         <div className="mt-3 flex items-end gap-2 h-14">
           {[38, 62, 48, 80, 56, 92].map((h, i) => (
-            <span key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-primary-500/60 to-primary-300 auth-col" style={{ height: `${h}%`, animationDelay: `${0.4 + i * 0.08}s` }} />
+            <span key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-primary-500/50 to-primary-200 auth-col" style={{ height: `${h}%`, animationDelay: `${0.4 + i * 0.08}s` }} />
           ))}
         </div>
       </div>
@@ -70,8 +70,8 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
     <div className="min-h-screen flex bg-surface-canvas relative overflow-hidden">
       {/* Brand panel */}
       <aside className="hidden lg:flex relative w-[52%] xl:w-[55%] flex-col justify-between p-12 xl:p-16 text-white hero-spruce hero-grid overflow-hidden rounded-r-[40px] shadow-2xl">
-        <span className="hero-orb w-[520px] h-[520px] -top-48 -right-40 bg-[radial-gradient(circle,rgba(255,179,71,0.22),transparent_70%)] animate-float" style={{ animationDuration: '10s' }} aria-hidden="true" />
-        <span className="hero-orb w-[460px] h-[460px] -bottom-56 -left-32 bg-[radial-gradient(circle,rgba(66,155,183,0.35),transparent_70%)] animate-float" style={{ animationDuration: '12s', animationDelay: '-3s' }} aria-hidden="true" />
+        <span className="hero-orb w-[520px] h-[520px] -top-48 -right-40 bg-[radial-gradient(circle,rgba(242,230,162,0.26),transparent_70%)] animate-float" style={{ animationDuration: '10s' }} aria-hidden="true" />
+        <span className="hero-orb w-[460px] h-[460px] -bottom-56 -left-32 bg-[radial-gradient(circle,rgba(28,125,134,0.45),transparent_70%)] animate-float" style={{ animationDuration: '12s', animationDelay: '-3s' }} aria-hidden="true" />
 
         <Link to="/dashboard" className="relative inline-flex items-center group w-max" aria-label="Meridian Quality Management Professionals — Dashboard">
           <img src="/brand/meridian-logo-on-dark.png" alt="Meridian Quality Management Professionals" width="570" height="247" className="h-[112px] w-auto -ml-2 transition-transform duration-500 group-hover:scale-[1.03]" />
@@ -79,10 +79,10 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
 
         <div className="relative max-w-xl auth-stagger">
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold backdrop-blur-sm">
-            <Sparkles size={13} className="text-accent-300" /> One workspace for quality professionals
+            <Sparkles size={13} className="text-primrose" /> One workspace for quality professionals
           </span>
           <h2 className="font-display text-[40px] xl:text-[46px] leading-[1.08] font-extrabold tracking-tight mt-5">
-            Clients, projects and sales — <span className="bg-gradient-to-r from-info-300 via-accent-300 to-accent-500 bg-clip-text text-transparent">all in one place.</span>
+            Clients, projects and sales — <em className="serif-em text-primrose">all in one place.</em>
           </h2>
           <p className="text-[15px] text-white/65 mt-4 leading-relaxed">
             Track every engagement from first enquiry to certification: CRM, sales pipeline, project delivery and website analytics, with reports you can export in one click.
@@ -93,7 +93,7 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
         <div className="relative grid grid-cols-2 xl:grid-cols-4 gap-3">
           {FEATURES.map(f => (
             <div key={f.label} className="group rounded-2xl bg-white/[0.06] border border-white/10 p-3 transition-all duration-300 hover:bg-white/[0.12] hover:-translate-y-1">
-              <f.icon size={16} className="text-accent-300 transition-transform duration-300 group-hover:scale-110" />
+              <f.icon size={16} className="text-primrose transition-transform duration-300 group-hover:scale-110" />
               <p className="text-[12.5px] font-bold mt-2">{f.label}</p>
               <p className="text-[11px] text-white/55 leading-snug mt-0.5">{f.text}</p>
             </div>
@@ -103,8 +103,8 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
 
       {/* Form side */}
       <main className="flex-1 relative flex flex-col min-h-screen">
-        <span className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary-400/15 blur-3xl animate-float pointer-events-none" style={{ animationDuration: '11s' }} aria-hidden="true" />
-        <span className="absolute -bottom-40 -left-20 w-96 h-96 rounded-full bg-accent-300/15 blur-3xl animate-float pointer-events-none" style={{ animationDuration: '13s', animationDelay: '-5s' }} aria-hidden="true" />
+        <span className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary-300/30 blur-3xl animate-float pointer-events-none" style={{ animationDuration: '11s' }} aria-hidden="true" />
+        <span className="absolute -bottom-40 -left-20 w-96 h-96 rounded-full bg-teal-300/25 blur-3xl animate-float pointer-events-none" style={{ animationDuration: '13s', animationDelay: '-5s' }} aria-hidden="true" />
 
         <div className="relative flex-1 flex items-center justify-center p-5 sm:p-10">
           <div className="w-full max-w-[460px] auth-stagger">
@@ -116,7 +116,7 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
 
             <div className="card !rounded-[24px] p-6 sm:p-8 shadow-xl">
               {eyebrow && (
-                <span className="eyebrow inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 !text-[11px]">
+                <span className="eyebrow inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-100 ring-1 ring-primary-300/70 !text-[11px]">
                   <ShieldCheck size={12} /> {eyebrow}
                 </span>
               )}
@@ -146,7 +146,7 @@ export function AuthField({ id, label, icon: Icon, error, hint, trailing, right,
         {right}
       </div>
       <div className="relative group">
-        {Icon && <Icon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors group-focus-within:text-primary" aria-hidden="true" />}
+        {Icon && <Icon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors group-focus-within:text-brand" aria-hidden="true" />}
         <input
           id={id}
           className={`form-input !py-2.5 ${Icon ? 'pl-10' : ''} ${trailing ? 'pr-11' : ''} ${error ? '!border-danger-400' : ''}`}

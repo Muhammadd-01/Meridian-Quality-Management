@@ -42,7 +42,7 @@ export default function ScrollToTop({ targetRef }) {
       type="button"
       onClick={scrollToTop}
       aria-label="Scroll to top"
-      className={`group fixed bottom-6 right-6 z-50 grid place-items-center w-11 h-11 rounded-full text-white bg-gradient-to-b from-primary-500 to-primary-700 shadow-glow-primary transition-all duration-300 ease-spring hover:-translate-y-1 active:scale-95 ${
+      className={`group fixed bottom-6 right-6 z-50 grid place-items-center w-11 h-11 rounded-full bg-primrose-fill ring-1 ring-primary-400/70 shadow-glow-primary transition-all duration-300 ease-spring hover:-translate-y-1 active:scale-95 ${
         isVisible
           ? 'opacity-100 translate-y-0 pointer-events-auto'
           : 'opacity-0 translate-y-6 pointer-events-none'

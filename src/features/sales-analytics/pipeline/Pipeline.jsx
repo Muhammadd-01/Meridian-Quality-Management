@@ -218,7 +218,7 @@ export default function Pipeline() {
           value={formatCurrency(totalPipeline)}
           subtitle={`${formatCurrency(Math.round(weightedPipeline))} weighted`}
           icon={DollarSign}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
           info="Σ value of deals not yet Closed Won/Lost. Weighted = Σ value × probability ÷ 100."
         />
         <StatCard
@@ -284,7 +284,7 @@ export default function Pipeline() {
           {stageReach.map(s => (
             <div key={s.stage}>
               <div className="flex justify-between text-xs mb-1"><span className="text-gray-600">{s.stage}</span><span className="font-semibold tabular-nums">{s.pct}%</span></div>
-              <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden"><div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${s.pct}%` }} /></div>
+              <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden"><div className="h-full bg-gradient-to-r from-primary-300 to-primary-500 rounded-full transition-all duration-500" style={{ width: `${s.pct}%` }} /></div>
               <p className="text-[10px] text-gray-400 mt-0.5">{s.reached} deal(s)</p>
             </div>
           ))}
@@ -304,13 +304,13 @@ export default function Pipeline() {
               onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverStage(null); }}
               onDrop={(e) => { e.preventDefault(); setDragOverStage(null); handleDropOnStage(e.dataTransfer.getData('text/plain'), stage.id); }}
               aria-label={`${stage.label} stage, ${stageDeals.length} deals`}
-              className={`bg-gray-50/80 rounded-xl p-3 border border-gray-200 border-t-4 ${stage.color} flex flex-col min-h-[500px] transition-colors ${dragOverStage === stage.id ? 'ring-2 ring-primary/40 bg-primary/5' : ''}`}
+              className={`bg-gray-50/80 rounded-xl p-3 border border-gray-200 border-t-4 ${stage.color} flex flex-col min-h-[500px] transition-colors ${dragOverStage === stage.id ? 'ring-2 ring-primary-400/70 bg-primary-50' : ''}`}
             >
               {/* Column Header */}
               <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200/80">
                 <div>
                   <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">{stage.label}</h3>
-                  <span className="text-[11px] font-semibold text-primary block mt-0.5">
+                  <span className="text-[11px] font-semibold text-brand block mt-0.5">
                     {formatCurrency(stageTotal)}
                   </span>
                 </div>
@@ -331,7 +331,7 @@ export default function Pipeline() {
                   >
                     <div>
                       <div className="flex items-start justify-between gap-1 mb-1.5">
-                        <h4 className="text-xs font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-2">
+                        <h4 className="text-xs font-bold text-gray-900 group-hover:text-brand transition-colors line-clamp-2">
                           <Link to={`/sales-analytics/deals?q=${encodeURIComponent(deal.name)}`} className="hover:underline" draggable={false}>
                             {deal.name}
                           </Link>
@@ -341,7 +341,7 @@ export default function Pipeline() {
                       <p className="text-2xs text-gray-500 font-medium mb-2">{deal.company}</p>
 
                       <div className="flex items-center justify-between text-xs py-1.5 border-y border-gray-50">
-                        <span className="font-bold text-primary">{formatCurrency(deal.value)}</span>
+                        <span className="font-bold text-brand">{formatCurrency(deal.value)}</span>
                         <span className="text-2xs text-gray-400 font-medium">{deal.probability}% win</span>
                       </div>
 
@@ -406,7 +406,7 @@ export default function Pipeline() {
               {/* Add deal to column button */}
               <button
                 onClick={() => handleOpenAdd(stage.id)}
-                className="mt-3 w-full py-2 border border-dashed border-gray-300 rounded-lg text-2xs text-gray-500 font-medium hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-1"
+                className="mt-3 w-full py-2 border border-dashed border-gray-300 rounded-lg text-2xs text-gray-500 font-medium hover:border-primary-400 hover:bg-primary-50 hover:text-brand transition-colors flex items-center justify-center gap-1"
               >
                 <Plus size={12} /> Add to {stage.label}
               </button>

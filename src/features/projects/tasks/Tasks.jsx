@@ -208,7 +208,7 @@ export default function Tasks() {
           value={tasks.length}
           subtitle="All deliverables"
           icon={CheckSquare}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="In Progress"
@@ -282,8 +282,8 @@ export default function Tasks() {
 
       {/* Bulk actions */}
       {selectedIds.size > 0 && (
-        <div className="card px-4 py-3 mb-3 flex flex-wrap items-center gap-3 bg-primary-50 border-primary-100" role="region" aria-label="Bulk actions">
-          <span className="text-sm font-semibold text-primary">{selectedIds.size} selected</span>
+        <div className="card px-4 py-3 mb-3 flex flex-wrap items-center gap-3 bg-primary-50 !border-primary-300" role="region" aria-label="Bulk actions">
+          <span className="text-sm font-semibold text-brand">{selectedIds.size} selected</span>
           <label className="flex items-center gap-2 text-xs text-gray-600">
             Set status
             <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} className="form-select !py-1.5 text-xs !w-auto">
@@ -306,7 +306,6 @@ export default function Tasks() {
                   <input
                     type="checkbox"
                     aria-label="Select all tasks on this page"
-                    className="accent-[#2C5F6F]"
                     checked={pagination.paginatedData.length > 0 && pagination.paginatedData.every(t => selectedIds.has(t.id))}
                     onChange={(e) => setSelectedIds(prev => {
                       const next = new Set(prev);
@@ -336,7 +335,6 @@ export default function Tasks() {
                       <input
                         type="checkbox"
                         aria-label={`Select ${task.title}`}
-                        className="accent-[#2C5F6F]"
                         checked={selectedIds.has(task.id)}
                         onChange={() => setSelectedIds(prev => {
                           const next = new Set(prev);
@@ -351,7 +349,7 @@ export default function Tasks() {
                         className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                           isDone
                             ? 'bg-success border-success text-white'
-                            : 'border-gray-300 hover:border-primary text-transparent'
+                            : 'border-gray-300 hover:border-primary-500 text-transparent'
                         }`}
                         title={isDone ? 'Mark Incomplete' : 'Mark Completed'}
                         aria-label={isDone ? `Mark ${task.title} incomplete` : `Mark ${task.title} completed`}
@@ -387,7 +385,7 @@ export default function Tasks() {
                     </td>
                     <td>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-2xs flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-primary-100 text-brand font-bold text-2xs flex items-center justify-center">
                           {task.assigneeAvatar || 'AK'}
                         </div>
                         <span className="text-xs text-gray-700 font-medium">{task.assignedTo}</span>
@@ -417,7 +415,7 @@ export default function Tasks() {
                         <button
                           type="button"
                           onClick={() => setDetailTaskId(task.id)}
-                          className="p-1.5 text-gray-500 hover:text-primary rounded-lg hover:bg-gray-100"
+                          className="p-1.5 text-gray-500 hover:text-brand rounded-lg hover:bg-gray-100"
                           title="View details, subtasks & comments"
                           aria-label={`View ${task.title}`}
                         >

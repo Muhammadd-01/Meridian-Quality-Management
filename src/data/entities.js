@@ -54,7 +54,7 @@ export const ENTITIES = {
     ],
     defaults: r => ({
       category: 'Enterprise', relationship: 'Prospect', country: '', activeDeals: 0, totalSpent: 0,
-      logoText: initials(r.name), logoColor: 'bg-primary',
+      logoText: initials(r.name), logoColor: 'bg-teal-800',
     }),
   },
   contacts: {
@@ -335,7 +335,7 @@ export const ENTITIES = {
     ],
     defaults: r => ({
       role: '', department: '', phone: '', status: 'Active', workload: 0, assignedProjects: 0, activeTasks: 0,
-      avatar: initials(r.name), color: 'bg-primary text-white', joinedDate: new Date().toISOString().slice(0, 10),
+      avatar: initials(r.name), color: 'bg-primary text-primary-ink', joinedDate: new Date().toISOString().slice(0, 10),
     }),
   },
   timesheets: {

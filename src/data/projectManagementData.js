@@ -142,7 +142,7 @@ export const initialTeamMembers = [
     workload: 85,
     status: 'Active',
     avatar: 'SA',
-    color: 'bg-primary text-white',
+    color: 'bg-primary text-primary-ink',
     joinedDate: '2023-01-15',
   },
   {
@@ -172,7 +172,7 @@ export const initialTeamMembers = [
     workload: 70,
     status: 'Active',
     avatar: 'FZ',
-    color: 'bg-accent text-white',
+    color: 'bg-accent text-primary-ink',
     joinedDate: '2023-09-01',
   },
   {
@@ -187,7 +187,7 @@ export const initialTeamMembers = [
     workload: 60,
     status: 'Active',
     avatar: 'OF',
-    color: 'bg-purple-600 text-white',
+    color: 'bg-teal-600 text-white',
     joinedDate: '2024-02-18',
   },
   {
@@ -202,7 +202,7 @@ export const initialTeamMembers = [
     workload: 90,
     status: 'Active',
     avatar: 'DK',
-    color: 'bg-amber-600 text-white',
+    color: 'bg-warning-600 text-white',
     joinedDate: '2022-08-01',
   },
   {
@@ -217,7 +217,7 @@ export const initialTeamMembers = [
     workload: 55,
     status: 'Away',
     avatar: 'AM',
-    color: 'bg-rose-600 text-white',
+    color: 'bg-danger-600 text-white',
     joinedDate: '2024-04-12',
   },
   {
@@ -247,7 +247,7 @@ export const initialTeamMembers = [
     workload: 40,
     status: 'On Leave',
     avatar: 'ZN',
-    color: 'bg-emerald-600 text-white',
+    color: 'bg-success-600 text-white',
     joinedDate: '2024-08-15',
   },
 ];

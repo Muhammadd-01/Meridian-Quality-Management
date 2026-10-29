@@ -173,10 +173,10 @@ export default function CommandPalette({ open, onClose }) {
                       onMouseEnter={() => setActive(i)}
                       onClick={() => go(item)}
                       className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-left transition-colors ${
-                        isActive ? 'bg-primary/10 text-primary' : 'text-gray-900 hover:bg-gray-50'
+                        isActive ? 'bg-primary-100 text-brand' : 'text-gray-900 hover:bg-gray-50'
                       }`}
                     >
-                      <span className={`grid place-items-center w-7 h-7 rounded-lg shrink-0 ${isActive ? 'bg-primary/15' : 'bg-gray-100'}`}>
+                      <span className={`grid place-items-center w-7 h-7 rounded-lg shrink-0 ${isActive ? 'bg-primary-100' : 'bg-gray-100'}`}>
                         <Icon size={14} aria-hidden="true" />
                       </span>
                       <span className="flex-1 min-w-0">

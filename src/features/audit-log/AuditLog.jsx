@@ -66,7 +66,7 @@ export default function AuditLog() {
       key: 'recordName',
       label: 'Record',
       render: e => (e.path && e.recordName
-        ? <Link to={`${e.path}?q=${encodeURIComponent(e.recordName)}`} className="text-primary font-medium hover:underline">{e.recordName}</Link>
+        ? <Link to={`${e.path}?q=${encodeURIComponent(e.recordName)}`} className="text-brand font-medium hover:underline">{e.recordName}</Link>
         : <span className="text-gray-500">{e.recordName || '—'}</span>),
     },
     { key: 'details', label: 'Details', render: e => <span className="text-xs text-gray-600 whitespace-normal">{e.details || '—'}</span> },

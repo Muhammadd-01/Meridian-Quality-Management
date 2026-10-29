@@ -206,7 +206,7 @@ export default function Leads() {
           value={leads.length}
           subtitle="All incoming prospects"
           icon={Target}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Pipeline Volume"
@@ -284,7 +284,7 @@ export default function Leads() {
                 <tr key={l.id}>
                   <td>
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-primary-100 text-brand font-bold text-xs flex items-center justify-center shrink-0">
                         {l.contactName.split(' ').map(w => w[0]).join('').slice(0, 2)}
                       </div>
                       <div>
@@ -301,7 +301,7 @@ export default function Leads() {
                     <span className="badge-secondary text-2xs font-medium">{l.source}</span>
                   </td>
                   <td>
-                    <span className="text-xs font-bold text-primary">
+                    <span className="text-xs font-bold text-brand">
                       {formatCurrency(l.dealValue)}
                     </span>
                   </td>
@@ -324,7 +324,7 @@ export default function Leads() {
                       {l.convertedDealId ? (
                         <Link
                           to={`/sales-analytics/deals?q=${encodeURIComponent(deals.find(d => d.id === l.convertedDealId)?.name || l.company)}`}
-                          className="p-1 text-primary hover:bg-primary/10 rounded"
+                          className="p-1 text-brand hover:bg-primary-100 rounded"
                           title="View converted deal"
                           aria-label={`View deal converted from ${l.contactName}`}
                         >
@@ -333,7 +333,7 @@ export default function Leads() {
                       ) : l.status !== 'Lost' && (
                         <button
                           onClick={() => setConvertTarget(l)}
-                          className="p-1 text-gray-400 hover:text-primary hover:bg-primary/10 rounded"
+                          className="p-1 text-gray-400 hover:text-brand hover:bg-primary-100 rounded"
                           title="Convert to deal"
                           aria-label={`Convert ${l.contactName} to a deal`}
                         >
@@ -352,7 +352,7 @@ export default function Leads() {
                       )}
                       <button
                         onClick={() => setViewLead(l)}
-                        className="p-1 text-gray-400 hover:text-primary rounded"
+                        className="p-1 text-gray-400 hover:text-brand rounded"
                         title="View Details"
                         aria-label={`View ${l.contactName}`}
                       >
@@ -420,7 +420,7 @@ export default function Leads() {
                 {duplicateMatches.map(d => <li key={d.id}>{d.contactName} · {d.company} · {d.email} ({d.status})</li>)}
               </ul>
               <label className="flex items-center gap-2">
-                <input type="checkbox" checked={allowDuplicate} onChange={(e) => setAllowDuplicate(e.target.checked)} className="accent-[#2C5F6F]" />
+                <input type="checkbox" checked={allowDuplicate} onChange={(e) => setAllowDuplicate(e.target.checked)} />
                 This is a different lead — save anyway
               </label>
             </div>
@@ -582,10 +582,10 @@ export default function Leads() {
               </div>
             </div>
 
-            <div className="p-3 bg-primary/5 rounded-xl border border-primary/20 flex justify-between items-center">
+            <div className="p-3 bg-primary-50 rounded-xl border border-primary-300/70 flex justify-between items-center">
               <div>
                 <span className="text-2xs text-gray-500 uppercase tracking-wide block">Opportunity Value</span>
-                <span className="text-base font-bold text-primary">{formatCurrency(viewLead.dealValue)}</span>
+                <span className="text-base font-bold text-brand">{formatCurrency(viewLead.dealValue)}</span>
               </div>
               <span className="text-2xs text-gray-400">Last contact: {formatDate(viewLead.lastContact)}</span>
             </div>

@@ -15,7 +15,7 @@ function Section({ id, icon: Icon, title, description, children }) {
     <section id={id} className="card scroll-mt-20" aria-labelledby={`${id}-title`}>
       <div className="card-header">
         <div className="flex items-center gap-2.5">
-          <span className="grid place-items-center w-8 h-8 rounded-lg bg-primary/10 text-primary" aria-hidden="true"><Icon size={16} /></span>
+          <span className="grid place-items-center w-8 h-8 rounded-lg bg-primary-100 text-brand" aria-hidden="true"><Icon size={16} /></span>
           <div>
             <h2 id={`${id}-title`} className="text-sm font-semibold text-gray-800">{title}</h2>
             {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
@@ -36,7 +36,7 @@ function Toggle({ checked, onChange, label, description }) {
       </span>
       <span className="relative inline-flex shrink-0">
         <input type="checkbox" role="switch" checked={checked} onChange={(e) => onChange(e.target.checked)} className="peer sr-only" />
-        <span className="w-10 h-6 rounded-full bg-gray-200 peer-checked:bg-primary transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2" aria-hidden="true" />
+        <span className="w-10 h-6 rounded-full bg-gray-200 peer-checked:bg-primary-400 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500 peer-focus-visible:ring-offset-2" aria-hidden="true" />
         <span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4" aria-hidden="true" />
       </span>
     </label>

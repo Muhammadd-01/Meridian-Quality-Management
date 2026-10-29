@@ -8,8 +8,9 @@ import ExportDialog from '../../components/data-transfer/ExportDialog';
 import useCollection from '../../hooks/useCollection';
 import { REPORTS, REPORT_MODULES } from './reportDefinitions';
 import { formatCurrency, formatNumber } from '../../utils/format';
+import { CHART, TOOLTIP_STYLE } from '../../lib/chartColors';
 
-const tooltipStyle = { borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '12px' };
+const tooltipStyle = TOOLTIP_STYLE;
 const dayOf = (v) => String(v || '').slice(0, 10);
 
 export default function Reports() {
@@ -88,7 +89,7 @@ export default function Reports() {
                         type="button"
                         onClick={() => selectReport(r.id)}
                         aria-current={r.id === report.id ? 'page' : undefined}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-[13px] transition-colors ${r.id === report.id ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50'}`}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-[13px] transition-colors ${r.id === report.id ? 'bg-primary-100 text-brand font-semibold' : 'text-gray-600 hover:bg-gray-50'}`}
                       >
                         {r.title}
                       </button>
@@ -125,7 +126,7 @@ export default function Reports() {
               </div>
             </div>
             <div className="px-5 py-3 flex items-start gap-2 text-xs text-gray-500 border-b border-gray-100 bg-gray-50">
-              <Calculator size={13} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+              <Calculator size={13} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />
               <span><strong className="font-semibold text-gray-600">How it’s calculated:</strong> {report.formula} Based on {recordCount} record{recordCount === 1 ? '' : 's'}{report.dateField && (from || to) ? ` with ${report.dateField.field} in the selected range` : ''}.</span>
             </div>
 
@@ -146,9 +147,9 @@ export default function Reports() {
                 <div className="p-5">
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={result.rows} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                      <XAxis dataKey={result.chart.xKey} tick={{ fontSize: 11 }} stroke="#adb5bd" interval={0} tickFormatter={(v) => (String(v).length > 14 ? `${String(v).slice(0, 13)}…` : v)} />
-                      <YAxis tick={{ fontSize: 11 }} stroke="#adb5bd" tickFormatter={formatNumber} width={52} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+                      <XAxis dataKey={result.chart.xKey} tick={{ fontSize: 11 }} stroke={CHART.axis} interval={0} tickFormatter={(v) => (String(v).length > 14 ? `${String(v).slice(0, 13)}…` : v)} />
+                      <YAxis tick={{ fontSize: 11 }} stroke={CHART.axis} tickFormatter={formatNumber} width={52} />
                       <Tooltip contentStyle={tooltipStyle} formatter={(v) => (result.chart.currency ? formatCurrency(v) : Number(v).toLocaleString())} />
                       <Legend wrapperStyle={{ fontSize: '12px' }} />
                       {result.chart.bars.map(b => (

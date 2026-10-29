@@ -23,6 +23,7 @@ import {
 import TrafficTable from './TrafficTable';
 import { Sparkline } from './TrafficWidgets';
 import { formatNumber } from '../../utils/format';
+import { CHART, TOOLTIP_STYLE } from '../../lib/chartColors';
 
 const PERIODS = [
   { id: '7', label: '7D' },
@@ -33,10 +34,10 @@ const PERIODS = [
 
 const CHANNELS = ['All', 'Search', 'Direct', 'Social', 'Referral', 'Email'];
 
-const tooltipStyle = { borderRadius: '5px', fontSize: '12px' };
+const tooltipStyle = TOOLTIP_STYLE;
 
-// Series colours use the theme: spruce-green sessions, gold users.
-const SERIES = { sessions: '#357A8E', users: '#F78D00', prior: '#94A3B8' };
+// Series colours use the palette: teal sessions on a primrose wash, orange users.
+const SERIES = { sessions: CHART.main, users: CHART.orange, prior: CHART.soft };
 
 const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -132,15 +133,15 @@ export default function TrafficOverview() {
 
   const kpis = [
     {
-      title: 'Sessions', value: current.sessions, icon: Activity, color: 'bg-primary-50 text-primary-600', spark: sparkSessions, sparkColor: SERIES.sessions,
+      title: 'Sessions', value: current.sessions, icon: Activity, color: 'bg-primary-100 text-brand', spark: sparkSessions, sparkColor: SERIES.sessions,
       info: METRIC_DEFINITIONS.sessions, ...changeProps(current.sessions, previous.sessions, compare),
     },
     {
-      title: 'Users', value: current.users, icon: Users, color: 'bg-success-50 text-success-600', spark: sparkUsers, sparkColor: '#429BB7',
+      title: 'Users', value: current.users, icon: Users, color: 'bg-success-50 text-success-600', spark: sparkUsers, sparkColor: CHART.bright,
       info: METRIC_DEFINITIONS.users, ...changeProps(current.users, previous.users, compare),
     },
     {
-      title: 'Bounce Rate', value: current.bounceRate === null ? '—' : `${current.bounceRate.toFixed(1)}%`, icon: MousePointerClick, color: 'bg-danger-50 text-danger-600', spark: sparkBounce, sparkColor: '#DC2626',
+      title: 'Bounce Rate', value: current.bounceRate === null ? '—' : `${current.bounceRate.toFixed(1)}%`, icon: MousePointerClick, color: 'bg-danger-50 text-danger-600', spark: sparkBounce, sparkColor: CHART.danger,
       info: METRIC_DEFINITIONS.bounceRate, positiveIsGood: false, ...changeProps(current.bounceRate, previous.bounceRate, compare),
     },
     {
@@ -161,11 +162,11 @@ export default function TrafficOverview() {
       {/* Hero header */}
       <section className="relative overflow-hidden rounded-3xl hero-spruce hero-grid text-white p-5 md:p-6 mb-4 shadow-lg animate-rise-in">
         <span className="hero-orb w-72 h-72 -top-24 -right-16 bg-[radial-gradient(circle,rgba(255,255,255,0.12),transparent_70%)]" aria-hidden="true" />
-        <span className="hero-orb w-64 h-64 -bottom-32 left-[20%] bg-[radial-gradient(circle,rgba(255,179,71,0.14),transparent_70%)] animate-float" aria-hidden="true" />
+        <span className="hero-orb w-64 h-64 -bottom-32 left-[20%] bg-[radial-gradient(circle,rgba(242,230,162,0.16),transparent_70%)] animate-float" aria-hidden="true" />
         <div className="relative flex flex-col gap-4">
           <div className="min-w-0">
-            <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10.5px] font-bold tracking-wide bg-white/[0.08] text-white/85">
-              <span className={`live-dot ${isDemo ? 'text-accent-300' : 'text-success-400'}`} aria-hidden="true" />
+            <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10.5px] font-bold tracking-wide bg-primrose/10 text-primrose ring-1 ring-primrose/25">
+              <span className={`live-dot ${isDemo ? 'text-accent-300' : 'text-success-300'}`} aria-hidden="true" />
               {isDemo ? 'DEMO DATA · meridian website' : `IMPORTED · ${importedRows.length.toLocaleString()} rows`}
             </span>
             <h1 className="font-display text-[22px] lg:text-[25px] font-extrabold leading-tight mt-3">Traffic Overview</h1>
@@ -187,14 +188,14 @@ export default function TrafficOverview() {
                     }
                   }}
                   aria-pressed={period === p.id}
-                  className={`px-2.5 py-1.5 rounded text-[11.5px] font-semibold transition-all ${period === p.id ? 'bg-white/[0.16] text-white shadow-sm' : 'text-white/60 hover:text-white hover:bg-white/[0.08]'}`}
+                  className={`px-2.5 py-1.5 rounded text-[11.5px] font-semibold transition-all ${period === p.id ? 'bg-primrose text-primary-ink shadow-sm' : 'text-white/65 hover:text-white hover:bg-white/[0.08]'}`}
                 >
                   {p.label}
                 </button>
               ))}
             </div>
             <label className="btn-glass cursor-pointer !font-medium">
-              <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="accent-[#7AB0C1]" />
+              <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} />
               Compare
             </label>
             <button type="button" onClick={() => scrollToId('traffic-referrers')} className="btn-glass">
@@ -206,7 +207,7 @@ export default function TrafficOverview() {
             <button type="button" onClick={() => setImportOpen(true)} className="btn-glass">
               <Upload size={14} aria-hidden="true" /> Import
             </button>
-            <button type="button" onClick={() => setExportOpen(true)} disabled={!hasData} className="btn-accent">
+            <button type="button" onClick={() => setExportOpen(true)} disabled={!hasData} className="btn-primary">
               <Download size={14} aria-hidden="true" /> Export
             </button>
           </div>
@@ -237,8 +238,8 @@ export default function TrafficOverview() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 mb-4 rounded-lg border border-primary-100 bg-primary-50 text-[13px] text-gray-700 animate-rise-in" role="note">
-          <span className="flex items-center gap-2"><Info size={16} className="text-primary" aria-hidden="true" /> Showing traffic data imported into this browser ({importedRows.length.toLocaleString()} rows).</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 mb-4 rounded-lg border border-primary-300/70 bg-primary-50 text-[13px] text-gray-700 animate-rise-in" role="note">
+          <span className="flex items-center gap-2"><Info size={16} className="text-brand" aria-hidden="true" /> Showing traffic data imported into this browser ({importedRows.length.toLocaleString()} rows).</span>
           <button type="button" className="btn-outline btn-sm" onClick={() => setClearConfirm(true)}><Trash2 size={13} aria-hidden="true" /> Remove imported data</button>
         </div>
       )}
@@ -288,11 +289,11 @@ export default function TrafficOverview() {
             </div>
             <div className="flex items-center gap-3 text-xs" role="group" aria-label="Chart series">
               <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" checked={series.sessions} onChange={(e) => setSeries(s => ({ ...s, sessions: e.target.checked }))} className="accent-[#2C5F6F]" />
+                <input type="checkbox" checked={series.sessions} onChange={(e) => setSeries(s => ({ ...s, sessions: e.target.checked }))} />
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: SERIES.sessions }} aria-hidden="true" /> Sessions
               </label>
               <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" checked={series.users} onChange={(e) => setSeries(s => ({ ...s, users: e.target.checked }))} className="accent-[#F78D00]" />
+                <input type="checkbox" checked={series.users} onChange={(e) => setSeries(s => ({ ...s, users: e.target.checked }))} />
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: SERIES.users }} aria-hidden="true" /> Users
               </label>
               {compare && (
@@ -312,8 +313,8 @@ export default function TrafficOverview() {
                 <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="trafficSessions" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={SERIES.sessions} stopOpacity={0.2} />
-                      <stop offset="95%" stopColor={SERIES.sessions} stopOpacity={0} />
+                      <stop offset="5%" stopColor={CHART.wash} stopOpacity={0.7} />
+                      <stop offset="95%" stopColor={CHART.wash} stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="trafficUsers" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor={SERIES.users} stopOpacity={0.14} />
@@ -331,8 +332,8 @@ export default function TrafficOverview() {
                       return compare && p?.prevDate ? `${label} (prior: ${format(new Date(`${p.prevDate}T00:00:00`), 'MMM d')})` : label;
                     }}
                   />
-                  {series.sessions && <Area type="monotone" dataKey="sessions" name="Sessions" stroke={SERIES.sessions} strokeWidth={2.4} fill="url(#trafficSessions)" activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff' }} animationDuration={900} />}
-                  {series.users && <Area type="monotone" dataKey="users" name="Users" stroke={SERIES.users} strokeWidth={2.4} fill="url(#trafficUsers)" activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff' }} animationDuration={900} />}
+                  {series.sessions && <Area type="monotone" dataKey="sessions" name="Sessions" stroke={SERIES.sessions} strokeWidth={2.4} fill="url(#trafficSessions)" activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--surface-raised)' }} animationDuration={900} />}
+                  {series.users && <Area type="monotone" dataKey="users" name="Users" stroke={SERIES.users} strokeWidth={2.4} fill="url(#trafficUsers)" activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--surface-raised)' }} animationDuration={900} />}
                   {compare && <Line type="monotone" dataKey="prevSessions" name="Prior sessions" stroke={SERIES.prior} strokeDasharray="5 5" strokeWidth={1.5} dot={false} animationDuration={900} />}
                 </AreaChart>
               </ResponsiveContainer>
@@ -364,7 +365,7 @@ export default function TrafficOverview() {
             ) : (
               <>
                 <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className="-mx-1 mb-3"><Sparkline values={sparkSessions.slice(-14)} width={240} height={46} color="#16A34A" fill responsive strokeWidth={2} /></div>
+                  <div className="-mx-1 mb-3"><Sparkline values={sparkSessions.slice(-14)} width={240} height={46} color={CHART.soft} fill responsive strokeWidth={2} /></div>
                   <p className="text-sm font-semibold text-gray-700">Realtime feed not connected</p>
                   <p className="text-xs text-gray-500 mt-1">
                     The current source ({provider.label.toLowerCase()}) has no realtime visitor stream. This panel never shows simulated live visitors.
@@ -381,7 +382,7 @@ export default function TrafficOverview() {
                           <span className="font-semibold text-gray-800 tabular-nums">{p.sessions.toLocaleString()}</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-primary-400 to-primary-600 transition-[width] duration-700 ease-spring" style={{ width: `${(p.sessions / max) * 100}%` }} />
+                          <div className="h-full rounded-full bg-gradient-to-r from-primary-300 to-primary-500 transition-[width] duration-700 ease-spring" style={{ width: `${(p.sessions / max) * 100}%` }} />
                         </div>
                       </li>
                     );
@@ -390,7 +391,7 @@ export default function TrafficOverview() {
                 </ul>
                 <p className="text-[11px] text-gray-400 mt-auto pt-3">
                   Last checked {state.realtimeCheckedAt ? format(new Date(state.realtimeCheckedAt), 'HH:mm:ss') : '—'}
-                  <button type="button" onClick={load} className="ml-2 text-primary hover:underline">Refresh</button>
+                  <button type="button" onClick={load} className="ml-2 text-brand hover:underline">Refresh</button>
                 </p>
               </>
             )}

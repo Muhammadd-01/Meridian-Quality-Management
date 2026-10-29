@@ -22,9 +22,9 @@ import { initialActivities } from '../../../data/crmData';
 import { generateId } from '../../../utils/format';
 
 const activityTypeIcons = {
-  Meeting: { icon: Users, color: 'bg-primary/10 text-primary border-primary/20' },
+  Meeting: { icon: Users, color: 'bg-primary-100 text-brand border-primary-300/70' },
   Call: { icon: Phone, color: 'bg-info/10 text-info border-info/20' },
-  Task: { icon: CheckSquare, color: 'bg-accent/10 text-accent border-accent/20' },
+  Task: { icon: CheckSquare, color: 'bg-accent-50 text-accent-700 border-accent/20' },
   Email: { icon: Mail, color: 'bg-warning/10 text-warning border-warning/20' },
 };
 
@@ -156,7 +156,7 @@ export default function Activities() {
           value={activities.length}
           subtitle="All recorded events"
           icon={CalendarCheck}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Scheduled Pending"

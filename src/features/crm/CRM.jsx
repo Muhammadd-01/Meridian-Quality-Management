@@ -32,6 +32,7 @@ import useSort from '../../hooks/useSort';
 import { initialLeads, leadSources, leadStatuses } from '../../data/leads';
 import { formatCurrency, formatDate, generateId } from '../../utils/format';
 import { exportToCSV } from '../../utils/csv';
+import { CHART as PALETTE_CHART, TOOLTIP_STYLE } from '../../lib/chartColors';
 
 const leadSchema = z.object({
   contactName: z.string().min(2, 'Contact Name is required'),
@@ -45,8 +46,8 @@ const leadSchema = z.object({
   notes: z.string().optional(),
 });
 
-// Meridian palette for charts (teal, teal 2, sea, orange, primrose, burnt orange)
-const CHART = { teal: '#145D68', sea: '#4F9299', orange: '#F78D00', primrose: '#D9C55E', ink: '#0C4A58', burnt: '#A45B0B' };
+// Palette chart colours (theme-aware CSS variables)
+const CHART = { ...PALETTE_CHART, sea: PALETTE_CHART.bright, burnt: PALETTE_CHART.rust };
 
 const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -61,8 +62,8 @@ const probBadge = (prob) => {
 
 // Stage colours used by the stage list and the pipeline board
 const STAGE_DOT = {
-  New: 'bg-primary-300',
-  Qualified: 'bg-primary-600',
+  New: 'bg-teal-300',
+  Qualified: 'bg-teal-700',
   Proposal: 'bg-accent',
   Negotiation: 'bg-primrose-500',
   Won: 'bg-success',
@@ -79,11 +80,11 @@ const maxStageValue = Math.max(...PIPELINE_STAGES.map(st => st.value));
 
 // Top Deals Cards data matching reference
 const topDealsData = [
-  { id: 'td-1', code: 'CR', color: 'bg-primary-800 text-white', company: 'Cascade Retail Grp', location: 'Chicago, IL · Renewal', value: 210000, rep: 'Renee Foster', prob: '92%' },
-  { id: 'td-2', code: 'VR', color: 'bg-accent text-primary-950', company: 'Vantage Retail', location: 'Austin, TX · Expansion', value: 142500, rep: 'Marco Diaz', prob: '68%' },
-  { id: 'td-3', code: 'NW', color: 'bg-primary-600 text-white', company: 'Northwind Corp', location: 'Seattle, WA · New Business', value: 96000, rep: 'Renee Foster', prob: '81%' },
+  { id: 'td-1', code: 'CR', color: 'bg-teal-800 text-primrose', company: 'Cascade Retail Grp', location: 'Chicago, IL · Renewal', value: 210000, rep: 'Renee Foster', prob: '92%' },
+  { id: 'td-2', code: 'VR', color: 'bg-accent text-primary-ink', company: 'Vantage Retail', location: 'Austin, TX · Expansion', value: 142500, rep: 'Marco Diaz', prob: '68%' },
+  { id: 'td-3', code: 'NW', color: 'bg-teal-500 text-white', company: 'Northwind Corp', location: 'Seattle, WA · New Business', value: 96000, rep: 'Renee Foster', prob: '81%' },
   { id: 'td-4', code: 'ML', color: 'bg-primrose on-primrose', company: 'Meridian Labs', location: 'Boston, MA · New Business', value: 54200, rep: 'Marco Diaz', prob: '54%' },
-  { id: 'td-5', code: 'BP', color: 'bg-primary-400 text-white', company: 'BrightPath Inc', location: 'Denver, CO · Closed Won', value: 27800, rep: 'Carlos Mendez', prob: '95%' },
+  { id: 'td-5', code: 'BP', color: 'bg-rust text-white', company: 'BrightPath Inc', location: 'Denver, CO · Closed Won', value: 27800, rep: 'Carlos Mendez', prob: '95%' },
 ];
 
 // Revenue analytics MRR data
@@ -266,7 +267,7 @@ export default function CRM() {
       sortable: true,
       render: (row) => (
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+          <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center text-[10px] font-bold text-brand">
             {row.assignedTo.charAt(0)}
           </div>
           <span className="text-xs text-gray-600">{row.assignedTo}</span>
@@ -390,7 +391,7 @@ export default function CRM() {
             </p>
             <div className="flex items-end gap-0.5 h-3 mt-1">
               {[30, 45, 60, 40, 75, 90, 80].map((h, i) => (
-                <div key={i} className={`flex-1 rounded-xs ${i === 5 ? 'bg-accent' : 'bg-primary-300'}`} style={{ height: `${h}%` }} />
+                <div key={i} className={`flex-1 rounded-xs ${i === 5 ? 'bg-accent' : 'bg-primary-400'}`} style={{ height: `${h}%` }} />
               ))}
             </div>
             <p className="text-[10px] text-success font-semibold mt-0.5">+8.6%</p>
@@ -437,7 +438,7 @@ export default function CRM() {
             <p className="kicker">02 / Opportunities</p>
             <h2 id="crm-top-deals-title" className="text-[17px] font-extrabold tracking-tight text-gray-900 mt-1">Top Deals <span className="serif-em text-kicker">in play.</span></h2>
           </div>
-          <button type="button" onClick={() => scrollToId('crm-recent-deals')} className="text-xs text-primary font-bold hover:underline underline-offset-4 shrink-0">View All Deals ↗</button>
+          <button type="button" onClick={() => scrollToId('crm-recent-deals')} className="text-xs text-brand font-bold hover:underline underline-offset-4 shrink-0">View All Deals ↗</button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {topDealsData.map((td, i) => (
@@ -457,7 +458,7 @@ export default function CRM() {
               <span className="deal-rule mt-2" aria-hidden="true" />
               <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-gray-100">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <div className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center text-[9px] font-bold text-primary-700 shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center text-[9px] font-bold text-brand-strong shrink-0">
                     {td.rep.charAt(0)}
                   </div>
                   <span className="text-[10.5px] text-gray-600 truncate">{td.rep}</span>
@@ -529,7 +530,7 @@ export default function CRM() {
             </div>
             <div className="space-y-3">
               {[
-                { name: 'Renee Foster', percent: 142, color: 'bg-primary' },
+                { name: 'Renee Foster', percent: 142, color: 'bg-teal-700' },
                 { name: 'Marco Diaz', percent: 128, color: 'bg-accent' },
                 { name: 'Carlos Mendez', percent: 104, color: 'bg-primrose-500' },
               ].map((rep, i) => (
@@ -537,12 +538,12 @@ export default function CRM() {
                   <div className="flex items-center justify-between text-xs mb-1">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] font-extrabold text-kicker tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">
+                      <div className="w-5 h-5 rounded-full bg-primary-100 flex items-center justify-center text-[9px] font-bold text-brand">
                         {rep.name.charAt(0)}
                       </div>
                       <span className="font-medium text-gray-700">{rep.name}</span>
                     </div>
-                    <span className="font-bold text-primary tabular-nums">{rep.percent}%</span>
+                    <span className="font-bold text-brand tabular-nums">{rep.percent}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
                     <div className={`h-full rounded-full progress-fill ${rep.color}`} style={{ width: `${Math.min(100, rep.percent / 1.5)}%` }} />
@@ -580,7 +581,7 @@ export default function CRM() {
                 </div>
                 <div className="space-y-2 flex-1">
                   {items.map(deal => (
-                    <div key={deal.id} className="bg-white p-2.5 rounded-lg border border-gray-200/80 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-primary-300 transition-all">
+                    <div key={deal.id} className="bg-white p-2.5 rounded-lg border border-gray-200/80 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-primary-400 transition-all">
                       <p className="text-xs font-bold text-gray-900 truncate">{deal.title}</p>
                       <p className="text-xs font-extrabold text-gray-900 mt-0.5 tabular-nums">{formatCurrency(deal.value)}</p>
                       <div className="flex flex-wrap gap-1 mt-2">
@@ -592,7 +593,7 @@ export default function CRM() {
                         )}
                       </div>
                       <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-                        <div className="w-5 h-5 rounded-full bg-primary-50 flex items-center justify-center text-[9px] font-bold text-primary-700">
+                        <div className="w-5 h-5 rounded-full bg-primary-50 flex items-center justify-center text-[9px] font-bold text-brand-strong">
                           {deal.rep}
                         </div>
                         <span className="text-[10px] font-bold text-gray-500 tabular-nums">{deal.prob}</span>
@@ -622,16 +623,16 @@ export default function CRM() {
             <AreaChart data={mrrData}>
               <defs>
                 <linearGradient id="crmActualGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={CHART.teal} stopOpacity={0.28} />
-                  <stop offset="95%" stopColor={CHART.teal} stopOpacity={0} />
+                  <stop offset="5%" stopColor={CHART.wash} stopOpacity={0.75} />
+                  <stop offset="95%" stopColor={CHART.wash} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} domain={[130, 200]} />
-              <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+              <Tooltip formatter={(v) => `$${v}K`} contentStyle={TOOLTIP_STYLE} />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Area type="monotone" dataKey="actual" stroke={CHART.teal} strokeWidth={2.4} fill="url(#crmActualGrad)" name="Actual MRR" activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff' }} isAnimationActive={true} animationDuration={1400} />
+              <Area type="monotone" dataKey="actual" stroke={CHART.main} strokeWidth={2.4} fill="url(#crmActualGrad)" name="Actual MRR" activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--surface-raised)' }} isAnimationActive={true} animationDuration={1400} />
               <Area type="monotone" dataKey="forecast" stroke={CHART.orange} strokeWidth={2} strokeDasharray="4 4" fill="none" name="Forecast" isAnimationActive={true} animationDuration={1400} />
             </AreaChart>
           </ResponsiveContainer>
@@ -653,7 +654,7 @@ export default function CRM() {
                 <Pie data={dealSourcesData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value" isAnimationActive={true} animationDuration={1400}>
                   {dealSourcesData.map((e, i) => <Cell key={i} fill={e.fill} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -685,14 +686,14 @@ export default function CRM() {
             <BarChart data={regionalData} layout="vertical">
               <defs>
                 <linearGradient id="crmRegionGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor={CHART.teal} />
-                  <stop offset="100%" stopColor={CHART.sea} />
+                  <stop offset="0%" stopColor={CHART.primrose} />
+                  <stop offset="100%" stopColor={CHART.orange} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}K`} />
               <YAxis type="category" dataKey="region" tick={{ fontSize: 10 }} width={85} />
-              <Tooltip formatter={(v) => `$${v}K`} contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+              <Tooltip formatter={(v) => `$${v}K`} contentStyle={TOOLTIP_STYLE} />
               <Bar dataKey="revenue" fill="url(#crmRegionGrad)" radius={[0, 4, 4, 0]} name="Revenue ($K)" isAnimationActive={true} animationDuration={1400} />
             </BarChart>
           </ResponsiveContainer>
@@ -737,7 +738,7 @@ export default function CRM() {
               <button onClick={() => setViewModal(row)} className="p-1.5 rounded-lg text-gray-400 hover:text-info hover:bg-info/10" title="View">
                 <Eye size={14} />
               </button>
-              <button onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10" title="Edit">
+              <button onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-gray-400 hover:text-brand hover:bg-primary-100" title="Edit">
                 <Pencil size={14} />
               </button>
               <button onClick={() => setDeleteDialog(row)} className="p-1.5 rounded-lg text-gray-400 hover:text-danger hover:bg-danger/10" title="Delete">
@@ -824,7 +825,7 @@ export default function CRM() {
         {viewModal && (
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary">
+              <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center text-xl font-bold text-brand">
                 {viewModal.contactName.charAt(0)}
               </div>
               <div>

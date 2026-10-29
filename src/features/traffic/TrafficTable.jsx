@@ -7,6 +7,7 @@ import useSort from '../../hooks/useSort';
 import usePagination from '../../hooks/usePagination';
 import { formatDuration } from '../../services/traffic/trafficMetrics';
 import { TrendBadge, Sparkline } from './TrafficWidgets';
+import { CHART } from '../../lib/chartColors';
 
 /**
  * Searchable, sortable, paginated table for grouped traffic (landing pages or
@@ -45,7 +46,7 @@ export default function TrafficTable({
       sortable: true,
       render: r => (
         <div className="flex items-center gap-2">
-          <Sparkline values={r.spark} width={72} height={22} color={r.trend !== null && r.trend < 0 ? '#DC2626' : '#16A34A'} />
+          <Sparkline values={r.spark} width={72} height={22} color={r.trend !== null && r.trend < 0 ? CHART.danger : CHART.success} />
           <TrendBadge value={r.trend} />
         </div>
       ),
@@ -94,7 +95,7 @@ export default function TrafficTable({
       </div>
       <div className="px-2 pb-4">
         {selectedIds.size > 0 && (
-          <div className="flex items-center justify-between px-3 py-2 text-xs text-primary bg-primary-50 rounded-lg mt-3">
+          <div className="flex items-center justify-between px-3 py-2 text-xs text-brand bg-primary-50 rounded-lg mt-3">
             <span>{selectedIds.size} selected</span>
             <button type="button" className="font-semibold hover:underline" onClick={() => setSelectedIds(new Set())}>Clear selection</button>
           </div>

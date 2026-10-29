@@ -4,7 +4,7 @@ export default function ProgressBar({ value = 0, size = 'md', color = 'bg-primar
   const clamped = Math.max(0, Math.min(100, value));
   const heights = { sm: 'h-1.5', md: 'h-2', lg: 'h-3' };
   // The default colour gets the theme gradient; custom colours are kept as passed.
-  const fill = color === 'bg-primary' ? 'bg-gradient-to-r from-primary-400 to-primary-600' : color;
+  const fill = color === 'bg-primary' ? 'bg-gradient-to-r from-primary-300 to-primary-500' : color;
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>

@@ -192,7 +192,7 @@ export default function Quotations() {
           value={quotations.length}
           subtitle="All generated estimates"
           icon={FileSpreadsheet}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Accepted Proposals"
@@ -265,7 +265,7 @@ export default function Quotations() {
               {pagination.paginatedData.map(q => (
                 <tr key={q.id}>
                   <td>
-                    <span className="font-mono font-bold text-xs text-primary">{q.quoteNumber}</span>
+                    <span className="font-mono font-bold text-xs text-brand">{q.quoteNumber}</span>
                   </td>
                   <td className="max-w-xs">
                     <p className="font-semibold text-xs text-gray-900">{q.customer}</p>
@@ -285,7 +285,7 @@ export default function Quotations() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => setViewQuote(q)}
-                        className="p-1 text-gray-400 hover:text-primary rounded"
+                        className="p-1 text-gray-400 hover:text-brand rounded"
                         title="View Formal Quotation"
                       >
                         <Eye size={14} />
@@ -392,7 +392,7 @@ export default function Quotations() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="form-label mb-0">Scope Line Items *</label>
-              <button type="button" onClick={handleAddLineItem} className="text-xs text-primary font-semibold hover:underline">
+              <button type="button" onClick={handleAddLineItem} className="text-xs text-brand font-semibold hover:underline">
                 + Add Item
               </button>
             </div>
@@ -471,7 +471,7 @@ export default function Quotations() {
 
           <div className="flex justify-between items-center text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
             <span>Calculated Grand Total:</span>
-            <span className="text-primary text-base">{formatCurrency(grandTotal)}</span>
+            <span className="text-brand text-base">{formatCurrency(grandTotal)}</span>
           </div>
         </form>
       </Modal>
@@ -515,7 +515,7 @@ export default function Quotations() {
                 <p className="text-xs text-gray-500">Karachi, Islamabad, Lahore</p>
               </div>
               <div className="text-right">
-                <span className="font-mono text-base font-bold text-primary block">{viewQuote.quoteNumber}</span>
+                <span className="font-mono text-base font-bold text-brand block">{viewQuote.quoteNumber}</span>
                 <span className="mt-1 inline-block"><StatusBadge status={displayStatus(viewQuote)} /></span>
               </div>
             </div>
@@ -566,7 +566,7 @@ export default function Quotations() {
                   <span className="font-semibold">{formatCurrency(viewQuote.subtotal)}</span>
                 </div>
                 {viewQuote.discountPercent > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-medium">
+                  <div className="flex justify-between text-success-600 font-medium">
                     <span>Discount ({viewQuote.discountPercent}%):</span>
                     <span>- {formatCurrency((viewQuote.subtotal * viewQuote.discountPercent) / 100)}</span>
                   </div>
@@ -577,7 +577,7 @@ export default function Quotations() {
                 </div>
                 <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-200">
                   <span>Grand Total:</span>
-                  <span className="text-primary text-base font-black">{formatCurrency(viewQuote.total)}</span>
+                  <span className="text-brand text-base font-black">{formatCurrency(viewQuote.total)}</span>
                 </div>
               </div>
             </div>

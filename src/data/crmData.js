@@ -89,7 +89,7 @@ export const initialCompanies = [
     activeDeals: 3,
     totalSpent: 4200000,
     logoText: 'CR',
-    logoColor: 'bg-rose-500',
+    logoColor: 'bg-danger-500',
   },
   {
     id: 'comp-002',
@@ -106,7 +106,7 @@ export const initialCompanies = [
     activeDeals: 2,
     totalSpent: 2850000,
     logoText: 'VR',
-    logoColor: 'bg-amber-500',
+    logoColor: 'bg-warning-500',
   },
   {
     id: 'comp-003',
@@ -123,7 +123,7 @@ export const initialCompanies = [
     activeDeals: 4,
     totalSpent: 5600000,
     logoText: 'NW',
-    logoColor: 'bg-emerald-500',
+    logoColor: 'bg-success-500',
   },
   {
     id: 'comp-004',
@@ -140,7 +140,7 @@ export const initialCompanies = [
     activeDeals: 2,
     totalSpent: 3900000,
     logoText: 'ML',
-    logoColor: 'bg-purple-500',
+    logoColor: 'bg-teal-500',
   },
   {
     id: 'comp-005',
@@ -157,7 +157,7 @@ export const initialCompanies = [
     activeDeals: 1,
     totalSpent: 1450000,
     logoText: 'BP',
-    logoColor: 'bg-blue-500',
+    logoColor: 'bg-info-500',
   },
   {
     id: 'comp-006',
@@ -174,7 +174,7 @@ export const initialCompanies = [
     activeDeals: 1,
     totalSpent: 0,
     logoText: 'PF',
-    logoColor: 'bg-green-600',
+    logoColor: 'bg-success-600',
   },
   {
     id: 'comp-007',
@@ -208,7 +208,7 @@ export const initialCompanies = [
     activeDeals: 1,
     totalSpent: 0,
     logoText: 'AP',
-    logoColor: 'bg-indigo-600',
+    logoColor: 'bg-teal-600',
   },
 ];
 

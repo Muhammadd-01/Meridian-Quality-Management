@@ -51,7 +51,7 @@ export default function Login() {
       subtitle="Sign in to your quality management workspace."
     >
       <div className="auth-form space-y-4">
-        <button type="button" onClick={handleQuickDemo} disabled={loading} className="auth-alt auth-demo group !border-primary-200 !bg-primary-50 !text-primary-700">
+        <button type="button" onClick={handleQuickDemo} disabled={loading} className="auth-alt auth-demo group !border-primary-400 !bg-primary-100 !text-brand-strong">
           <Zap size={16} className="text-accent-500 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-125" aria-hidden="true" />
           One-click demo sign-in
         </button>
@@ -83,7 +83,7 @@ export default function Login() {
             placeholder="Enter your password"
             error={errors.password}
             right={(
-              <button type="button" onClick={() => addToast('Demo workspace: password reset emails are not sent.', 'info')} className="text-[12px] font-semibold text-primary hover:text-primary-700 transition-colors">
+              <button type="button" onClick={() => addToast('Demo workspace: password reset emails are not sent.', 'info')} className="text-[12px] font-semibold text-brand hover:text-brand-strong transition-colors">
                 Forgot password?
               </button>
             )}
@@ -94,7 +94,7 @@ export default function Login() {
             )}
           />
           <label htmlFor="login-remember" className="flex items-center gap-2.5 cursor-pointer select-none w-max">
-            <input id="login-remember" type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 accent-[#2C5F6F]" />
+            <input id="login-remember" type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4" />
             <span className="text-[12.5px] text-gray-600">Keep me signed in on this device</span>
           </label>
         </form>
@@ -105,7 +105,7 @@ export default function Login() {
 
         <p className="text-[13px] text-center text-gray-500">
           New to Meridian?{' '}
-          <Link to="/register" className="font-bold text-primary hover:text-primary-700 transition-colors">Create an account</Link>
+          <Link to="/register" className="font-bold text-brand hover:text-brand-strong transition-colors">Create an account</Link>
         </p>
       </div>
     </AuthLayout>

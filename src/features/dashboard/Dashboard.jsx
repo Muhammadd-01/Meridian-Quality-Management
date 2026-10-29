@@ -28,12 +28,13 @@ import { AUDIT_LOG_KEY, ACTION_LABELS } from '../../lib/auditLog';
 import { notifyStorageChange } from '../../lib/storage';
 import { useSettings } from '../../lib/settings';
 import { formatCurrency, formatNumber, formatPercent, formatDate, formatRelative } from '../../utils/format';
+import { CHART, CHART_SERIES, TOOLTIP_STYLE } from '../../lib/chartColors';
 
-// Original dashboard chart palette (kept unchanged).
-const COLORS = ['#357A8E', '#7A5CC8', '#2F95C8', '#D97706', '#DC2626'];
-const SOURCE_COLORS = { Website: '#357A8E', Referral: '#7A5CC8', LinkedIn: '#2F95C8', Conference: '#D97706', 'Cold Call': '#DC2626' };
-const STATUS_COLORS = { Active: '#2F95C8', 'In Progress': '#357A8E', 'On Track': '#2F95C8', Completed: '#16A34A', Pending: '#D97706', Delayed: '#DC2626', Overdue: '#DC2626' };
-const tooltipStyle = { borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' };
+// Chart colours come from the palette (see src/lib/chartColors.js).
+const COLORS = CHART_SERIES;
+const SOURCE_COLORS = { Website: CHART.teal, Referral: CHART.primrose, LinkedIn: CHART.bright, Conference: CHART.orange, 'Cold Call': CHART.rust };
+const STATUS_COLORS = { Active: CHART.bright, 'In Progress': CHART.teal, 'On Track': CHART.bright, Completed: CHART.deep, Pending: CHART.primrose, Delayed: CHART.danger, Overdue: CHART.danger };
+const tooltipStyle = TOOLTIP_STYLE;
 
 const toDay = (v) => {
   if (!v) return null;
@@ -121,7 +122,7 @@ export default function Dashboard() {
 
   const projectStatusDistribution = useMemo(() => {
     const counts = projects.reduce((m, p) => m.set(p.status, (m.get(p.status) || 0) + 1), new Map());
-    return [...counts].map(([name, value]) => ({ name, value, fill: STATUS_COLORS[name] || '#adb5bd' }));
+    return [...counts].map(([name, value]) => ({ name, value, fill: STATUS_COLORS[name] || CHART.soft }));
   }, [projects]);
 
   const pipelineByStage = useMemo(() => ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Closed Won'].map(stage => {
@@ -194,7 +195,7 @@ export default function Dashboard() {
           value={totalProjects}
           subtitle={`${activeProjects} active`}
           icon={Briefcase}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
           info="All project records. Active = any status other than Completed."
           to="/projects"
         />
@@ -238,7 +239,7 @@ export default function Dashboard() {
           value={formatCurrency(openPipeline)}
           subtitle={`${formatCurrency(Math.round(weightedPipeline))} weighted`}
           icon={GitBranch}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
           info="Σ value of deals not yet Closed Won/Lost. Weighted = Σ value × probability."
           to="/sales-analytics/pipeline"
         />
@@ -278,17 +279,17 @@ export default function Dashboard() {
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#357A8E" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#357A8E" stopOpacity={0} />
+                  <stop offset="5%" stopColor={CHART.wash} stopOpacity={0.75} />
+                  <stop offset="95%" stopColor={CHART.wash} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-              <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke={CHART.axis} />
+              <YAxis tick={{ fontSize: 12 }} stroke={CHART.axis} tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} />
               <Tooltip formatter={(v) => formatCurrency(v)} contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Area type="monotone" dataKey="revenue" stroke="#357A8E" strokeWidth={2} fill="url(#colorRevenue)" name="Revenue" animationDuration={900} />
-              <Area type="monotone" dataKey="target" stroke="#7A5CC8" strokeWidth={2} fill="none" strokeDasharray="5 5" name="Target" animationDuration={900} />
+              <Area type="monotone" dataKey="revenue" stroke={CHART.main} strokeWidth={2.4} fill="url(#colorRevenue)" name="Revenue" animationDuration={900} />
+              <Area type="monotone" dataKey="target" stroke={CHART.orange} strokeWidth={2} fill="none" strokeDasharray="5 5" name="Target" animationDuration={900} />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -317,9 +318,9 @@ export default function Dashboard() {
         <ChartCard title="Project Status" subtitle={`${projects.length} projects by current status`}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={projectStatusDistribution}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-              <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" allowDecimals={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke={CHART.axis} />
+              <YAxis tick={{ fontSize: 12 }} stroke={CHART.axis} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Projects" animationDuration={900}>
                 {projectStatusDistribution.map((entry) => (
@@ -337,15 +338,15 @@ export default function Dashboard() {
         <ChartCard
           title="Sales Pipeline"
           subtitle="Deal value by stage"
-          actions={<Link to="/sales-analytics/pipeline" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">Open pipeline <ArrowRight size={12} aria-hidden="true" /></Link>}
+          actions={<Link to="/sales-analytics/pipeline" className="text-xs text-brand font-medium hover:underline flex items-center gap-1">Open pipeline <ArrowRight size={12} aria-hidden="true" /></Link>}
         >
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={pipelineByStage}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="stage" tick={{ fontSize: 11 }} stroke="#9ca3af" />
-              <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={formatNumber} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+              <XAxis dataKey="stage" tick={{ fontSize: 11 }} stroke={CHART.axis} />
+              <YAxis tick={{ fontSize: 11 }} stroke={CHART.axis} tickFormatter={formatNumber} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v, n, item) => [`${formatCurrency(v)} · ${item.payload.deals} deal(s)`, 'Value']} />
-              <Bar dataKey="value" name="Value" fill="#357A8E" radius={[6, 6, 0, 0]} animationDuration={900} />
+              <Bar dataKey="value" name="Value" fill={CHART.primrose} stroke={CHART.primrose} radius={[6, 6, 0, 0]} animationDuration={900} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -353,16 +354,16 @@ export default function Dashboard() {
         <ChartCard
           title="Team Workload"
           subtitle="Capacity used per team member (from Team records)"
-          actions={<Link to="/projects/team" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">Team <ArrowRight size={12} aria-hidden="true" /></Link>}
+          actions={<Link to="/projects/team" className="text-xs text-brand font-medium hover:underline flex items-center gap-1">Team <ArrowRight size={12} aria-hidden="true" /></Link>}
         >
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={workload} layout="vertical" margin={{ left: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} stroke="#9ca3af" unit="%" />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} stroke="#9ca3af" width={70} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} stroke={CHART.axis} unit="%" />
+              <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} stroke={CHART.axis} width={70} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v}%`, 'Workload']} />
               <Bar dataKey="workload" radius={[0, 6, 6, 0]} animationDuration={900}>
-                {workload.map(w => <Cell key={w.name} fill={w.workload >= 90 ? '#DC2626' : w.workload >= 75 ? '#D97706' : '#357A8E'} />)}
+                {workload.map(w => <Cell key={w.name} fill={w.workload >= 90 ? CHART.danger : w.workload >= 75 ? CHART.orange : CHART.teal} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -375,7 +376,7 @@ export default function Dashboard() {
         <div className="card">
           <div className="card-header">
             <h3 className="text-sm font-semibold text-gray-800">Recent Activity</h3>
-            <Link to="/audit-log" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+            <Link to="/audit-log" className="text-xs text-brand font-medium hover:underline flex items-center gap-1">
               View All <ArrowRight size={12} aria-hidden="true" />
             </Link>
           </div>
@@ -408,7 +409,7 @@ export default function Dashboard() {
         <div className="card">
           <div className="card-header">
             <h3 className="text-sm font-semibold text-gray-800">Upcoming Deadlines</h3>
-            <Link to="/calendar" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+            <Link to="/calendar" className="text-xs text-brand font-medium hover:underline flex items-center gap-1">
               Calendar <ArrowRight size={12} aria-hidden="true" />
             </Link>
           </div>
@@ -417,8 +418,8 @@ export default function Dashboard() {
               <EmptyState icon={Clock} title="Nothing due in the next 30 days" description="Open tasks with due dates will appear here." />
             ) : upcoming.map((d) => (
               <Link key={d.id} to={`/projects/tasks?q=${encodeURIComponent(d.title)}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                <div className={`grid place-items-center w-9 h-9 rounded-lg ${d.daysLeft < 0 ? 'bg-danger/10' : 'bg-primary/10'}`}>
-                  <Clock size={16} className={d.daysLeft < 0 ? 'text-danger' : 'text-primary'} aria-hidden="true" />
+                <div className={`grid place-items-center w-9 h-9 rounded-lg ${d.daysLeft < 0 ? 'bg-danger/10' : 'bg-primary-100'}`}>
+                  <Clock size={16} className={d.daysLeft < 0 ? 'text-danger' : 'text-brand'} aria-hidden="true" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-700 truncate">{d.title}</p>
@@ -442,7 +443,7 @@ export default function Dashboard() {
         <div className="card">
           <div className="card-header">
             <h3 className="text-sm font-semibold text-gray-800">Recently Updated Projects</h3>
-            <Link to="/projects" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+            <Link to="/projects" className="text-xs text-brand font-medium hover:underline flex items-center gap-1">
               View All <ArrowRight size={12} aria-hidden="true" />
             </Link>
           </div>
@@ -466,7 +467,7 @@ export default function Dashboard() {
         <div className="card">
           <div className="card-header">
             <h3 className="text-sm font-semibold text-gray-800">Recent Sales</h3>
-            <Link to="/sales-analytics" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+            <Link to="/sales-analytics" className="text-xs text-brand font-medium hover:underline flex items-center gap-1">
               View All <ArrowRight size={12} aria-hidden="true" />
             </Link>
           </div>

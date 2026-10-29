@@ -162,7 +162,7 @@ export default function CustomerSegments() {
           value={segments.length}
           subtitle="Cohort profiles active"
           icon={Layers}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Classified Accounts"
@@ -226,7 +226,7 @@ export default function CustomerSegments() {
                 <StatusBadge status={segment.status} />
               </div>
 
-              <h3 className="text-base font-bold text-gray-900 group-hover:text-primary transition-colors">
+              <h3 className="text-base font-bold text-gray-900 group-hover:text-brand transition-colors">
                 {segment.name}
               </h3>
               <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">
@@ -250,7 +250,7 @@ export default function CustomerSegments() {
                 </div>
                 <div>
                   <span className="text-[11px] text-gray-400 uppercase tracking-wide block">Avg Value</span>
-                  <span className="text-sm font-bold text-primary truncate block">
+                  <span className="text-sm font-bold text-brand truncate block">
                     {formatCurrency(segment.avgValue)}
                   </span>
                 </div>
@@ -277,7 +277,7 @@ export default function CustomerSegments() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setViewSegment(segment)}
-                  className="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-500 hover:text-brand hover:bg-gray-100 rounded-lg transition-colors"
                   title="View Segment Accounts"
                 >
                   <Eye size={15} />
@@ -436,9 +436,9 @@ export default function CustomerSegments() {
           }
         >
           <div className="space-y-4">
-            <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 flex items-center justify-between">
+            <div className="bg-primary-50 p-4 rounded-xl border border-primary-300/70 flex items-center justify-between">
               <div>
-                <p className="text-xs text-primary-700 font-medium">Filter Criteria</p>
+                <p className="text-xs text-brand-strong font-medium">Filter Criteria</p>
                 <p className="text-sm font-semibold text-gray-800">{viewSegment.criteria}</p>
               </div>
               <div className="text-right">
@@ -460,7 +460,7 @@ export default function CustomerSegments() {
                     <p className="text-sm font-semibold text-gray-900">{client.name}</p>
                     <p className="text-xs text-gray-500">{client.rep} • {client.email}</p>
                   </div>
-                  <span className="text-sm font-semibold text-primary">
+                  <span className="text-sm font-semibold text-brand">
                     {formatCurrency(client.val)}
                   </span>
                 </div>

@@ -79,13 +79,13 @@ export function exportRecords({ records, fields, format, filename, title }) {
     if (!win) throw new Error('The print window was blocked. Allow pop-ups for this site to save as PDF.');
     win.document.write(`<!DOCTYPE html><html><head><title>${escapeHtml(base)}</title>
       <style>
-        body{font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px;color:#17212B}
-        h1{font-size:18px;margin:0 0 4px;color:#2C5F6F}
-        p{font-size:11px;color:#475569;margin:0 0 16px}
+        body{font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px;color:#102C32}
+        h1{font-size:18px;margin:0 0 4px;color:#093F50}
+        p{font-size:11px;color:#52676A;margin:0 0 16px}
         table{width:100%;border-collapse:collapse;font-size:10px}
-        th{background:#F4F6F8;color:#475569;text-align:left;padding:6px 8px;border-bottom:2px solid #E2E8F0;text-transform:uppercase}
-        td{padding:6px 8px;border-bottom:1px solid #F1F5F9;vertical-align:top}
-        tr:nth-child(even) td{background:#F8FAFC}
+        th{background:#F5F3EC;color:#52676A;text-align:left;padding:6px 8px;border-bottom:2px solid #C9D9D8;text-transform:uppercase}
+        td{padding:6px 8px;border-bottom:1px solid #DFE7E3;vertical-align:top}
+        tr:nth-child(even) td{background:#FBF8E8}
       </style></head><body>
       <h1>Meridian Quality Management — ${escapeHtml(title || filename)}</h1>
       <p>Exported ${escapeHtml(new Date().toLocaleString())} · ${records.length} records</p>

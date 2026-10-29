@@ -8,10 +8,10 @@ export function useToast() {
 }
 
 const TYPES = {
-  success: { title: 'Success', icon: CheckCircle2, tile: 'bg-success-50 text-success-600', bar: 'from-success-600 to-[#4ADE80]' },
+  success: { title: 'Success', icon: CheckCircle2, tile: 'bg-success-50 text-success-600', bar: 'from-success-600 to-success-300' },
   error: { title: 'Something went wrong', icon: AlertCircle, tile: 'bg-danger-50 text-danger-600', bar: 'from-danger-600 to-danger-400' },
   warning: { title: 'Heads up', icon: AlertTriangle, tile: 'bg-warning-50 text-warning-600', bar: 'from-warning-600 to-accent-500' },
-  info: { title: 'Notice', icon: Info, tile: 'bg-info-50 text-info-500', bar: 'from-info-500 to-primary-600' },
+  info: { title: 'Notice', icon: Info, tile: 'bg-primary-100 text-brand', bar: 'from-primary-300 to-accent-500' },
 };
 
 /**

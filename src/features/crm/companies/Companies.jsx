@@ -25,12 +25,12 @@ import { formatCurrency, formatNumber, generateId } from '../../../utils/format'
 
 // Logo tiles use the Meridian palette, whatever colour class a stored record carries.
 const LOGO_TONES = [
-  'bg-primary-800 text-white',
-  'bg-accent text-primary-950',
-  'bg-primary-500 text-white',
+  'bg-teal-800 text-primrose',
+  'bg-accent text-primary-ink',
+  'bg-teal-500 text-white',
   'bg-primrose on-primrose',
-  'bg-primary-950 text-primrose',
-  'bg-accent-700 text-white',
+  'bg-teal-950 text-primrose',
+  'bg-rust text-white',
 ];
 const logoTone = (company) => LOGO_TONES[[...String(company?.name || '')].reduce((h, ch) => h + ch.charCodeAt(0), 0) % LOGO_TONES.length];
 
@@ -205,7 +205,7 @@ export default function Companies() {
           value={companies.length}
           subtitle="Directory records"
           icon={Building2}
-          iconColor="bg-primary/10 text-primary"
+          iconColor="bg-primary-100 text-brand"
         />
         <StatCard
           title="Active Clients"
@@ -282,7 +282,7 @@ export default function Companies() {
                       {comp.logoText || 'CO'}
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-gray-900 group-hover:text-primary transition-colors">
+                      <h3 className="text-base font-bold text-gray-900 group-hover:text-brand transition-colors">
                         {comp.name}
                       </h3>
                       <p className="text-xs text-gray-500">{comp.industry}</p>
@@ -314,7 +314,7 @@ export default function Companies() {
                   </div>
                   <div>
                     <span className="text-[11px] text-gray-400 uppercase tracking-wide block">Contract Spend</span>
-                    <span className="text-sm font-bold text-primary truncate block">
+                    <span className="text-sm font-bold text-brand truncate block">
                       {formatCurrency(comp.totalSpent)}
                     </span>
                   </div>
@@ -329,7 +329,7 @@ export default function Companies() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setViewCompany(comp)}
-                    className="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-500 hover:text-brand hover:bg-gray-100 rounded-lg transition-colors"
                     title="View Details"
                   >
                     <Eye size={15} />
@@ -396,7 +396,7 @@ export default function Companies() {
                     </td>
                     <td><span className="text-xs text-gray-600">{comp.location}</span></td>
                     <td>
-                      <span className="text-xs font-bold text-primary">
+                      <span className="text-xs font-bold text-brand">
                         {formatCurrency(comp.totalSpent)}
                       </span>
                     </td>
@@ -404,7 +404,7 @@ export default function Companies() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => setViewCompany(comp)}
-                          className="p-1.5 text-gray-500 hover:text-primary rounded-lg hover:bg-gray-100"
+                          className="p-1.5 text-gray-500 hover:text-brand rounded-lg hover:bg-gray-100"
                         >
                           <Eye size={14} />
                         </button>
@@ -636,10 +636,10 @@ export default function Companies() {
               </div>
             </div>
 
-            <div className="p-3 bg-primary/5 rounded-xl border border-primary/20 flex justify-between items-center">
+            <div className="p-3 bg-primary-50 rounded-xl border border-primary-300/70 flex justify-between items-center">
               <div>
                 <span className="text-2xs text-gray-500 uppercase tracking-wide block">Lifetime Spend</span>
-                <span className="text-base font-bold text-primary">{formatCurrency(viewCompany.totalSpent)}</span>
+                <span className="text-base font-bold text-brand">{formatCurrency(viewCompany.totalSpent)}</span>
               </div>
               <span className="badge-primary">{viewCompany.activeDeals} Active Deals</span>
             </div>

@@ -30,7 +30,7 @@ function PageBar({ pathname }) {
       <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-gray-900 truncate">{title}</p>
       <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs shrink-0">
         {showGroup && (group.to
-          ? <Link to={group.to} className="font-semibold text-primary hover:text-primary-700 transition-colors">{group.label}</Link>
+          ? <Link to={group.to} className="font-semibold text-brand hover:text-brand-strong transition-colors">{group.label}</Link>
           : <span className="font-semibold text-gray-500">{group.label}</span>)}
         {showGroup && <ChevronRight size={12} className="text-gray-400" aria-hidden="true" />}
         <span className="text-gray-600 font-medium" aria-current="page">{title}</span>

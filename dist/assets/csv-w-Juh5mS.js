@@ -1,3 +1,0 @@
-import{j as i}from"./index-CPmCXP55.js";import{D as j}from"./download-vb-gSVBR.js";function f({onClick:t,label:o="Export CSV"}){return i.jsxs("button",{onClick:t,className:"btn-outline btn-sm",children:[i.jsx(j,{size:14}),o]})}function h(t,o,c){if(!t||t.length===0)return;const l=c.map(e=>e.label||e.key),u=t.map(e=>c.map(r=>{const b=r.accessor?r.accessor(e):e[r.key],n=String(b??"");return n.includes(",")||n.includes('"')||n.includes(`
-`)?`"${n.replace(/"/g,'""')}"`:n})),p=[l.join(","),...u.map(e=>e.join(","))].join(`
-`),m=new Blob([p],{type:"text/csv;charset=utf-8;"}),a=URL.createObjectURL(m),s=document.createElement("a");s.href=a,s.download=`${o}.csv`,s.click(),URL.revokeObjectURL(a)}export{f as E,h as e};

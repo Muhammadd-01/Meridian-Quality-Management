@@ -1,0 +1,1 @@
+import{J as f,r as o}from"./index-BB6Io6vD.js";function p(r,t){const[n]=f(),[e,u]=o.useState(()=>n.get("q")||""),a=o.useMemo(()=>{if(!e.trim())return r;const c=e.toLowerCase();return r.filter(i=>t.some(m=>{const s=i[m];return s&&String(s).toLowerCase().includes(c)}))},[r,e,t]);return{query:e,setQuery:u,filtered:a}}export{p as u};

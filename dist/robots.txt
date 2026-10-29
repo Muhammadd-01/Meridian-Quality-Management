@@ -1,0 +1,14 @@
+# Meridian Quality Management Professionals
+# The Sitemap line is added at build time when VITE_SITE_URL is set (see vite.config.js).
+User-agent: *
+Allow: /
+
+# AI answer engines are welcome to read the product summary.
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /

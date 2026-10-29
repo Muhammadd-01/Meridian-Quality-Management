@@ -1,0 +1,27 @@
+# Meridian Quality Management Professionals
+
+> Meridian is a web-based operations workspace for quality-management consultancies, ISO consultants and auditors. It combines client management (CRM), sales, project delivery and website analytics in one application, with reports, a calendar and an automatic audit log.
+
+Meridian is built for teams that deliver ISO 9001, ISO 14001, ISO 45001, ISO 17025, GMP and food-safety (HACCP / FSSC 22000) consulting and audits. It runs in the browser; in the current version all records are stored in the user's browser (no server account is required).
+
+## Modules
+
+- [Dashboard](/dashboard): live KPIs for projects, leads, revenue, pipeline, overdue tasks, customers and quotation acceptance, calculated from the workspace's records.
+- [Traffic Overview](/traffic-overview): website sessions, users, bounce rate, session length, landing pages and referrers with period comparison.
+- [CRM](/crm): deals workspace; [companies](/crm/companies), [contacts](/crm/contacts), [customer segments](/crm/customer-segments), [activities](/crm/activities), [calls & emails](/crm/calls-emails).
+- [Website Analytics](/sales-analytics): [leads](/sales-analytics/leads) with rule-based scoring and conversion, [deals](/sales-analytics/deals) with won/lost reasons, [quotations](/sales-analytics/quotations) with print/PDF, [pipeline](/sales-analytics/pipeline) board.
+- [Project Management](/projects): projects with milestones, [tasks](/projects/tasks) with subtasks and comments, [team](/projects/team) workload, [timesheets](/projects/timesheets) with weekly summary.
+- Workspace: [calendar](/calendar), [reports](/reports) (11 reports with formulas, CSV/Excel/PDF export), [audit log](/audit-log), [settings](/settings).
+
+## Key facts
+
+- Audience: quality-management consultancies, ISO consultants, lead auditors, compliance teams.
+- Platform: web application (any modern browser); light, dark and system appearance; installable as a web app.
+- Data: records are kept in the browser's local storage in the current version; import and export via CSV, Excel and JSON.
+- Language: English. Currency in examples: Pakistani rupee (PKR).
+
+## Optional
+
+- [Sign in](/login)
+- [Create an account](/register)
+- [Source code](https://github.com/Muhammadd-01/Meridian-Quality-Management)

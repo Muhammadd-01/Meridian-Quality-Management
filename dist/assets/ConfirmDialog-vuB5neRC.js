@@ -1,0 +1,6 @@
+import{c as l,j as e,i as d}from"./index-CPmCXP55.js";import{M as o}from"./Modal-D-Jne-s3.js";/**
+ * @license lucide-react v0.460.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const h=l("Trash2",[["path",{d:"M3 6h18",key:"d0wm0j"}],["path",{d:"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6",key:"4alrt4"}],["path",{d:"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2",key:"v07s0e"}],["line",{x1:"10",x2:"10",y1:"11",y2:"17",key:"1uufr5"}],["line",{x1:"14",x2:"14",y1:"11",y2:"17",key:"xtxkd"}]]);function y({isOpen:r,onClose:s,onConfirm:a,title:t="Confirm Action",message:n="Are you sure?",confirmLabel:i="Delete",variant:c="danger"}){return e.jsx(o,{isOpen:r,onClose:s,title:t,size:"sm",footer:e.jsxs(e.Fragment,{children:[e.jsx("button",{className:"btn-secondary",onClick:s,children:"Cancel"}),e.jsx("button",{className:c==="danger"?"btn-danger":"btn-primary",onClick:a,children:i})]}),children:e.jsxs("div",{className:"flex items-start gap-3",children:[e.jsx("div",{className:"grid place-items-center w-10 h-10 rounded-full bg-danger-50 shrink-0",children:e.jsx(d,{size:20,className:"text-danger"})}),e.jsx("p",{className:"text-sm text-gray-600 pt-2",children:n})]})})}export{y as C,h as T};

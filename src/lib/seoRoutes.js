@@ -29,6 +29,7 @@ export const ROUTE_META = {
   '/sales-analytics/quotations': { title: 'Quotations', description: 'Quotation workflow from draft to accepted or declined, with history, expiry and print/PDF.' },
   '/sales-analytics/pipeline': { title: 'Pipeline', description: 'Drag-and-drop pipeline board from lead to closed won with stage conversion.' },
   '/calendar': { title: 'Calendar', description: 'Task deadlines, activities, deal closes, quotation expiry and project milestones in one calendar.' },
+  '/crm/bulk-email': { title: 'Bulk Email', description: 'Client groups, filtered mailing lists and bulk email campaigns.' },
   '/chat': { title: 'Chat', description: 'Direct and group conversations with clients and the consulting team.' },
   '/reports': { title: 'Reports', description: 'Eleven ready-made reports across CRM, sales and projects, with formulas, date filters and export.' },
   '/audit-log': { title: 'Audit Log', description: 'Automatic record of every change made in the workspace, with filters and export.' },

@@ -14,6 +14,7 @@ import { initialFullDeals, initialQuotations } from './salesAnalyticsData';
 import { initialProjects } from './projects';
 import { initialTasks, initialTeamMembers, initialTimesheets } from './projectManagementData';
 import { initialContacts, contactStatuses, contactSources } from './contacts';
+import { initialCalendarEvents } from './calendarData';
 
 const initials = (name = '') =>
   String(name).split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'NA';
@@ -369,7 +370,7 @@ export const ENTITIES = {
   calendarEvents: {
     type: 'calendarEvents',
     key: 'meridian-calendar-events',
-    seed: [],
+    seed: initialCalendarEvents,
     label: 'Calendar Events',
     singular: 'Event',
     module: 'Workspace',
@@ -383,7 +384,9 @@ export const ENTITIES = {
       { key: 'title', label: 'Title', required: true },
       { key: 'type', label: 'Type' },
       { key: 'date', label: 'Date', type: 'date', required: true },
+      { key: 'endDate', label: 'End Date', type: 'date' },
       { key: 'time', label: 'Time' },
+      { key: 'endTime', label: 'End Time' },
       { key: 'relatedTo', label: 'Related To' },
       { key: 'notes', label: 'Notes' },
     ],

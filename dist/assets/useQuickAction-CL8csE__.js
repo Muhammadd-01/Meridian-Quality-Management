@@ -1,0 +1,1 @@
+import{K as i,r as u}from"./index-hCmZXkNm.js";function m(r,c){const[e,s]=i(),t=u.useRef(c);t.current=c;const a=e.get("action");u.useEffect(()=>{var n;if(a!==r)return;(n=t.current)==null||n.call(t);const o=new URLSearchParams(e);o.delete("action"),s(o,{replace:!0})},[a,r,e,s])}export{m as u};

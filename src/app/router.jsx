@@ -27,6 +27,7 @@ const Companies = lazy(() => import('../features/crm/companies/Companies'));
 const Contacts = lazy(() => import('../features/crm/contacts/Contacts'));
 const Activities = lazy(() => import('../features/crm/activities/Activities'));
 const CallsEmails = lazy(() => import('../features/crm/calls-emails/CallsEmails'));
+const BulkEmail = lazy(() => import('../features/crm/bulk-email/BulkEmail'));
 
 // Website Analytics Subpages
 const Leads = lazy(() => import('../features/sales-analytics/leads/Leads'));
@@ -68,6 +69,7 @@ export default function AppRouter() {
           <Route path="/crm/contacts" element={<Contacts />} />
           <Route path="/crm/activities" element={<Activities />} />
           <Route path="/crm/calls-emails" element={<CallsEmails />} />
+          <Route path="/crm/bulk-email" element={<BulkEmail />} />
 
           {/* Website Analytics */}
           <Route path="/sales-analytics" element={<SalesAnalytics />} />

@@ -29,6 +29,7 @@ import {
   History,
   Settings,
   MessagesSquare,
+  Mail,
 } from 'lucide-react';
 
 // Section 1: Main Dashboards (Simple direct links, NO dropdown!)
@@ -51,6 +52,7 @@ export const moduleSections = [
       { path: '/crm/contacts', label: 'Contacts', icon: Contact },
       { path: '/crm/activities', label: 'Activities', icon: Activity },
       { path: '/crm/calls-emails', label: 'Calls & Emails', icon: PhoneCall },
+      { path: '/crm/bulk-email', label: 'Bulk Email', icon: Mail, badge: 'NEW' },
     ],
   },
   {

@@ -28,6 +28,7 @@ import {
   FileBarChart,
   History,
   Settings,
+  MessagesSquare,
 } from 'lucide-react';
 
 // Section 1: Main Dashboards (Simple direct links, NO dropdown!)
@@ -77,6 +78,7 @@ export const moduleSections = [
     title: 'Workspace',
     items: [
       { path: '/calendar', label: 'Calendar', icon: CalendarDays },
+      { path: '/chat', label: 'Chat', icon: MessagesSquare },
       { path: '/reports', label: 'Reports', icon: FileBarChart },
       { path: '/audit-log', label: 'Audit Log', icon: History },
       { path: '/settings', label: 'Settings', icon: Settings },

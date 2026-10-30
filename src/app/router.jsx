@@ -36,6 +36,7 @@ const Pipeline = lazy(() => import('../features/sales-analytics/pipeline/Pipelin
 
 // Workspace (cross-module) Pages
 const Calendar = lazy(() => import('../features/calendar/Calendar'));
+const Chat = lazy(() => import('../features/chat/Chat'));
 const Reports = lazy(() => import('../features/reports/Reports'));
 const AuditLog = lazy(() => import('../features/audit-log/AuditLog'));
 const Settings = lazy(() => import('../features/settings/Settings'));
@@ -77,6 +78,7 @@ export default function AppRouter() {
 
           {/* Workspace */}
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/audit-log" element={<AuditLog />} />
           <Route path="/settings" element={<Settings />} />

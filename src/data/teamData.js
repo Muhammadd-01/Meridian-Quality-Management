@@ -57,10 +57,10 @@ export const initialAttendance = buildAttendance();
 
 // ── Leaves ──────────────────────────────────────────────────────────────
 export const LEAVE_TYPES = {
-  Annual: { total: 14, color: '#145D68' },
-  Sick: { total: 8, color: '#B83A2C' },
+  Annual: { total: 14, color: '#1C7D86' },
+  Sick: { total: 8, color: '#CF4A3B' },
   Casual: { total: 6, color: '#F78D00' },
-  'Work from home': { total: 12, color: '#1C7D86' },
+  'Work from home': { total: 12, color: '#CDB64C' },
 };
 
 const leave = (id, member, type, from, to, status, reason, extra = {}) => ({

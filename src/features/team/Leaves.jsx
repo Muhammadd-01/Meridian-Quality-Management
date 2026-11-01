@@ -117,7 +117,7 @@ export default function Leaves() {
               <div className="min-w-0">
                 <p className="text-sm font-bold text-gray-900">{type}</p>
                 <p className="text-xs text-gray-500">{used[type] || 0} used of {cfg.total} days</p>
-                <p className="text-[11px] font-semibold mt-1" style={{ color: cfg.color }}>{left} left this year</p>
+                <p className="text-[11px] font-semibold mt-1 text-gray-700">{left} left this year</p>
               </div>
             </div>
           );
@@ -193,7 +193,7 @@ export default function Leaves() {
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-gray-900 flex flex-wrap items-center gap-2">
                           {r.member}
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: LEAVE_TYPES[r.type]?.color }}>
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-gray-600">
                             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: LEAVE_TYPES[r.type]?.color }} />{r.type}
                           </span>
                         </p>

@@ -133,8 +133,8 @@ export default function Attendance() {
               <div className="mt-5 text-sm">
                 {!mine && <p className="text-white/80">You haven’t checked in yet today.</p>}
                 {mine && !mine.checkOut && (
-                  <p className="flex items-center gap-2 text-white/90">
-                    <span className={`w-2.5 h-2.5 rounded-full ${onBreak ? 'bg-accent' : 'bg-success-400 animate-pulse'}`} />
+                  <p className="text-white/90">
+                    <span className={`inline-block w-2.5 h-2.5 rounded-full mr-2 align-middle ${onBreak ? 'bg-accent' : 'bg-success-400 animate-pulse'}`} />
                     {onBreak ? 'On a break' : 'Working'} · checked in at <b>{to12(mine.checkIn)}</b> · {mine.mode}
                   </p>
                 )}

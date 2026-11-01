@@ -2405,3 +2405,15 @@ aside nav li:nth-child(n + 6) { animation-delay: 125ms; }
 [data-theme='dark'] .text-danger,
 [data-theme='dark'] .text-danger-600,
 [data-theme='dark'] .text-danger-700 { color: #EC9A90; }
+
+/* Ringing bell for reminder alerts */
+@keyframes bell-ring {
+  0%, 60%, 100% { transform: rotate(0); }
+  10%, 30% { transform: rotate(14deg); }
+  20%, 40% { transform: rotate(-14deg); }
+}
+.animate-ring {
+  animation: bell-ring 1.6s ease-in-out infinite;
+  transform-origin: 50% 10%;
+}
+.reduce-motion .animate-ring { animation: none; }

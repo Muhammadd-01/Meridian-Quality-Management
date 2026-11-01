@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import ScrollToTop from '../ui/ScrollToTop';
+import ReminderAlerts from './ReminderAlerts';
 import LoadingState from '../ui/LoadingState';
 import { useSettings } from '../../lib/settings';
 import { useColorMode, useSidebarStyle } from '../../lib/theme';
@@ -17,6 +18,7 @@ const groupLinks = {
   CRM: { label: 'CRM', to: '/crm' },
   'Project Management': { label: 'Project Management', to: '/projects' },
   'Website Analytics': { label: 'Website Analytics', to: '/sales-analytics' },
+  Team: { label: 'Team', to: '/team/attendance' },
   Workspace: { label: 'Workspace' },
 };
 
@@ -124,6 +126,8 @@ export default function AppLayout() {
         </main>
         {/* Floating Scroll To Top button */}
         <ScrollToTop targetRef={mainRef} />
+        {/* In-app reminder pop-ups ring on every page */}
+        <ReminderAlerts />
       </div>
     </div>
   );

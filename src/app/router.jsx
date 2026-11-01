@@ -28,12 +28,23 @@ const Contacts = lazy(() => import('../features/crm/contacts/Contacts'));
 const Activities = lazy(() => import('../features/crm/activities/Activities'));
 const CallsEmails = lazy(() => import('../features/crm/calls-emails/CallsEmails'));
 const BulkEmail = lazy(() => import('../features/crm/bulk-email/BulkEmail'));
+const CallCenter = lazy(() => import('../features/crm/call-center/CallCenter'));
 
 // Website Analytics Subpages
 const Leads = lazy(() => import('../features/sales-analytics/leads/Leads'));
 const Deals = lazy(() => import('../features/sales-analytics/deals/Deals'));
 const Quotations = lazy(() => import('../features/sales-analytics/quotations/Quotations'));
 const Pipeline = lazy(() => import('../features/sales-analytics/pipeline/Pipeline'));
+const LeadCapture = lazy(() => import('../features/sales-analytics/lead-capture/LeadCapture'));
+const PurchaseOrders = lazy(() => import('../features/sales-analytics/purchase-orders/PurchaseOrders'));
+
+// Team Pages
+const Attendance = lazy(() => import('../features/team/Attendance'));
+const DailyTasks = lazy(() => import('../features/team/DailyTasks'));
+const FollowUps = lazy(() => import('../features/team/FollowUps'));
+const Leaves = lazy(() => import('../features/team/Leaves'));
+const Reminders = lazy(() => import('../features/team/Reminders'));
+const DailyReports = lazy(() => import('../features/team/DailyReports'));
 
 // Workspace (cross-module) Pages
 const Calendar = lazy(() => import('../features/calendar/Calendar'));
@@ -70,6 +81,7 @@ export default function AppRouter() {
           <Route path="/crm/activities" element={<Activities />} />
           <Route path="/crm/calls-emails" element={<CallsEmails />} />
           <Route path="/crm/bulk-email" element={<BulkEmail />} />
+          <Route path="/crm/call-center" element={<CallCenter />} />
 
           {/* Website Analytics */}
           <Route path="/sales-analytics" element={<SalesAnalytics />} />
@@ -77,6 +89,17 @@ export default function AppRouter() {
           <Route path="/sales-analytics/deals" element={<Deals />} />
           <Route path="/sales-analytics/quotations" element={<Quotations />} />
           <Route path="/sales-analytics/pipeline" element={<Pipeline />} />
+          <Route path="/sales-analytics/lead-capture" element={<LeadCapture />} />
+          <Route path="/sales-analytics/purchase-orders" element={<PurchaseOrders />} />
+
+          {/* Team */}
+          <Route path="/team" element={<Navigate to="/team/attendance" replace />} />
+          <Route path="/team/attendance" element={<Attendance />} />
+          <Route path="/team/daily-tasks" element={<DailyTasks />} />
+          <Route path="/team/follow-ups" element={<FollowUps />} />
+          <Route path="/team/leaves" element={<Leaves />} />
+          <Route path="/team/reminders" element={<Reminders />} />
+          <Route path="/team/daily-reports" element={<DailyReports />} />
 
           {/* Workspace */}
           <Route path="/calendar" element={<Calendar />} />

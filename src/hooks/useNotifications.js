@@ -21,6 +21,7 @@ export default function useNotifications() {
   const [state, setState] = useLocalStorage(NOTIFICATION_STATE_KEY, { readIds: [] });
   const [tasks] = useCollection('tasks');
   const [quotations] = useCollection('quotations');
+  const [reminders] = useCollection('reminders');
   const [settings] = useSettings();
   const prefs = settings.notifications;
 
@@ -52,6 +53,13 @@ export default function useNotifications() {
       });
     }
 
+    if (prefs.deadlines) {
+      reminders.forEach(r => {
+        if (r.done || r.assignee !== settings.profile.name || new Date(r.remindAt) > today) return;
+        list.push({ id: `reminder:${r.id}:${r.remindAt}`, kind: 'warning', title: `Reminder: ${r.title}`, detail: r.note || 'Due now', at: r.remindAt, to: '/team/reminders' });
+      });
+    }
+
     if (prefs.recordChanges) {
       (Array.isArray(log) ? log : []).slice(0, 30).forEach(e => {
         list.push({
@@ -66,7 +74,7 @@ export default function useNotifications() {
     }
 
     return list.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  }, [log, tasks, quotations, prefs.deadlines, prefs.quotationExpiry, prefs.recordChanges]);
+  }, [log, tasks, quotations, reminders, settings.profile.name, prefs.deadlines, prefs.quotationExpiry, prefs.recordChanges]);
 
   const readIds = useMemo(() => new Set(state?.readIds || []), [state]);
   const withRead = useMemo(() => items.map(i => ({ ...i, read: readIds.has(i.id) })), [items, readIds]);

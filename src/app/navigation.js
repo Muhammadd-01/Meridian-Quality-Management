@@ -30,6 +30,15 @@ import {
   Settings,
   MessagesSquare,
   Mail,
+  Phone,
+  Magnet,
+  ShoppingCart,
+  Fingerprint,
+  Plane,
+  ListChecks,
+  Handshake,
+  BellRing,
+  ClipboardList,
 } from 'lucide-react';
 
 // Section 1: Main Dashboards (Simple direct links, NO dropdown!)
@@ -52,7 +61,8 @@ export const moduleSections = [
       { path: '/crm/contacts', label: 'Contacts', icon: Contact },
       { path: '/crm/activities', label: 'Activities', icon: Activity },
       { path: '/crm/calls-emails', label: 'Calls & Emails', icon: PhoneCall },
-      { path: '/crm/bulk-email', label: 'Bulk Email', icon: Mail, badge: 'NEW' },
+      { path: '/crm/bulk-email', label: 'Bulk Email', icon: Mail },
+      { path: '/crm/call-center', label: 'Call Center', icon: Phone, badge: 'NEW' },
     ],
   },
   {
@@ -72,7 +82,21 @@ export const moduleSections = [
       { path: '/sales-analytics/leads', label: 'Leads', icon: Target },
       { path: '/sales-analytics/deals', label: 'Deals', icon: DollarSign },
       { path: '/sales-analytics/quotations', label: 'Quotations', icon: FileSpreadsheet },
-      { path: '/sales-analytics/pipeline', label: 'Pipeline', icon: GitBranch, badge: 'NEW' },
+      { path: '/sales-analytics/pipeline', label: 'Pipeline', icon: GitBranch },
+      { path: '/sales-analytics/lead-capture', label: 'Social Lead Capture', icon: Magnet, badge: 'NEW' },
+      { path: '/sales-analytics/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
+    ],
+  },
+  {
+    id: 'team',
+    title: 'Team',
+    items: [
+      { path: '/team/attendance', label: 'Check-in / Out', icon: Fingerprint },
+      { path: '/team/daily-tasks', label: 'Daily Tasks', icon: ListChecks },
+      { path: '/team/follow-ups', label: 'Team Follow-ups', icon: Handshake },
+      { path: '/team/leaves', label: 'Leaves', icon: Plane },
+      { path: '/team/reminders', label: 'Reminders', icon: BellRing },
+      { path: '/team/daily-reports', label: 'Daily Reports', icon: ClipboardList },
     ],
   },
   {
@@ -121,6 +145,12 @@ export const quickActions = [
   { id: 'new-project', label: 'Create project', path: '/projects?action=new', icon: GanttChartSquare, modules: ['projects'] },
   { id: 'new-task', label: 'Create task', path: '/projects/tasks?action=new', icon: CheckSquare, modules: ['projects'] },
   { id: 'new-timesheet', label: 'Log time', path: '/projects/timesheets?action=new', icon: Clock, modules: ['projects'] },
+  { id: 'new-daily-task', label: 'Assign daily task', path: '/team/daily-tasks?action=new', icon: ListChecks, modules: ['team'] },
+  { id: 'new-follow-up', label: 'Add follow-up', path: '/team/follow-ups?action=new', icon: Handshake, modules: ['team', 'crm'] },
+  { id: 'new-leave', label: 'Request leave', path: '/team/leaves?action=new', icon: Plane, modules: ['team'] },
+  { id: 'new-reminder', label: 'Set reminder', path: '/team/reminders?action=new', icon: BellRing, modules: ['team', 'workspace'] },
+  { id: 'new-report', label: 'Submit daily report', path: '/team/daily-reports?action=new', icon: ClipboardList, modules: ['team'] },
+  { id: 'new-po', label: 'Create purchase order', path: '/sales-analytics/purchase-orders?action=new', icon: ShoppingCart, modules: ['sales'] },
   { id: 'new-event', label: 'Schedule event', path: '/calendar?action=new', icon: CalendarDays, modules: ['workspace'] },
   { id: 'reports', label: 'Export a report', path: '/reports', icon: FileBarChart, modules: ['workspace'] },
 ];
@@ -130,5 +160,6 @@ export function moduleForPath(path) {
   if (path.startsWith('/crm')) return 'crm';
   if (path.startsWith('/projects')) return 'projects';
   if (path.startsWith('/sales')) return 'sales';
+  if (path.startsWith('/team')) return 'team';
   return 'workspace';
 }

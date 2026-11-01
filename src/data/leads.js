@@ -196,5 +196,5 @@ export const initialLeads = [
   },
 ];
 
-export const leadSources = ['Website', 'Referral', 'LinkedIn', 'Conference', 'Cold Call', 'Other'];
+export const leadSources = ['Website', 'Referral', 'LinkedIn', 'Facebook', 'Conference', 'Cold Call', 'Other'];
 export const leadStatuses = ['New', 'Contacted', 'Qualified', 'Proposal', 'Won', 'Lost'];

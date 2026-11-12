@@ -16,18 +16,32 @@ import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
-import useLocalStorage from '../../../hooks/useLocalStorage';
+import { useAuth } from '../../../lib/auth';
+import WhatsAppSendButton from '../../../components/whatsapp/WhatsAppSendButton';
+import EmailSendButton from '../../../components/email/EmailSendButton';
+import { dealMessage } from '../../../lib/shareMessages';
+import useCollection from '../../../hooks/useCollection';
 import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
 import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
-import { initialFullDeals } from '../../../data/salesAnalyticsData';
 import { formatCurrency, formatDate, generateId } from '../../../utils/format';
 
 const stages = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'];
 
 export default function Deals() {
-  const [deals, setDeals] = useLocalStorage('meridian-full-deals', initialFullDeals);
+  const [deals, setDeals] = useCollection('deals');
+  const [contactList] = useCollection('contacts');
+  const contactOf = (d) => {
+    const n = (v) => String(v || '').trim().toLowerCase();
+    return contactList.find(c => n(c.name) === n(d.contact) && (!d.company || n(c.company) === n(d.company)))
+      || contactList.find(c => n(c.name) === n(d.contact));
+  };
+  const contactPhone = (d) => {
+    const n = (v) => String(v || '').trim().toLowerCase();
+    return contactList.find(c => n(c.name) === n(d.contact) && (!d.company || n(c.company) === n(d.company)))?.phone
+      || contactList.find(c => n(c.name) === n(d.contact))?.phone || '';
+  };
   const [stageFilter, setStageFilter] = useState('All');
   const [modalOpen, setModalOpen] = useState(false);
   const [editDeal, setEditDeal] = useState(null);
@@ -37,6 +51,7 @@ export default function Deals() {
   const [lostReason, setLostReason] = useState(LOST_REASONS[0]);
   const [lostNote, setLostNote] = useState('');
   const addToast = useToast();
+  const canDelete = useAuth().can('records.delete');
 
   // Search
   const { query, setQuery, filtered: searchFiltered } = useSearch(deals, ['name', 'company', 'contact', 'owner', 'notes']);
@@ -318,6 +333,8 @@ export default function Deals() {
                           </button>
                         </>
                       )}
+                      <WhatsAppSendButton title={`Deal: ${d.name}`} phone={contactPhone(d)} message={() => dealMessage(d)} />
+                      <EmailSendButton title={`Deal: ${d.name}`} to={contactOf(d)?.email} name={d.contact} subject={d.name} details={() => dealMessage(d)} />
                       <button
                         onClick={() => setViewDeal(d)}
                         className="p-1 text-gray-400 hover:text-brand rounded"
@@ -334,14 +351,16 @@ export default function Deals() {
                       >
                         <Pencil size={14} />
                       </button>
-                      <button
-                        onClick={() => setDeleteConfirm(d)}
-                        className="p-1 text-gray-400 hover:text-danger rounded"
-                        title="Delete Deal"
-                        aria-label={`Delete ${d.name}`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {canDelete && (
+                        <button
+                          onClick={() => setDeleteConfirm(d)}
+                          className="p-1 text-gray-400 hover:text-danger rounded"
+                          title="Delete Deal"
+                          aria-label={`Delete ${d.name}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useId } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -15,6 +16,8 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
 
     const handleKey = (e) => {
       if (e.key === 'Escape') {
+        // An open dropdown inside the dialog (e.g. the country list) closes first.
+        if (e.defaultPrevented) return;
         e.stopPropagation();
         onCloseRef.current?.();
         return;
@@ -63,7 +66,8 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
     xl: 'max-w-4xl',
   };
 
-  return (
+  // Rendered at the end of <body> so page animations or containers can never hide it behind the sidebar.
+  return createPortal(
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-[#071A1F]/60 backdrop-blur-[3px] animate-fade-in" onClick={onClose} aria-hidden="true" />
       <div
@@ -93,5 +97,5 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
         )}
       </div>
     </div>
-  );
+  , document.body);
 }

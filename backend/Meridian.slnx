@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Meridian.Api.Tests/Meridian.Api.Tests.csproj" />
+  <Project Path="Meridian.Api/Meridian.Api.csproj" />
+</Solution>

@@ -4,6 +4,7 @@ import useLocalStorage from './useLocalStorage';
 import useCollection from './useCollection';
 import { AUDIT_LOG_KEY, NOTIFICATION_STATE_KEY, ACTION_LABELS } from '../lib/auditLog';
 import { useSettings } from '../lib/settings';
+import { isPathVisible, visibleTarget } from '../app/features';
 
 const toDate = (s) => {
   if (!s) return null;
@@ -29,7 +30,8 @@ export default function useNotifications() {
     const today = new Date();
     const list = [];
 
-    if (prefs.deadlines) {
+    // Alerts for hidden features (tasks, quotations, reminders) are not raised.
+    if (prefs.deadlines && isPathVisible('/projects/tasks')) {
       tasks.forEach(t => {
         const due = toDate(t.dueDate);
         if (!due || t.status === 'Completed') return;
@@ -42,7 +44,7 @@ export default function useNotifications() {
       });
     }
 
-    if (prefs.quotationExpiry) {
+    if (prefs.quotationExpiry && isPathVisible('/sales-analytics/quotations')) {
       quotations.forEach(q => {
         const exp = toDate(q.expiryDate);
         if (!exp || q.status !== 'Sent') return;
@@ -53,7 +55,7 @@ export default function useNotifications() {
       });
     }
 
-    if (prefs.deadlines) {
+    if (prefs.deadlines && isPathVisible('/team/reminders')) {
       reminders.forEach(r => {
         if (r.done || r.assignee !== settings.profile.name || new Date(r.remindAt) > today) return;
         list.push({ id: `reminder:${r.id}:${r.remindAt}`, kind: 'warning', title: `Reminder: ${r.title}`, detail: r.note || 'Due now', at: r.remindAt, to: '/team/reminders' });
@@ -61,14 +63,16 @@ export default function useNotifications() {
     }
 
     if (prefs.recordChanges) {
-      (Array.isArray(log) ? log : []).slice(0, 30).forEach(e => {
+      // Changes to records of hidden features are left out; links follow redirects (Companies -> Accounts).
+      (Array.isArray(log) ? log : []).filter(e => !e.path || visibleTarget(e.path)).slice(0, 30).forEach(e => {
+        const target = e.path ? (e.recordName ? `${e.path}?q=${encodeURIComponent(e.recordName)}` : e.path) : '/audit-log';
         list.push({
           id: e.id,
           kind: e.action === 'deleted' ? 'danger' : e.action === 'created' || e.action === 'imported' ? 'success' : 'info',
           title: `${ACTION_LABELS[e.action] || e.action} ${e.entityLabel?.toLowerCase() || 'record'}${e.recordName ? `: ${e.recordName}` : ''}`,
           detail: [e.details, e.actor].filter(Boolean).join(' · '),
           at: e.at,
-          to: e.path ? (e.recordName ? `${e.path}?q=${encodeURIComponent(e.recordName)}` : e.path) : '/audit-log',
+          to: visibleTarget(target) || undefined,
         });
       });
     }

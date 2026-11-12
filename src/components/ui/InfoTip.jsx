@@ -24,7 +24,7 @@ export default function InfoTip({ text, className = '' }) {
       <span
         id={id}
         role="tooltip"
-        className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 w-56 px-2.5 py-2 rounded-lg bg-teal-950 text-paper ring-1 ring-primrose/25 text-[11px] font-normal leading-snug shadow-dropdown z-40 transition-opacity duration-150 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 w-56 whitespace-normal px-2.5 py-2 rounded-lg bg-teal-950 text-paper ring-1 ring-primrose/25 text-[11px] font-normal leading-snug shadow-dropdown z-40 transition-opacity duration-150 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
         {text}
       </span>

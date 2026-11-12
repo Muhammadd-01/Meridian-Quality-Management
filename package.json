@@ -4,7 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev-all.mjs",
+    "dev:web": "vite",
+    "dev:api": "dotnet run --project backend/Meridian.Api --launch-profile http",
+    "dev:whatsapp": "npm install --prefix whatsapp-service --no-audit --no-fund && node whatsapp-service/server.mjs",
+    "dev:all": "node scripts/dev-all.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

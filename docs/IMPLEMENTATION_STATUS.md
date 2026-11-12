@@ -4,11 +4,22 @@ Working checklist for the platform enhancement programme. Update it as phases la
 
 ## Architecture facts (verified)
 
-- React 18 + Vite 6 + Tailwind 3 (JavaScript). No backend, no auth server, no database.
-- Every record collection lives in the browser's `localStorage`, seeded from `src/data/*`.
-  `src/data/entities.js` is the registry of those collections (key, seed, fields, search, dedupe rules).
+- React 18 + Vite 6 + Tailwind 3 (JavaScript) front end.
+- ASP.NET Core 10 API in `backend/` with Supabase (Postgres + Auth) as the database — see `backend/README.md`.
+  Accounts (Companies), Contacts, Leads and Deals are stored in Supabase; the browser only caches them.
+  Sign-in / registration use Supabase Auth through the API; every app route requires a signed-in user.
+- All other record collections still live in the browser's `localStorage`, seeded from `src/data/*`.
+  `src/data/entities.js` is the registry of those collections (key, seed, fields, search, dedupe rules, `remote` resource).
 - `useLocalStorage` now syncs all components using the same key (same tab and other tabs) and feeds the audit log.
 - Routes are code-split (`React.lazy`); initial JS dropped from 1.59 MB to ~325 KB.
+- **Focused CRM mode (2026-11-10):** only Leads, Deals, Contacts and Accounts are shown. Every other feature is
+  still in the codebase and its route still registered, but hidden from the sidebar, Explore / Apps, Quick Create,
+  search, notifications and breadcrumbs; opening a hidden URL redirects (Companies → Accounts, everything else →
+  Leads). Controlled by `src/app/features.js` — add a path to `VISIBLE_PAGES` to bring a page back, or set
+  `FOCUSED_CRM = false` to show everything.
+- **Accounts page** (`/crm/accounts`, `src/features/crm/accounts/Accounts.jsx`) works on the same records as
+  Companies (`/api/accounts`), with each account's contacts, leads, open pipeline and won revenue worked out live
+  from records that store its name.
 
 ## Feature matrix
 

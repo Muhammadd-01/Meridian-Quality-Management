@@ -14,6 +14,10 @@ import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import Pagination from '../../../components/ui/Pagination';
 import EmptyState from '../../../components/ui/EmptyState';
 import { useToast } from '../../../components/ui/Toast';
+import { useAuth } from '../../../lib/auth';
+import WhatsAppSendButton from '../../../components/whatsapp/WhatsAppSendButton';
+import EmailSendButton from '../../../components/email/EmailSendButton';
+import { contactMessage } from '../../../lib/shareMessages';
 import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
 import useCollection from '../../../hooks/useCollection';
 import useQuickAction from '../../../hooks/useQuickAction';
@@ -22,6 +26,7 @@ import usePagination from '../../../hooks/usePagination';
 import { ENTITIES } from '../../../data/entities';
 import { contactStatuses } from '../../../data/contacts';
 import { formatCurrency, generateId } from '../../../utils/format';
+import { visibleTarget } from '../../../app/features';
 
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 const initials = (name = '') =>
@@ -51,6 +56,7 @@ export default function Contacts() {
   const [formData, setFormData] = useState(emptyForm);
   const [formError, setFormError] = useState('');
   const addToast = useToast();
+  const canDelete = useAuth().can('records.delete');
 
   const { query, setQuery, filtered: searchFiltered } = useSearch(contacts, ENTITIES.contacts.searchFields);
 
@@ -232,15 +238,19 @@ export default function Contacts() {
                     </td>
                     <td>
                       <div className="flex items-center gap-1">
+                        <WhatsAppSendButton title={`Contact: ${c.name}`} phone={c.phone} message={() => contactMessage(c)} />
+                        <EmailSendButton title={`Contact: ${c.name}`} to={c.email} name={c.name} subject={c.company ? `Meridian × ${c.company}` : 'Hello from Meridian'} details={() => contactMessage(c)} />
                         <button type="button" onClick={() => setViewContact(c)} className="p-1.5 text-gray-500 hover:text-brand rounded-lg hover:bg-gray-100" aria-label={`View ${c.name}`} title="View Details">
                           <Eye size={14} />
                         </button>
                         <button type="button" onClick={() => handleOpenEdit(c)} className="p-1.5 text-gray-500 hover:text-info rounded-lg hover:bg-gray-100" aria-label={`Edit ${c.name}`} title="Edit Contact">
                           <Pencil size={14} />
                         </button>
-                        <button type="button" onClick={() => setDeleteConfirm(c)} className="p-1.5 text-gray-500 hover:text-danger rounded-lg hover:bg-gray-100" aria-label={`Delete ${c.name}`} title="Delete Contact">
-                          <Trash2 size={14} />
-                        </button>
+                        {canDelete && (
+                          <button type="button" onClick={() => setDeleteConfirm(c)} className="p-1.5 text-gray-500 hover:text-danger rounded-lg hover:bg-gray-100" aria-label={`Delete ${c.name}`} title="Delete Contact">
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -305,7 +315,14 @@ export default function Contacts() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label htmlFor="contacts-field-email" className="form-label">Email</label>
-              <input id="contacts-field-email" type="email" className="form-input" value={formData.email} onChange={set('email')} placeholder="name@company.com" />
+              <input
+                id="contacts-field-email"
+                type="email"
+                className="form-input"
+                value={formData.email}
+                onChange={set('email')}
+                placeholder="name@company.com"
+              />
             </div>
             <div>
               <label htmlFor="contacts-field-phone" className="form-label">Phone</label>
@@ -367,7 +384,7 @@ export default function Contacts() {
               <div className="flex items-start gap-2">
                 <Building2 size={14} className="text-gray-400 mt-0.5" aria-hidden="true" />
                 {viewContact.company ? (
-                  <Link to={`/crm/companies?q=${encodeURIComponent(viewContact.company)}`} className="font-semibold text-brand hover:underline">{viewContact.company}</Link>
+                  <Link to={`/crm/accounts?q=${encodeURIComponent(viewContact.company)}`} className="font-semibold text-brand hover:underline">{viewContact.company}</Link>
                 ) : <span className="font-semibold text-gray-800">—</span>}
               </div>
             </div>
@@ -418,10 +435,17 @@ export default function Contacts() {
                   {related.timeline.slice(0, 8).map(t => (
                     <li key={t.id} className="flex items-start gap-2">
                       <t.icon size={14} className="text-brand mt-0.5 shrink-0" aria-hidden="true" />
-                      <Link to={t.to} className="min-w-0 hover:underline">
-                        <p className="text-xs font-medium text-gray-800 truncate">{t.title}</p>
-                        <p className="text-2xs text-gray-400">{t.at || 'No date'} · {t.meta}</p>
-                      </Link>
+                      {visibleTarget(t.to) ? (
+                        <Link to={visibleTarget(t.to)} className="min-w-0 hover:underline">
+                          <p className="text-xs font-medium text-gray-800 truncate">{t.title}</p>
+                          <p className="text-2xs text-gray-400">{t.at || 'No date'} · {t.meta}</p>
+                        </Link>
+                      ) : (
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium text-gray-800 truncate">{t.title}</p>
+                          <p className="text-2xs text-gray-400">{t.at || 'No date'} · {t.meta}</p>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ol>

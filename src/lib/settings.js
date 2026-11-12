@@ -9,9 +9,10 @@ export const SETTINGS_KEY = 'meridian-settings';
  */
 export const DEFAULT_SETTINGS = {
   profile: {
-    name: 'Admin User',
-    title: 'Quality Director',
-    email: 'admin@meridianquality.com',
+    // Filled from the signed-in account (lib/auth.jsx); neutral until then.
+    name: 'User',
+    title: '',
+    email: '',
   },
   preferences: {
     dashboardPeriod: '30',

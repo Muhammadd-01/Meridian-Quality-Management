@@ -46,6 +46,26 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       open: true,
+      // The ASP.NET Core API (backend/Meridian.Api). Override with VITE_API_PROXY.
+      proxy: {
+        '/api': {
+          target: env.VITE_API_PROXY || 'http://localhost:5080',
+          changeOrigin: true,
+          // When the API is not running Vite would answer with a bare "500";
+          // send a 503 problem response the app can explain instead.
+          configure: (proxy) => {
+            proxy.on('error', (err, _req, res) => {
+              if (!res || res.headersSent || res.writableEnded || typeof res.writeHead !== 'function') return;
+              res.writeHead(503, { 'Content-Type': 'application/problem+json' });
+              res.end(JSON.stringify({
+                title: 'The Meridian API is not running. Start it with "npm run dev" (starts the website and the API) or "npm run dev:api".',
+                status: 503,
+                code: 'api_unavailable',
+              }));
+            });
+          },
+        },
+      },
     },
   };
 });

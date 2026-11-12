@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, CornerDownLeft, ArrowUp, ArrowDown, FileText, Zap, Database } from 'lucide-react';
-import { allPages, quickActions } from '../../app/navigation';
+import { allPages, quickActions, pageTitles } from '../../app/navigation';
+import { FOCUSED_CRM, visibleTarget } from '../../app/features';
+import { useAuth } from '../../lib/auth';
+import { canOpenPath } from '../../lib/permissions';
 import { ENTITY_LIST, recordTitle } from '../../data/entities';
 import { getStorageItem } from '../../lib/storage';
 
@@ -18,6 +21,7 @@ function matches(text, q) {
  */
 export default function CommandPalette({ open, onClose }) {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
@@ -31,9 +35,11 @@ export default function CommandPalette({ open, onClose }) {
     returnFocusRef.current = document.activeElement;
     setQuery('');
     setActive(0);
-    setCollections(ENTITY_LIST.map(entity => {
-      const records = getStorageItem(entity.key, entity.seed);
-      return { entity, records: Array.isArray(records) ? records : [] };
+    // Only collections whose page is visible (or redirected to a visible page) are searched.
+    setCollections(ENTITY_LIST.filter(entity => visibleTarget(entity.path)).map(entity => {
+      const records = getStorageItem(entity.key, entity.remote ? [] : entity.seed);
+      const path = visibleTarget(entity.path);
+      return { entity, path, title: pageTitles[path] || entity.label, records: Array.isArray(records) ? records : [] };
     }));
     const t = setTimeout(() => inputRef.current?.focus(), 0);
     return () => {
@@ -47,6 +53,7 @@ export default function CommandPalette({ open, onClose }) {
     const q = query.trim().toLowerCase();
     const result = [];
     const pages = allPages
+      .filter(p => canOpenPath(role, p.path))
       .filter(p => !q || matches(p.label, q) || matches(p.group, q))
       .slice(0, q ? MAX_PER_GROUP : 8)
       .map(p => ({ id: `page:${p.path}`, label: p.label, hint: p.group, icon: p.icon || FileText, to: p.path }));
@@ -59,7 +66,7 @@ export default function CommandPalette({ open, onClose }) {
     if (actions.length) result.push({ title: 'Quick actions', items: actions });
 
     if (q.length >= 2) {
-      collections.forEach(({ entity, records }) => {
+      collections.forEach(({ entity, path, title: groupTitle, records }) => {
         const hits = records
           .filter(r => r && entity.searchFields.some(f => matches(r[f], q)))
           .slice(0, MAX_PER_GROUP)
@@ -72,14 +79,14 @@ export default function CommandPalette({ open, onClose }) {
               label: title,
               hint: subtitle,
               icon: Database,
-              to: `${entity.path}?q=${encodeURIComponent(title)}`,
+              to: `${path}?q=${encodeURIComponent(title)}`,
             };
           });
-        if (hits.length) result.push({ title: entity.label, items: hits });
+        if (hits.length) result.push({ title: groupTitle, items: hits });
       });
     }
     return result;
-  }, [query, collections]);
+  }, [query, collections, role]);
 
   const flat = useMemo(() => groups.flatMap(g => g.items), [groups]);
 
@@ -135,7 +142,7 @@ export default function CommandPalette({ open, onClose }) {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search pages, actions, customers, deals, tasks…"
+            placeholder={FOCUSED_CRM ? 'Search leads, deals, contacts, accounts…' : 'Search pages, actions, customers, deals, tasks…'}
             className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-500 outline-none"
             role="combobox"
             aria-expanded="true"
@@ -150,7 +157,7 @@ export default function CommandPalette({ open, onClose }) {
           {flat.length === 0 ? (
             <div className="py-10 text-center">
               <p className="text-sm font-medium text-gray-900">No results for “{query}”</p>
-              <p className="text-xs text-gray-500 mt-1">Try a company, lead, deal, task or page name.</p>
+              <p className="text-xs text-gray-500 mt-1">{FOCUSED_CRM ? 'Try an account, contact, lead or deal name.' : 'Try a company, lead, deal, task or page name.'}</p>
             </div>
           ) : (
             groups.map(group => (

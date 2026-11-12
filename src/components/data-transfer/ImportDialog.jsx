@@ -6,6 +6,7 @@ import {
   readFileRows, autoMapColumns, validateRows, applyImport, downloadTemplate, downloadErrorReport, IMPORT_EXTENSIONS,
 } from '../../utils/dataTransfer';
 import { withAuditContext } from '../../lib/auditLog';
+import { friendlyMessage } from '../../lib/errors';
 
 const STEPS = ['Upload', 'Map columns', 'Review', 'Done'];
 
@@ -50,7 +51,7 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
       setMapping(autoMapColumns(data.columns, entity.fields));
       setStep(1);
     } catch (err) {
-      setError(err.message || 'The file could not be read.');
+      setError(friendlyMessage(err, 'The file could not be read.'));
       setFile(null);
     } finally {
       setBusy(false);
@@ -82,7 +83,7 @@ export default function ImportDialog({ isOpen, onClose, entity, records, setReco
       setStep(3);
       addToast(`Imported ${outcome.created} new and updated ${outcome.updated} ${entity.label.toLowerCase()}.`, 'success', 4000);
     } catch (err) {
-      setError(err.message || 'Import failed. No records were changed.');
+      setError(friendlyMessage(err, 'Import failed. No records were changed.'));
     } finally {
       setBusy(false);
     }

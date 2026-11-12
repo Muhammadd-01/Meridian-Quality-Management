@@ -1089,6 +1089,86 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
+  /* ---- Meridian loader: mark + orbiting primrose arc + breathing glow ---- */
+  .meridian-loader {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .meridian-loader-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    animation: meridian-spin 1.4s linear infinite;
+  }
+  .meridian-loader-track { stroke: #DFE7E3; }
+  .meridian-loader-arc {
+    stroke: #145D68;
+    stroke-dasharray: 28 72;
+    animation: meridian-arc 1.4s ease-in-out infinite;
+  }
+  .meridian-loader.is-dark .meridian-loader-track { stroke: rgb(255 255 255 / 0.12); }
+  .meridian-loader.is-dark .meridian-loader-arc { stroke: var(--color-primrose); }
+  .meridian-loader-mark {
+    position: relative;
+    width: 50%;
+    height: 50%;
+    object-fit: contain;
+    animation: meridian-breathe 1.8s ease-in-out infinite;
+  }
+  .meridian-loader-halo {
+    position: absolute;
+    inset: 14%;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgb(242 230 162 / 0.55), transparent 70%);
+    animation: meridian-halo 1.8s ease-in-out infinite;
+  }
+  [data-theme='dark'] .meridian-loader-track { stroke: rgb(255 255 255 / 0.12); }
+  [data-theme='dark'] .meridian-loader-arc { stroke: var(--color-primrose); }
+  @keyframes meridian-spin { to { transform: rotate(360deg); } }
+  @keyframes meridian-arc {
+    0% { stroke-dasharray: 8 92; stroke-dashoffset: 0; }
+    50% { stroke-dasharray: 46 54; stroke-dashoffset: -18; }
+    100% { stroke-dasharray: 8 92; stroke-dashoffset: -100; }
+  }
+  @keyframes meridian-breathe { 0%, 100% { transform: scale(0.94); } 50% { transform: scale(1.04); } }
+  @keyframes meridian-halo { 0%, 100% { opacity: 0.35; transform: scale(0.85); } 50% { opacity: 0.9; transform: scale(1.12); } }
+
+  .loading-dots span { animation: meridian-dot 1.2s infinite both; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes meridian-dot { 0%, 80%, 100% { opacity: 0.15; } 40% { opacity: 1; } }
+
+  /* Sign-out: the check mark draws itself once signing out has finished. */
+  .signout-check circle { stroke-dasharray: 160; stroke-dashoffset: 160; animation: signout-draw 0.55s ease-out forwards; }
+  .signout-check path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: signout-draw 0.35s 0.45s ease-out forwards; }
+  @keyframes signout-draw { to { stroke-dashoffset: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .meridian-loader-ring, .meridian-loader-arc, .meridian-loader-mark, .meridian-loader-halo, .loading-dots span { animation: none; }
+    .meridian-loader-arc { stroke-dasharray: 30 70; }
+    .loading-dots span { opacity: 1; }
+    .signout-check circle, .signout-check path { animation: none; stroke-dashoffset: 0; }
+  }
+  .reduce-motion .meridian-loader-ring, .reduce-motion .meridian-loader-arc, .reduce-motion .meridian-loader-mark,
+  .reduce-motion .meridian-loader-halo, .reduce-motion .loading-dots span { animation: none; }
+
+  /* Wrong code / invalid input: a short side-to-side shake. */
+  .animate-shake {
+    animation: shake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(3px); }
+    30%, 50%, 70% { transform: translateX(-5px); }
+    40%, 60% { transform: translateX(5px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-shake { animation: none; }
+  }
+
   .animate-slide-up {
     animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }

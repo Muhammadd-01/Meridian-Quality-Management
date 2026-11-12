@@ -7,9 +7,18 @@ import { mainDashboardItems, moduleSections } from '../../app/navigation';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { useSettings } from '../../lib/settings';
 import { useFavorites, storageUsage } from '../../lib/workspace';
+import { HOME_PATH, isPathVisible } from '../../app/features';
+import { useAuth } from '../../lib/auth';
+import { canOpenPath } from '../../lib/permissions';
+import Avatar from '../ui/Avatar';
 
 const COLLAPSED_KEY = 'meridian-sidebar-collapsed-sections';
 const FAVORITES_VISIBLE = 4;
+
+// The footer profile links to Settings only while Settings is shown.
+const ProfileLink = ({ to, onClick, className, children }) => (isPathVisible(to)
+  ? <Link to={to} onClick={onClick} className={className}>{children}</Link>
+  : <div className={className}>{children}</div>);
 
 const formatSize = (bytes) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`);
 
@@ -23,6 +32,8 @@ export default function Sidebar({
   const location = useLocation();
   const isLight = theme === 'light';
   const [settings] = useSettings();
+  const { role, user } = useAuth();
+  const displayName = user?.fullName || settings.profile.name;
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
   const [collapsed, setCollapsed] = useLocalStorage(COLLAPSED_KEY, []);
   const [favOpen, setFavOpen] = useState(true);
@@ -109,9 +120,9 @@ export default function Sidebar({
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
-  const initials = settings.profile.name.split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'AD';
   const usagePct = Math.min(100, (usage.bytes / usage.quota) * 100);
-  const visibleFavorites = favExpanded ? favorites : favorites.slice(0, FAVORITES_VISIBLE);
+  const allowedFavorites = favorites.filter(f => canOpenPath(role, f.path));
+  const visibleFavorites = favExpanded ? allowedFavorites : allowedFavorites.slice(0, FAVORITES_VISIBLE);
 
   const renderLink = (item) => {
     const Icon = item.icon;
@@ -160,7 +171,7 @@ export default function Sidebar({
     <aside className={sidebarClasses} aria-label="Primary navigation">
       {/* Brand */}
       <div className={`relative flex items-center h-[72px] shrink-0 border-b ${t.divider} ${isOpen ? 'justify-between px-4' : 'justify-between px-4 lg:justify-center lg:px-0'}`}>
-        <NavLink to="/dashboard" onClick={handleNavClick} className="flex items-center min-w-0 rounded px-1 py-1.5 group" title={!isOpen ? 'Meridian — Dashboard' : undefined} aria-label="Meridian Quality Management Professionals — Dashboard">
+        <NavLink to={HOME_PATH} onClick={handleNavClick} className="flex items-center min-w-0 rounded px-1 py-1.5 group" title={!isOpen ? 'Meridian — Home' : undefined} aria-label="Meridian Quality Management Professionals — Home">
           {isOpen ? (
             <img src={t.logo} alt="Meridian Quality Management Professionals" width="200" height="60" className="h-[52px] w-auto max-w-[196px] object-contain transition-transform duration-300 group-hover:scale-[1.03]" />
           ) : (
@@ -194,12 +205,12 @@ export default function Sidebar({
 
       <nav className={`flex-1 overflow-y-auto ${t.scrollbar} px-3 pb-4 pt-3 space-y-4`}>
         {/* Favorites */}
-        {isOpen && favorites.length > 0 && (
+        {isOpen && allowedFavorites.length > 0 && (
           <div>
             <button type="button" onClick={() => setFavOpen(o => !o)} className={`${headingClass} pb-2`} aria-expanded={favOpen}>
               <span className="flex items-center gap-2">
                 Favorites
-                <span className={`min-w-[18px] px-1 rounded-full text-[9.5px] leading-[16px] ${isLight ? 'bg-gray-100 text-gray-600' : 'bg-white/10 text-white/70'}`}>{favorites.length}</span>
+                <span className={`min-w-[18px] px-1 rounded-full text-[9.5px] leading-[16px] ${isLight ? 'bg-gray-100 text-gray-600' : 'bg-white/10 text-white/70'}`}>{allowedFavorites.length}</span>
               </span>
               <span className="rule" aria-hidden="true" />
               <ChevronDown size={12} className={`transition-transform duration-200 ${favOpen ? '' : '-rotate-90'}`} aria-hidden="true" />
@@ -231,13 +242,13 @@ export default function Sidebar({
                     );
                   })}
                 </ul>
-                {favorites.length > FAVORITES_VISIBLE && (
+                {allowedFavorites.length > FAVORITES_VISIBLE && (
                   <button
                     type="button"
                     onClick={() => setFavExpanded(x => !x)}
                     className={`w-full mt-2 text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors ${isLight ? 'text-brand hover:text-brand-strong' : 'text-primrose hover:text-white'}`}
                   >
-                    {favExpanded ? 'Show less' : `View ${favorites.length - FAVORITES_VISIBLE} more`}
+                    {favExpanded ? 'Show less' : `View ${allowedFavorites.length - FAVORITES_VISIBLE} more`}
                     <ChevronDown size={11} className={`transition-transform ${favExpanded ? 'rotate-180' : ''}`} aria-hidden="true" />
                   </button>
                 )}
@@ -247,12 +258,12 @@ export default function Sidebar({
         )}
 
         {/* Main dashboards */}
-        <div>
+        {mainDashboardItems.length > 0 && <div>
           {isOpen && <p className={headingClass}>Main<span className="rule" aria-hidden="true" /></p>}
           <ul className="space-y-0.5">
             {mainDashboardItems.map(item => renderLink(item))}
           </ul>
-        </div>
+        </div>}
 
         {/* Module sections (collapsible) */}
         {moduleSections.map(section => {
@@ -268,7 +279,7 @@ export default function Sidebar({
               )}
               {open && (
                 <ul className="space-y-0.5 animate-fade-in">
-                  {section.items.map(item => renderLink(item))}
+                  {section.items.filter(item => canOpenPath(role, item.path)).map(item => renderLink(item))}
                 </ul>
               )}
             </div>
@@ -289,9 +300,11 @@ export default function Sidebar({
             <div className={`mt-2 h-1.5 rounded-full overflow-hidden ${t.track}`} role="progressbar" aria-valuenow={Math.round(usagePct)} aria-valuemin={0} aria-valuemax={100} aria-label="Browser storage used">
               <div className="h-full rounded-full sidebar-meter transition-[width] duration-700" style={{ width: `${Math.max(usagePct, 2)}%` }} />
             </div>
-            <Link to="/settings#data" onClick={handleNavClick} className={`mt-2 inline-flex items-center gap-1 text-[11px] font-semibold group ${isLight ? 'text-brand' : 'text-primrose hover:text-white'}`}>
-              Manage data <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </Link>
+            {isPathVisible('/settings') && (
+              <Link to="/settings#data" onClick={handleNavClick} className={`mt-2 inline-flex items-center gap-1 text-[11px] font-semibold group ${isLight ? 'text-brand' : 'text-primrose hover:text-white'}`}>
+                Manage data <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </Link>
+            )}
           </div>
         </div>
       )}
@@ -300,21 +313,21 @@ export default function Sidebar({
       <div className={`px-3 py-3 shrink-0 ${t.footer}`}>
         {isOpen ? (
           <div className="flex items-center justify-between gap-2">
-            <Link to="/settings#profile" onClick={handleNavClick} className="flex items-center gap-2.5 min-w-0">
-              <div className="relative w-9 h-9 rounded-full bg-primrose-fill ring-2 ring-primrose/30 grid place-items-center text-xs font-extrabold shrink-0">
-                {initials}
+            <ProfileLink to="/settings#profile" onClick={handleNavClick} className="flex items-center gap-2.5 min-w-0">
+              <span className="relative shrink-0">
+                <Avatar name={displayName} src={user?.avatarUrl} size={36} className="ring-2 ring-primrose/30" />
                 <span className="absolute -bottom-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-success-400 ring-2 ring-[color:var(--sidebar-bg)]" aria-hidden="true" />
-              </div>
+              </span>
               <div className="min-w-0">
                 <p className={`text-[13px] font-bold truncate flex items-center gap-1.5 ${t.userTitle}`}>
-                  <span className="truncate">{settings.profile.name}</span>
-                  <span className="text-[8.5px] font-extrabold uppercase px-1.5 rounded-full bg-primrose/15 text-primrose ring-1 ring-primrose/40 tracking-wide shrink-0">Admin</span>
+                  <span className="truncate">{displayName}</span>
+                  <span className="text-[8.5px] font-extrabold uppercase px-1.5 rounded-full bg-primrose/15 text-primrose ring-1 ring-primrose/40 tracking-wide shrink-0">{role || 'Member'}</span>
                 </p>
-                <p className={`text-[11px] truncate ${isLight ? t.userSub : 'text-white/55'}`}>{settings.profile.title}</p>
+                <p className={`text-[11px] truncate ${isLight ? t.userSub : 'text-white/55'}`}>{(user?.role ?? settings.profile.title)}</p>
               </div>
-            </Link>
+            </ProfileLink>
             <NavLink
-              to="/login"
+              to="/logout"
               title="Sign out"
               aria-label="Sign out"
               className={`w-8 h-8 rounded grid place-items-center transition-colors ${t.toggleBtn} hover:!text-danger-400`}
@@ -324,7 +337,7 @@ export default function Sidebar({
           </div>
         ) : (
           <NavLink
-            to="/login"
+            to="/logout"
             title="Sign out"
             aria-label="Sign out"
             className={`w-full h-8 rounded grid place-items-center transition-colors ${t.toggleBtn}`}

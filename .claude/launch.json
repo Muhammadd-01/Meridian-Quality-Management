@@ -4,8 +4,34 @@
     {
       "name": "meridian-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--open", "false"],
+      "runtimeArgs": [
+        "run",
+        "dev:web",
+        "--",
+        "--open",
+        "false"
+      ],
       "port": 5173
+    },
+    {
+      "name": "meridian-api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "backend/Meridian.Api",
+        "--launch-profile",
+        "http"
+      ],
+      "port": 5080
+    },
+    {
+      "name": "meridian-whatsapp",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "whatsapp-service/server.mjs"
+      ],
+      "port": 5090
     }
   ]
 }

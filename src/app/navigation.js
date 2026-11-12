@@ -39,10 +39,16 @@ import {
   Handshake,
   BellRing,
   ClipboardList,
+  Landmark,
+  UserCog,
 } from 'lucide-react';
+import { FOCUSED_CRM, VISIBLE_PAGES, isPathVisible } from './features';
+
+// Full page catalogue. Hidden features stay listed here; what is actually shown
+// is derived below from app/features.js.
 
 // Section 1: Main Dashboards (Simple direct links, NO dropdown!)
-export const mainDashboardItems = [
+export const allMainDashboardItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 'Main' },
   { path: '/traffic-overview', label: 'Traffic Overview', icon: BarChart3 },
   { path: '/crm', label: 'CRM', icon: Users },
@@ -51,12 +57,13 @@ export const mainDashboardItems = [
 ];
 
 // Section 2: Module Headings and their pages (NO dropdowns below!)
-export const moduleSections = [
+export const allModuleSections = [
   {
     id: 'crm',
     title: 'CRM',
     items: [
       { path: '/crm/customer-segments', label: 'Customer Segments', icon: PieChart },
+      { path: '/crm/accounts', label: 'Accounts', icon: Landmark },
       { path: '/crm/companies', label: 'Companies', icon: Building2 },
       { path: '/crm/contacts', label: 'Contacts', icon: Contact },
       { path: '/crm/activities', label: 'Activities', icon: Activity },
@@ -107,10 +114,33 @@ export const moduleSections = [
       { path: '/chat', label: 'Chat', icon: MessagesSquare },
       { path: '/reports', label: 'Reports', icon: FileBarChart },
       { path: '/audit-log', label: 'Audit Log', icon: History },
+      { path: '/users', label: 'Users & Roles', icon: UserCog },
       { path: '/settings', label: 'Settings', icon: Settings },
     ],
   },
 ];
+
+const catalogue = [
+  ...allMainDashboardItems,
+  ...allModuleSections.flatMap(s => s.items),
+];
+const pageItem = (path) => catalogue.find(i => i.path === path);
+
+// Visible navigation (sidebar, Explore, command palette, favorites, page titles).
+export const mainDashboardItems = allMainDashboardItems.filter(i => isPathVisible(i.path));
+
+// Focused mode: CRM and sales pages form one "CRM" group (in VISIBLE_PAGES order);
+// any other visible page stays under its own section heading (e.g. Workspace).
+const SALES_SECTIONS = ['crm', 'sales'];
+const sectionOf = (path) => allModuleSections.find(s => s.items.some(i => i.path === path));
+export const moduleSections = FOCUSED_CRM
+  ? [
+      { id: 'crm', title: 'CRM', items: VISIBLE_PAGES.filter(p => SALES_SECTIONS.includes(sectionOf(p)?.id)).map(pageItem).filter(Boolean) },
+      ...allModuleSections
+        .filter(s => !SALES_SECTIONS.includes(s.id))
+        .map(s => ({ ...s, items: VISIBLE_PAGES.filter(p => sectionOf(p)?.id === s.id).map(pageItem).filter(Boolean) })),
+    ].filter(s => s.items.length)
+  : allModuleSections;
 
 const sectionTitleFor = (path) => moduleSections.find(s => s.items.some(i => i.path === path))?.title;
 
@@ -121,6 +151,7 @@ export const allPages = [
 ].filter((p, idx, arr) => arr.findIndex(q => q.path === p.path) === idx);
 
 export const pageTitles = {
+  ...Object.fromEntries(catalogue.map(p => [p.path, p.label])),
   ...Object.fromEntries(allPages.map(p => [p.path, p.label])),
   '/crm': 'CRM Overview',
   '/projects': 'Project Management',
@@ -135,8 +166,9 @@ export function pageGroup(path) {
  * `?action=new` (see hooks/useQuickAction.js). `modules` controls where the
  * action is promoted in the Quick Create menu.
  */
-export const quickActions = [
+const allQuickActions = [
   { id: 'new-lead', label: 'Create lead', path: '/sales-analytics/leads?action=new', icon: Target, modules: ['crm', 'sales'] },
+  { id: 'new-account', label: 'Add account', path: '/crm/accounts?action=new', icon: Landmark, modules: ['crm', 'sales'] },
   { id: 'new-company', label: 'Add company', path: '/crm/companies?action=new', icon: Building2, modules: ['crm'] },
   { id: 'new-contact', label: 'Add contact', path: '/crm/contacts?action=new', icon: Contact, modules: ['crm'] },
   { id: 'new-activity', label: 'Log activity', path: '/crm/activities?action=new', icon: Activity, modules: ['crm'] },
@@ -154,6 +186,9 @@ export const quickActions = [
   { id: 'new-event', label: 'Schedule event', path: '/calendar?action=new', icon: CalendarDays, modules: ['workspace'] },
   { id: 'reports', label: 'Export a report', path: '/reports', icon: FileBarChart, modules: ['workspace'] },
 ];
+
+/** Quick actions whose page is visible. */
+export const quickActions = allQuickActions.filter(a => isPathVisible(a.path));
 
 /** Module id for a path, used to put context-relevant quick actions first. */
 export function moduleForPath(path) {

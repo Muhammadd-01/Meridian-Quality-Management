@@ -5,7 +5,9 @@
  * notifications, dashboard, reports, import/export) read the same records
  * without duplicating storage keys or seed data.
  *
- * Persistence note: there is no backend. Every collection lives in this
+ * Persistence note: collections with a `remote` resource (Companies/Accounts,
+ * Contacts, Leads, Deals) are stored in Supabase through the ASP.NET Core API
+ * and only cached in this browser. Every other collection lives in this
  * browser's localStorage and is seeded with demo records on first use.
  */
 import { initialCompanies, initialSegments, initialActivities, initialCommunications } from './crmData';
@@ -23,6 +25,14 @@ import { initialPurchaseOrders, PO_STATUSES, poTotals } from './operationsData';
 const initials = (name = '') =>
   String(name).split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'NA';
 
+/**
+ * Demo records shipped in src/data/*. Off: every collection starts empty and
+ * only holds what people enter or import. The demo files are kept (`demoSeed`)
+ * so lib/demoData.js can remove demo records already stored in a browser.
+ */
+export const SEED_DEMO_DATA = false;
+const demo = (records) => (SEED_DEMO_DATA ? records : []);
+
 export const DEAL_STAGES = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'];
 
 /**
@@ -33,7 +43,9 @@ export const ENTITIES = {
   companies: {
     type: 'companies',
     key: 'meridian-companies',
-    seed: initialCompanies,
+    remote: 'accounts', // stored in Supabase via the API (/api/accounts)
+    seed: demo(initialCompanies),
+    demoSeed: initialCompanies,
     label: 'Companies',
     singular: 'Company',
     module: 'CRM',
@@ -65,7 +77,9 @@ export const ENTITIES = {
   contacts: {
     type: 'contacts',
     key: 'meridian-contacts',
-    seed: initialContacts,
+    remote: 'contacts', // stored in Supabase via the API (/api/contacts)
+    seed: demo(initialContacts),
+    demoSeed: initialContacts,
     label: 'Contacts',
     singular: 'Contact',
     module: 'CRM',
@@ -92,7 +106,8 @@ export const ENTITIES = {
   segments: {
     type: 'segments',
     key: 'meridian-customer-segments',
-    seed: initialSegments,
+    seed: demo(initialSegments),
+    demoSeed: initialSegments,
     label: 'Customer Segments',
     singular: 'Segment',
     module: 'CRM',
@@ -117,7 +132,8 @@ export const ENTITIES = {
   activities: {
     type: 'activities',
     key: 'meridian-activities',
-    seed: initialActivities,
+    seed: demo(initialActivities),
+    demoSeed: initialActivities,
     label: 'Activities',
     singular: 'Activity',
     module: 'CRM',
@@ -144,7 +160,8 @@ export const ENTITIES = {
   communications: {
     type: 'communications',
     key: 'meridian-calls-emails',
-    seed: initialCommunications,
+    seed: demo(initialCommunications),
+    demoSeed: initialCommunications,
     label: 'Calls & Emails',
     singular: 'Communication',
     module: 'CRM',
@@ -172,7 +189,9 @@ export const ENTITIES = {
   leads: {
     type: 'leads',
     key: 'meridian-leads',
-    seed: initialLeads,
+    remote: 'leads', // stored in Supabase via the API (/api/leads)
+    seed: demo(initialLeads),
+    demoSeed: initialLeads,
     label: 'Leads',
     singular: 'Lead',
     module: 'Sales',
@@ -200,7 +219,9 @@ export const ENTITIES = {
   deals: {
     type: 'deals',
     key: 'meridian-full-deals',
-    seed: initialFullDeals,
+    remote: 'deals', // stored in Supabase via the API (/api/deals)
+    seed: demo(initialFullDeals),
+    demoSeed: initialFullDeals,
     label: 'Deals',
     singular: 'Deal',
     module: 'Sales',
@@ -229,7 +250,8 @@ export const ENTITIES = {
   quotations: {
     type: 'quotations',
     key: 'meridian-quotations',
-    seed: initialQuotations,
+    seed: demo(initialQuotations),
+    demoSeed: initialQuotations,
     label: 'Quotations',
     singular: 'Quotation',
     module: 'Sales',
@@ -257,7 +279,8 @@ export const ENTITIES = {
   projects: {
     type: 'projects',
     key: 'meridian-projects-v2',
-    seed: initialProjects,
+    seed: demo(initialProjects),
+    demoSeed: initialProjects,
     label: 'Projects',
     singular: 'Project',
     module: 'Projects',
@@ -285,7 +308,8 @@ export const ENTITIES = {
   tasks: {
     type: 'tasks',
     key: 'meridian-tasks',
-    seed: initialTasks,
+    seed: demo(initialTasks),
+    demoSeed: initialTasks,
     label: 'Tasks',
     singular: 'Task',
     module: 'Projects',
@@ -318,7 +342,8 @@ export const ENTITIES = {
   team: {
     type: 'team',
     key: 'meridian-team',
-    seed: initialTeamMembers,
+    seed: demo(initialTeamMembers),
+    demoSeed: initialTeamMembers,
     label: 'Team',
     singular: 'Team Member',
     module: 'Projects',
@@ -346,7 +371,8 @@ export const ENTITIES = {
   timesheets: {
     type: 'timesheets',
     key: 'meridian-timesheets',
-    seed: initialTimesheets,
+    seed: demo(initialTimesheets),
+    demoSeed: initialTimesheets,
     label: 'Timesheets',
     singular: 'Time Entry',
     module: 'Projects',
@@ -374,7 +400,8 @@ export const ENTITIES = {
   calendarEvents: {
     type: 'calendarEvents',
     key: 'meridian-calendar-events',
-    seed: initialCalendarEvents,
+    seed: demo(initialCalendarEvents),
+    demoSeed: initialCalendarEvents,
     label: 'Calendar Events',
     singular: 'Event',
     module: 'Workspace',
@@ -398,7 +425,8 @@ export const ENTITIES = {
   dailyTasks: {
     type: 'dailyTasks',
     key: 'meridian-daily-tasks',
-    seed: initialDailyTasks,
+    seed: demo(initialDailyTasks),
+    demoSeed: initialDailyTasks,
     label: 'Daily Tasks',
     singular: 'Daily Task',
     module: 'Team',
@@ -424,7 +452,8 @@ export const ENTITIES = {
   leaveRequests: {
     type: 'leaveRequests',
     key: 'meridian-leave-requests',
-    seed: initialLeaveRequests,
+    seed: demo(initialLeaveRequests),
+    demoSeed: initialLeaveRequests,
     label: 'Leave Requests',
     singular: 'Leave Request',
     module: 'Team',
@@ -448,7 +477,8 @@ export const ENTITIES = {
   followUps: {
     type: 'followUps',
     key: 'meridian-follow-ups',
-    seed: initialFollowUps,
+    seed: demo(initialFollowUps),
+    demoSeed: initialFollowUps,
     label: 'Follow-ups',
     singular: 'Follow-up',
     module: 'Team',
@@ -474,7 +504,8 @@ export const ENTITIES = {
   reminders: {
     type: 'reminders',
     key: 'meridian-reminders',
-    seed: initialReminders,
+    seed: demo(initialReminders),
+    demoSeed: initialReminders,
     label: 'Reminders',
     singular: 'Reminder',
     module: 'Team',
@@ -495,7 +526,8 @@ export const ENTITIES = {
   dailyReports: {
     type: 'dailyReports',
     key: 'meridian-daily-reports',
-    seed: initialDailyReports,
+    seed: demo(initialDailyReports),
+    demoSeed: initialDailyReports,
     label: 'Daily Reports',
     singular: 'Daily Report',
     module: 'Team',
@@ -520,7 +552,8 @@ export const ENTITIES = {
   purchaseOrders: {
     type: 'purchaseOrders',
     key: 'meridian-purchase-orders',
-    seed: initialPurchaseOrders,
+    seed: demo(initialPurchaseOrders),
+    demoSeed: initialPurchaseOrders,
     label: 'Purchase Orders',
     singular: 'Purchase Order',
     module: 'Website Analytics',

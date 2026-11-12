@@ -13,13 +13,12 @@ import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
-import useLocalStorage from '../../../hooks/useLocalStorage';
+import useCollection from '../../../hooks/useCollection';
 import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
 import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
 import usePagination from '../../../hooks/usePagination';
 import CompanyRelations from './CompanyRelations';
-import { initialCompanies } from '../../../data/crmData';
 import { formatCurrency, formatNumber, generateId } from '../../../utils/format';
 
 
@@ -35,7 +34,7 @@ const LOGO_TONES = [
 const logoTone = (company) => LOGO_TONES[[...String(company?.name || '')].reduce((h, ch) => h + ch.charCodeAt(0), 0) % LOGO_TONES.length];
 
 export default function Companies() {
-  const [companies, setCompanies] = useLocalStorage('meridian-companies', initialCompanies);
+  const [companies, setCompanies] = useCollection('companies');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
   const [modalOpen, setModalOpen] = useState(false);
   const [editCompany, setEditCompany] = useState(null);

@@ -6,12 +6,14 @@ import Topbar from './Topbar';
 import ScrollToTop from '../ui/ScrollToTop';
 import ReminderAlerts from './ReminderAlerts';
 import LoadingState from '../ui/LoadingState';
+import ErrorBoundary from '../ui/ErrorBoundary';
 import { useSettings } from '../../lib/settings';
 import { useColorMode, useSidebarStyle } from '../../lib/theme';
 import { useTrackRecentPage } from '../../lib/workspace';
 import useScrollReveal from '../../hooks/useScrollReveal';
 import { useDocumentMeta } from '../../lib/seo';
 import { pageTitles, pageGroup } from '../../app/navigation';
+import { isPathVisible } from '../../app/features';
 
 const groupLinks = {
   Main: { label: 'Dashboards', to: '/dashboard' },
@@ -27,12 +29,13 @@ function PageBar({ pathname }) {
   const title = pageTitles[pathname] || 'Dashboard';
   const group = groupLinks[pageGroup(pathname)] || groupLinks.Main;
   const showGroup = group.to !== pathname;
+  const groupLink = group.to && isPathVisible(group.to) ? group.to : null;
   return (
     <div className="page-bar px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3 shrink-0">
       <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-gray-900 truncate">{title}</p>
       <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs shrink-0">
-        {showGroup && (group.to
-          ? <Link to={group.to} className="font-semibold text-brand hover:text-brand-strong transition-colors">{group.label}</Link>
+        {showGroup && (groupLink
+          ? <Link to={groupLink} className="font-semibold text-brand hover:text-brand-strong transition-colors">{group.label}</Link>
           : <span className="font-semibold text-gray-500">{group.label}</span>)}
         {showGroup && <ChevronRight size={12} className="text-gray-400" aria-hidden="true" />}
         <span className="text-gray-600 font-medium" aria-current="page">{title}</span>
@@ -119,15 +122,17 @@ export default function AppLayout() {
         <main ref={mainRef} id="main-content" tabIndex={-1} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden scroll-smooth outline-none">
           <PageBar pathname={location.pathname} />
           <div key={location.pathname} className="page-enter flex-1 p-4 lg:p-6">
-            <Suspense fallback={<LoadingState text="Loading page…" />}>
-              <Outlet />
-            </Suspense>
+            <ErrorBoundary variant="page" resetKey={location.pathname}>
+              <Suspense fallback={<LoadingState text="Loading page…" />}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </main>
         {/* Floating Scroll To Top button */}
         <ScrollToTop targetRef={mainRef} />
-        {/* In-app reminder pop-ups ring on every page */}
-        <ReminderAlerts />
+        {/* In-app reminder pop-ups ring on every page (while the Reminders feature is shown) */}
+        {isPathVisible('/team/reminders') && <ReminderAlerts />}
       </div>
     </div>
   );

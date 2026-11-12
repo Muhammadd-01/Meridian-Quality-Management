@@ -3,9 +3,13 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   Menu, Search, Bell, Sun, Moon, Monitor, Maximize, Minimize, ChevronDown, User, Settings, LogOut, Check, Plus,
   History, BellOff, LayoutGrid, Compass, CalendarDays, CheckSquare, Contact, Building2, FileBarChart, Clock,
-  BookOpen, PanelLeft, GitBranch, ArrowRight, Sparkles, AlertTriangle, ListChecks,
+  BookOpen, PanelLeft, GitBranch, ArrowRight, Sparkles, AlertTriangle, ListChecks, Target, DollarSign, Landmark, UserCog,
 } from 'lucide-react';
-import { quickActions, moduleForPath, mainDashboardItems, moduleSections, allPages } from '../../app/navigation';
+import { quickActions, moduleForPath, allMainDashboardItems, allModuleSections, allPages } from '../../app/navigation';
+import { isPathVisible } from '../../app/features';
+import { useAuth } from '../../lib/auth';
+import { canOpenPath } from '../../lib/permissions';
+import Avatar from '../ui/Avatar';
 import CommandPalette from './CommandPalette';
 import useNotifications from '../../hooks/useNotifications';
 import useCollection from '../../hooks/useCollection';
@@ -22,7 +26,10 @@ const kindDot = {
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || '');
 
-const APPS = [
+const ALL_APPS = [
+  { label: 'Leads', path: '/sales-analytics/leads', icon: Target, tone: 'bg-primary-100 text-brand' },
+  { label: 'Deals', path: '/sales-analytics/deals', icon: DollarSign, tone: 'bg-success-50 text-success-600' },
+  { label: 'Accounts', path: '/crm/accounts', icon: Landmark, tone: 'bg-info-50 text-info-600' },
   { label: 'Calendar', path: '/calendar', icon: CalendarDays, tone: 'bg-primary-100 text-brand' },
   { label: 'Tasks', path: '/projects/tasks', icon: CheckSquare, tone: 'bg-info-50 text-info-600' },
   { label: 'Contacts', path: '/crm/contacts', icon: Contact, tone: 'bg-accent-50 text-accent-600' },
@@ -33,13 +40,21 @@ const APPS = [
   { label: 'Pipeline', path: '/sales-analytics/pipeline', icon: GitBranch, tone: 'bg-teal-50 text-teal-700' },
   { label: 'Settings', path: '/settings', icon: Settings, tone: 'bg-gray-100 text-gray-700' },
 ];
+const APPS = ALL_APPS.filter(a => isPathVisible(a.path));
 
+const sectionItems = (id) => allModuleSections.find(s => s.id === id)?.items || [];
+// Columns list only visible pages; a column with none is left out.
 const EXPLORE_COLUMNS = [
-  { title: 'Dashboards', items: mainDashboardItems },
-  { title: 'CRM & Sales', items: [...moduleSections.find(s => s.id === 'crm').items, ...moduleSections.find(s => s.id === 'sales').items] },
-  { title: 'Project Delivery', items: moduleSections.find(s => s.id === 'projects').items },
-  { title: 'Workspace', items: moduleSections.find(s => s.id === 'workspace').items },
-];
+  { title: 'Dashboards', items: allMainDashboardItems },
+  { title: 'CRM & Sales', items: [...sectionItems('crm'), ...sectionItems('sales')] },
+  { title: 'Project Delivery', items: sectionItems('projects') },
+  { title: 'Workspace', items: sectionItems('workspace') },
+].map(col => ({ ...col, items: col.items.filter(i => isPathVisible(i.path)) })).filter(col => col.items.length);
+const EXPLORE_WIDE = EXPLORE_COLUMNS.length > 1;
+const SHOW_REPORTS = isPathVisible('/reports');
+const SHOW_SETTINGS = isPathVisible('/settings');
+const SHOW_TASKS = isPathVisible('/projects/tasks');
+const SHOW_AUDIT = isPathVisible('/audit-log');
 
 const COLOR_MODES = [
   { id: 'light', label: 'Light', icon: Sun },
@@ -78,11 +93,12 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
   const notif = usePopover();
   const profile = usePopover();
   const [settings] = useSettings();
+  const { role, can, user } = useAuth();
+  const displayName = user?.fullName || settings.profile.name;
   const recent = useRecentPages();
   const [tasks] = useCollection('tasks');
   const { items: notifications, unreadCount, markRead, markAllRead } = useNotifications();
 
-  const profileInitials = settings.profile.name.split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'AD';
 
   const orderedActions = useMemo(() => {
     const mod = moduleForPath(location.pathname);
@@ -192,7 +208,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
           </button>
           {explore.open && (
             <div className="fixed inset-x-0 top-[72px] z-50 flex justify-center px-4 pointer-events-none">
-              <div role="dialog" aria-label="Explore the workspace" className="menu-panel pointer-events-auto w-full max-w-[1000px] overflow-hidden" style={{ transformOrigin: 'top center' }}>
+              <div role="dialog" aria-label="Explore the workspace" className={`menu-panel pointer-events-auto w-full ${EXPLORE_WIDE ? 'max-w-[1000px]' : 'max-w-[560px]'} overflow-hidden`} style={{ transformOrigin: 'top center' }}>
                 <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-transparent">
                   <div className="flex items-center gap-3">
                     <span className="icon-tile w-10 h-10 bg-primrose-fill shadow-glow-primary"><Compass size={18} aria-hidden="true" /></span>
@@ -212,12 +228,12 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_190px] gap-x-4 gap-y-5 p-5 max-h-[60vh] overflow-y-auto">
+                <div className={`grid ${EXPLORE_WIDE ? 'grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_190px]' : 'grid-cols-1'} gap-x-4 gap-y-5 p-5 max-h-[60vh] overflow-y-auto`}>
                   {EXPLORE_COLUMNS.map(col => (
                     <div key={col.title}>
                       <p className="text-[10.5px] font-bold uppercase tracking-wider text-gray-400 mb-2">{col.title}</p>
-                      <ul className="space-y-0.5">
-                        {col.items.map(item => {
+                      <ul className={EXPLORE_WIDE ? 'space-y-0.5' : 'grid sm:grid-cols-2 gap-x-3 gap-y-0.5'}>
+                        {col.items.filter(item => canOpenPath(role, item.path)).map(item => {
                           const Icon = item.icon;
                           const active = location.pathname === item.path;
                           return (
@@ -234,7 +250,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                       </ul>
                     </div>
                   ))}
-                  <div className="col-span-2 lg:col-span-1 relative overflow-hidden rounded-lg hero-spruce hero-grid text-white p-4 flex flex-col">
+                  {SHOW_REPORTS && <div className="col-span-2 lg:col-span-1 relative overflow-hidden rounded-lg hero-spruce hero-grid text-white p-4 flex flex-col">
                     <span className="hero-orb w-32 h-32 -top-10 -right-10 bg-[radial-gradient(circle,rgba(255,179,71,0.25),transparent_70%)]" aria-hidden="true" />
                     <span className="relative icon-tile w-9 h-9 bg-white/10 text-primrose"><Sparkles size={16} aria-hidden="true" /></span>
                     <p className="relative text-sm font-bold mt-3">Reports & exports</p>
@@ -242,7 +258,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                     <Link to="/reports" className="relative btn-glass btn-sm mt-4 self-start group">
                       Open reports <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                     </Link>
-                  </div>
+                  </div>}
                 </div>
                 <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-gray-100 bg-gray-50 text-xs">
                   <span className="text-gray-500">{allPages.length} pages available</span>
@@ -275,10 +291,10 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                   <p className="text-sm font-bold text-gray-900">Apps</p>
                   <p className="text-[11px] text-gray-500">Jump to a workspace tool</p>
                 </div>
-                <Link to="/settings" role="menuitem" className="btn-icon w-7 h-7" aria-label="App settings"><Settings size={14} /></Link>
+                {SHOW_SETTINGS && <Link to="/settings" role="menuitem" className="btn-icon w-7 h-7" aria-label="App settings"><Settings size={14} /></Link>}
               </div>
               <div className="grid grid-cols-3 gap-1.5">
-                {APPS.map(a => (
+                {APPS.filter(a => canOpenPath(role, a.path)).map(a => (
                   <Link key={a.path} to={a.path} role="menuitem" className="group flex flex-col items-center gap-1.5 p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
                     <span className={`icon-tile w-10 h-10 ${a.tone}`}><a.icon size={17} aria-hidden="true" /></span>
                     <span className="text-[11.5px] font-semibold text-gray-700 group-hover:text-gray-900">{a.label}</span>
@@ -411,7 +427,7 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                   <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
                   {unreadCount > 0 && <span className="badge-danger badge-dot">{unreadCount} new</span>}
                 </div>
-                <Link to="/settings#notifications" className="btn-icon w-7 h-7" aria-label="Notification settings" onClick={() => notif.setOpen(false)}><Settings size={14} /></Link>
+                {SHOW_SETTINGS && <Link to="/settings#notifications" className="btn-icon w-7 h-7" aria-label="Notification settings" onClick={() => notif.setOpen(false)}><Settings size={14} /></Link>}
               </div>
               <div className="flex items-center justify-between gap-2 px-4 pb-2 border-b border-gray-100">
                 <div className="flex items-center gap-1" role="tablist" aria-label="Notification filter">
@@ -466,9 +482,11 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                   </div>
                 ))}
               </div>
-              <Link to="/audit-log" onClick={() => notif.setOpen(false)} className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-gray-100 text-xs font-semibold text-brand hover:bg-gray-50 transition-colors">
-                View activity history <ArrowRight size={12} aria-hidden="true" />
-              </Link>
+              {SHOW_AUDIT && (
+                <Link to="/audit-log" onClick={() => notif.setOpen(false)} className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-gray-100 text-xs font-semibold text-brand hover:bg-gray-50 transition-colors">
+                  View activity history <ArrowRight size={12} aria-hidden="true" />
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -484,13 +502,13 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
           aria-haspopup="menu"
           aria-expanded={profile.open}
         >
-          <span className="relative w-8 h-8 rounded-full bg-primrose-fill ring-1 ring-primary-400/60 grid place-items-center text-[11px] font-extrabold">
-            {profileInitials}
+          <span className="relative">
+            <Avatar name={displayName} src={user?.avatarUrl} size={32} className="ring-1 ring-primary-400/60" />
             <span className="absolute -bottom-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-success-400 ring-2 ring-[color:var(--surface-raised)]" aria-hidden="true" />
           </span>
           <span className="hidden xl:block text-left">
-            <span className="block text-xs font-bold text-gray-900 leading-tight">{settings.profile.name.split(' ')[0]}</span>
-            <span className="block text-[10px] text-gray-500">Admin</span>
+            <span className="block text-xs font-bold text-gray-900 leading-tight">{displayName.split(' ')[0]}</span>
+            <span className="block text-[10px] text-gray-500">{role || 'Member'}</span>
           </span>
           <ChevronDown size={13} className={`text-gray-400 hidden md:block transition-transform ${profile.open ? 'rotate-180' : ''}`} aria-hidden="true" />
         </button>
@@ -498,13 +516,13 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
           <div role="menu" className="menu-panel absolute right-0 top-full mt-2 w-72 z-50 overflow-hidden">
             <div className="relative p-4 hero-spruce hero-grid text-white">
               <div className="relative flex items-center gap-3">
-                <span className="w-11 h-11 rounded-full bg-primrose-fill grid place-items-center text-sm font-extrabold ring-2 ring-primrose/30">{profileInitials}</span>
+                <Avatar name={displayName} src={user?.avatarUrl} size={44} className="ring-2 ring-primrose/30" />
                 <div className="min-w-0">
-                  <p className="text-sm font-bold truncate flex items-center gap-1.5">{settings.profile.name}<span className="text-[9px] font-extrabold uppercase px-1 rounded bg-primrose/20 text-primrose">Admin</span></p>
-                  <p className="text-[11px] text-white/65 truncate">{settings.profile.email}</p>
+                  <p className="text-sm font-bold truncate flex items-center gap-1.5">{displayName}<span className="text-[9px] font-extrabold uppercase px-1 rounded bg-primrose/20 text-primrose">{role || 'Member'}</span></p>
+                  <p className="text-[11px] text-white/65 truncate">{(user?.email || settings.profile.email)}</p>
                 </div>
               </div>
-              <div className="relative grid grid-cols-3 gap-2 mt-3.5">
+              {SHOW_TASKS && <div className="relative grid grid-cols-3 gap-2 mt-3.5">
                 {[
                   { label: 'Due today', value: taskStats.dueToday, to: '/projects/tasks' },
                   { label: 'Overdue', value: taskStats.overdue, to: '/projects/tasks' },
@@ -515,15 +533,16 @@ export default function Topbar({ onMenuClick, colorMode, sidebarStyle, onSidebar
                     <span className="block text-[10px] text-white/60">{s.label}</span>
                   </Link>
                 ))}
-              </div>
+              </div>}
             </div>
             <div className="p-1.5">
-              <Link role="menuitem" to="/settings#profile" className="menu-item"><User size={15} aria-hidden="true" /> My Profile</Link>
-              <Link role="menuitem" to="/settings" className="menu-item"><Settings size={15} aria-hidden="true" /> Settings & Preferences</Link>
-              <Link role="menuitem" to="/projects/tasks" className="menu-item"><ListChecks size={15} aria-hidden="true" /> My Tasks <span className="ms-auto badge-secondary">{taskStats.open}</span></Link>
-              <Link role="menuitem" to="/settings#notifications" className="menu-item"><Bell size={15} aria-hidden="true" /> Notification Preferences</Link>
-              <hr className="my-1 border-gray-100" />
-              <Link role="menuitem" to="/login" className="menu-item !text-danger-600 hover:!bg-danger-50"><LogOut size={15} aria-hidden="true" /> Sign Out</Link>
+              {SHOW_SETTINGS && <Link role="menuitem" to="/settings#profile" className="menu-item"><User size={15} aria-hidden="true" /> My Profile</Link>}
+              {SHOW_SETTINGS && <Link role="menuitem" to="/settings" className="menu-item"><Settings size={15} aria-hidden="true" /> Settings & Preferences</Link>}
+              {can('users.view') && <Link role="menuitem" to="/users" className="menu-item"><UserCog size={15} aria-hidden="true" /> Users & Roles</Link>}
+              {SHOW_TASKS && <Link role="menuitem" to="/projects/tasks" className="menu-item"><ListChecks size={15} aria-hidden="true" /> My Tasks <span className="ms-auto badge-secondary">{taskStats.open}</span></Link>}
+              {SHOW_SETTINGS && <Link role="menuitem" to="/settings#notifications" className="menu-item"><Bell size={15} aria-hidden="true" /> Notification Preferences</Link>}
+              {(SHOW_SETTINGS || SHOW_TASKS || can('users.view')) && <hr className="my-1 border-gray-100" />}
+              <Link role="menuitem" to="/logout" className="menu-item !text-danger-600 hover:!bg-danger-50"><LogOut size={15} aria-hidden="true" /> Sign Out</Link>
             </div>
           </div>
         )}

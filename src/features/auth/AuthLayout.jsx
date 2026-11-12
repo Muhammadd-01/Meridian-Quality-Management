@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Users, GanttChartSquare, TrendingUp, FileBarChart, CheckCircle2, ShieldCheck, Sparkles,
+  GanttChartSquare, CheckCircle2, ShieldCheck, Sparkles, Target, DollarSign, Contact, Landmark, Lock,
 } from 'lucide-react';
+import { HOME_PATH } from '../../app/features';
 
 const FEATURES = [
-  { icon: Users, label: 'CRM', text: 'Companies, contacts, activities and calls' },
-  { icon: TrendingUp, label: 'Sales', text: 'Leads, deals, quotations and pipeline' },
-  { icon: GanttChartSquare, label: 'Projects', text: 'Milestones, tasks, team and timesheets' },
-  { icon: FileBarChart, label: 'Reports', text: 'Reports, calendar and audit log' },
+  { icon: Target, label: 'Leads', text: 'Capture, score and convert enquiries' },
+  { icon: DollarSign, label: 'Deals', text: 'Stages, probability and forecast' },
+  { icon: Contact, label: 'Contacts', text: 'The people you work with' },
+  { icon: Landmark, label: 'Accounts', text: 'Organisations, pipeline and revenue' },
 ];
 
 /** Sample workspace cards that float over the brand panel (illustrative UI preview). */
@@ -73,7 +74,7 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
         <span className="hero-orb w-[520px] h-[520px] -top-48 -right-40 bg-[radial-gradient(circle,rgba(242,230,162,0.26),transparent_70%)] animate-float" style={{ animationDuration: '10s' }} aria-hidden="true" />
         <span className="hero-orb w-[460px] h-[460px] -bottom-56 -left-32 bg-[radial-gradient(circle,rgba(28,125,134,0.45),transparent_70%)] animate-float" style={{ animationDuration: '12s', animationDelay: '-3s' }} aria-hidden="true" />
 
-        <Link to="/dashboard" className="relative inline-flex items-center group w-max" aria-label="Meridian Quality Management Professionals — Dashboard">
+        <Link to={HOME_PATH} className="relative inline-flex items-center group w-max" aria-label="Meridian Quality Management Professionals — Home">
           <img src="/brand/meridian-logo-on-dark.png" alt="Meridian Quality Management Professionals" width="570" height="247" className="h-[112px] w-auto -ml-2 transition-transform duration-500 group-hover:scale-[1.03]" />
         </Link>
 
@@ -82,10 +83,10 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
             <Sparkles size={13} className="text-primrose" /> One workspace for quality professionals
           </span>
           <h2 className="font-display text-[40px] xl:text-[46px] leading-[1.08] font-extrabold tracking-tight mt-5">
-            Clients, projects and sales — <em className="serif-em text-primrose">all in one place.</em>
+            Leads, deals and clients — <em className="serif-em text-primrose">all in one place.</em>
           </h2>
           <p className="text-[15px] text-white/65 mt-4 leading-relaxed">
-            Track every engagement from first enquiry to certification: CRM, sales pipeline, project delivery and website analytics, with reports you can export in one click.
+            Follow every opportunity from first enquiry to closed deal, with the accounts and contacts behind it.
           </p>
           <PreviewCards />
         </div>
@@ -109,7 +110,7 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
         <div className="relative flex-1 flex items-center justify-center p-5 sm:p-10">
           <div className="w-full max-w-[460px] auth-stagger">
             {/* Compact brand on small screens */}
-            <Link to="/dashboard" className="lg:hidden inline-flex items-center mb-6" aria-label="Meridian Quality Management Professionals — Dashboard">
+            <Link to={HOME_PATH} className="lg:hidden inline-flex items-center mb-6" aria-label="Meridian Quality Management Professionals — Home">
               <img src="/brand/meridian-logo.png" alt="Meridian Quality Management Professionals" width="570" height="247" className="h-16 w-auto logo-light" />
               <img src="/brand/meridian-logo-on-dark.png" alt="" width="570" height="247" className="h-16 w-auto logo-dark" />
             </Link>
@@ -130,7 +131,7 @@ export default function AuthLayout({ children, eyebrow, title, subtitle }) {
         <footer className="relative px-6 pb-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11.5px] text-gray-400">
           <span>© 2026 Meridian Quality Management Professionals</span>
           <span className="hidden sm:inline" aria-hidden="true">·</span>
-          <span className="inline-flex items-center gap-1.5"><FileBarChart size={12} /> Demo workspace — data stays in this browser</span>
+          <span className="inline-flex items-center gap-1.5"><Lock size={12} /> Secured workspace — sign in to access your data</span>
         </footer>
       </main>
     </div>

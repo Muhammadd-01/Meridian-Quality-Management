@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, HelpCircle } from 'lucide-react';
 import Modal from './Modal';
 
 export default function ConfirmDialog({ isOpen, onClose, onConfirm, title = 'Confirm Action', message = 'Are you sure?', confirmLabel = 'Delete', variant = 'danger' }) {
@@ -15,8 +15,8 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title = 'Con
       }
     >
       <div className="flex items-start gap-3">
-        <div className="grid place-items-center w-10 h-10 rounded-full bg-danger-50 shrink-0">
-          <AlertTriangle size={20} className="text-danger" />
+        <div className={`grid place-items-center w-10 h-10 rounded-full shrink-0 ${variant === 'danger' ? 'bg-danger-50' : 'bg-primary-100'}`}>
+          {variant === 'danger' ? <AlertTriangle size={20} className="text-danger" /> : <HelpCircle size={20} className="text-brand" />}
         </div>
         <p className="text-sm text-gray-600 pt-2">{message}</p>
       </div>

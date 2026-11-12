@@ -11,12 +11,11 @@ import ProgressBar from '../../../components/ui/ProgressBar';
 import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import { useToast } from '../../../components/ui/Toast';
-import useLocalStorage from '../../../hooks/useLocalStorage';
+import useCollection from '../../../hooks/useCollection';
 import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
 import useQuickAction from '../../../hooks/useQuickAction';
 import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
-import { initialFullDeals } from '../../../data/salesAnalyticsData';
 import { formatCurrency, formatDate, generateId } from '../../../utils/format';
 
 const PIPELINE_STAGES = [
@@ -28,7 +27,7 @@ const PIPELINE_STAGES = [
 ];
 
 export default function Pipeline() {
-  const [deals, setDeals] = useLocalStorage('meridian-full-deals', initialFullDeals);
+  const [deals, setDeals] = useCollection('deals');
   const [modalOpen, setModalOpen] = useState(false);
   const [editDeal, setEditDeal] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);

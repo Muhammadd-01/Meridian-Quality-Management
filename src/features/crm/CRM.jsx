@@ -25,11 +25,11 @@ import ExportButton from '../../components/ui/ExportButton';
 import DataTable from '../../components/tables/DataTable';
 import AnimatedCounter from '../../components/ui/AnimatedCounter';
 import { useToast } from '../../components/ui/Toast';
-import useLocalStorage from '../../hooks/useLocalStorage';
+import useCollection from '../../hooks/useCollection';
 import useSearch from '../../hooks/useSearch';
 import usePagination from '../../hooks/usePagination';
 import useSort from '../../hooks/useSort';
-import { initialLeads, leadSources, leadStatuses } from '../../data/leads';
+import { leadSources, leadStatuses } from '../../data/leads';
 import { formatCurrency, formatDate, generateId } from '../../utils/format';
 import { exportToCSV } from '../../utils/csv';
 import { CHART as PALETTE_CHART, TOOLTIP_STYLE } from '../../lib/chartColors';
@@ -143,7 +143,7 @@ const initialBoard = {
 };
 
 export default function CRM() {
-  const [leads, setLeads] = useLocalStorage('meridian-leads', initialLeads);
+  const [leads, setLeads] = useCollection('leads');
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModal, setViewModal] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);

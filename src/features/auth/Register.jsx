@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, User, Building2, ArrowRight, Check, Loader2, Briefcase } from 'lucide-react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Lock, Mail, User, Building2, ArrowRight, Check, Loader2, Briefcase, MailCheck } from 'lucide-react';
 import { useToast } from '../../components/ui/Toast';
 import AuthLayout, { AuthField } from './AuthLayout';
 import { useDocumentMeta } from '../../lib/seo';
+import { useAuth } from '../../lib/auth';
+import { HOME_PATH } from '../../app/features';
+import { friendlyMessage } from '../../lib/errors';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ROLES = ['Quality Manager', 'Lead Auditor', 'Operations Director', 'Compliance Officer', 'QA Engineer'];
@@ -28,20 +31,22 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState(null);
   const navigate = useNavigate();
   const addToast = useToast();
+  const { isAuthenticated, register, resendConfirmation } = useAuth();
 
   const set = (key) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setForm(prev => ({ ...prev, [key]: value }));
-    setErrors(prev => ({ ...prev, [key]: undefined }));
+    setErrors(prev => ({ ...prev, [key]: undefined, form: undefined }));
   };
 
   const passed = RULES.filter(r => r.test(form.password)).length;
   const strength = STRENGTH[form.password ? passed : 0];
   const matches = form.confirmPassword && form.confirmPassword === form.password;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const next = {};
     if (!form.fullName.trim()) next.fullName = 'Enter your full name';
@@ -53,11 +58,37 @@ export default function Register() {
     setErrors(next);
     if (Object.keys(next).length) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const result = await register({
+        fullName: form.fullName.trim(),
+        company: form.company.trim(),
+        role: form.role,
+        email: form.email.trim(),
+        password: form.password,
+      });
+      if (result?.requiresEmailConfirmation) {
+        setLoading(false);
+        setPendingEmail(form.email.trim());
+        return;
+      }
       addToast(`Welcome to Meridian, ${form.fullName.split(' ')[0]}!`, 'success');
-      navigate('/dashboard');
-    }, 800);
+      navigate(HOME_PATH, { replace: true });
+    } catch (err) {
+      setLoading(false);
+      const fieldErrors = err.errors
+        ? Object.fromEntries(Object.entries(err.errors).map(([k, v]) => [k.charAt(0).toLowerCase() + k.slice(1), [].concat(v)[0]]))
+        : {};
+      setErrors({ ...fieldErrors, form: friendlyMessage(err, 'Could not create your account. Please try again.') });
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      await resendConfirmation(pendingEmail);
+      addToast('Confirmation email sent again. Check your inbox.', 'info', 5000);
+    } catch (err) {
+      addToast(err.message, 'error');
+    }
   };
 
   const eye = (
@@ -65,6 +96,26 @@ export default function Register() {
       {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
   );
+
+  if (isAuthenticated && !loading) return <Navigate to={HOME_PATH} replace />;
+
+  if (pendingEmail) {
+    return (
+      <AuthLayout eyebrow="One more step" title="Confirm your email" subtitle="Your account is created. Verify your email address to sign in.">
+        <div className="auth-form space-y-4 text-center">
+          <span className="mx-auto grid place-items-center w-14 h-14 rounded-full bg-primary-100 text-brand"><MailCheck size={26} aria-hidden="true" /></span>
+          <p className="text-[13.5px] text-gray-600">
+            We sent a confirmation link to <span className="font-bold text-gray-900">{pendingEmail}</span>. Open it, then sign in with your new password.
+          </p>
+          <Link to="/login" className="btn-primary w-full !py-3 !text-sm !rounded-xl">Go to sign in <ArrowRight size={16} aria-hidden="true" /></Link>
+          <p className="text-[13px] text-gray-500">
+            Didn’t get it?{' '}
+            <button type="button" onClick={handleResend} className="font-bold text-brand hover:text-brand-strong transition-colors">Resend the email</button>
+          </p>
+        </div>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout
@@ -135,6 +186,8 @@ export default function Register() {
           </label>
           {errors.agreeTerms && <p id="register-terms-error" className="form-error">{errors.agreeTerms}</p>}
         </div>
+
+        {errors.form && <p role="alert" className="form-error !mt-0">{errors.form}</p>}
 
         <button type="submit" form="register-form" disabled={loading} className="btn-primary w-full !py-3 !text-sm !rounded-xl">
           {loading ? <><Loader2 size={16} className="animate-spin" aria-hidden="true" /> Creating your workspace…</> : <>Create account <ArrowRight size={16} aria-hidden="true" /></>}

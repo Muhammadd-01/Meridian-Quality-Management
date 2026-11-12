@@ -15,6 +15,7 @@ export const ROUTE_META = {
   '/traffic-overview': { title: 'Traffic Overview', description: 'Website sessions, users, bounce rate, session length, landing pages and referrers, with period comparison and export.' },
   '/crm': { title: 'CRM Overview', description: 'Deals workspace with pipeline value, win rate, deal board, revenue analytics and recent deals.' },
   '/crm/customer-segments': { title: 'Customer Segments', description: 'Group accounts into cohorts by contract size, industry and activity, with client counts and average value.' },
+  '/crm/accounts': { title: 'Accounts', description: 'Customer, partner and prospect accounts with their contacts, leads, open pipeline and won revenue.' },
   '/crm/companies': { title: 'Companies', description: 'Account directory with contacts, spend, related leads, deals, quotations, projects and a timeline of interactions.' },
   '/crm/contacts': { title: 'Contacts', description: 'People directory linked to companies, leads, deals and the history of activities, calls and emails.' },
   '/crm/activities': { title: 'Activities', description: 'Meetings, calls, emails and follow-up tasks with priority, owner and one-click completion.' },

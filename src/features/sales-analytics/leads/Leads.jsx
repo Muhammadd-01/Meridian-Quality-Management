@@ -15,7 +15,10 @@ import Modal from '../../../components/ui/Modal';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import Pagination from '../../../components/ui/Pagination';
 import { useToast } from '../../../components/ui/Toast';
-import useLocalStorage from '../../../hooks/useLocalStorage';
+import { useAuth } from '../../../lib/auth';
+import WhatsAppSendButton from '../../../components/whatsapp/WhatsAppSendButton';
+import EmailSendButton from '../../../components/email/EmailSendButton';
+import { leadMessage } from '../../../lib/shareMessages';
 import DataTransferActions from '../../../components/data-transfer/DataTransferActions';
 import useQuickAction from '../../../hooks/useQuickAction';
 import useSearch from '../../../hooks/useSearch';
@@ -23,11 +26,11 @@ import usePagination from '../../../hooks/usePagination';
 import useCollection from '../../../hooks/useCollection';
 import InfoTip from '../../../components/ui/InfoTip';
 import { scoreLead, findDuplicateLeads, LEAD_SCORING_RULES } from '../../../utils/leadScoring';
-import { initialLeads, leadSources, leadStatuses } from '../../../data/leads';
+import { leadSources, leadStatuses } from '../../../data/leads';
 import { formatCurrency, formatDate, generateId, formatNumber } from '../../../utils/format';
 
 export default function Leads() {
-  const [leads, setLeads] = useLocalStorage('meridian-leads', initialLeads);
+  const [leads, setLeads] = useCollection('leads');
   const [statusFilter, setStatusFilter] = useState('All');
   const [sourceFilter, setSourceFilter] = useState('All');
   const [modalOpen, setModalOpen] = useState(false);
@@ -39,6 +42,7 @@ export default function Leads() {
   const [allowDuplicate, setAllowDuplicate] = useState(false);
   const [deals, setDeals] = useCollection('deals');
   const addToast = useToast();
+  const canDelete = useAuth().can('records.delete');
 
   const gradeStyles = { Hot: 'badge-danger', Warm: 'badge-warning', Cold: 'badge-info' };
   const scoringHelp = `Rule-based score (0-100). ${LEAD_SCORING_RULES.map(r => `${r.factor}: ${r.points}`).join('. ')}. Hot >= 70, Warm >= 45.`;
@@ -265,7 +269,8 @@ export default function Leads() {
       {/* Leads Table */}
       <div className="card mb-6 overflow-hidden">
         <div className="table-container">
-          <table className="data-table">
+          {/* Headers may wrap so the 9 columns fit laptop widths without a horizontal scrollbar. */}
+          <table className="data-table [&_th]:whitespace-normal [&_th]:align-bottom [&_th]:px-3 [&_td]:px-3">
             <thead>
               <tr>
                 <th>Lead & Organization</th>
@@ -287,14 +292,14 @@ export default function Leads() {
                       <div className="w-8 h-8 rounded-lg bg-primary-100 text-brand font-bold text-xs flex items-center justify-center shrink-0">
                         {l.contactName.split(' ').map(w => w[0]).join('').slice(0, 2)}
                       </div>
-                      <div>
-                        <p className="font-semibold text-xs text-gray-900">{l.contactName}</p>
-                        <p className="text-2xs text-gray-500">{l.company}</p>
+                      <div className="min-w-0 max-w-[10rem]">
+                        <p className="font-semibold text-xs text-gray-900 truncate" title={l.contactName}>{l.contactName}</p>
+                        <p className="text-2xs text-gray-500 truncate" title={l.company}>{l.company}</p>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <p className="text-xs text-gray-700">{l.email}</p>
+                    <p className="text-xs text-gray-700 truncate max-w-[8.5rem]" title={l.email}>{l.email}</p>
                     <p className="text-2xs text-gray-400">{l.phone}</p>
                   </td>
                   <td>
@@ -320,7 +325,7 @@ export default function Leads() {
                   </td>
                   <td><span className="text-2xs text-gray-500">{formatDate(l.lastContact)}</span></td>
                   <td>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       {l.convertedDealId ? (
                         <Link
                           to={`/sales-analytics/deals?q=${encodeURIComponent(deals.find(d => d.id === l.convertedDealId)?.name || l.company)}`}
@@ -350,6 +355,8 @@ export default function Leads() {
                           <CheckCircle2 size={15} />
                         </button>
                       )}
+                      <WhatsAppSendButton title={`Lead: ${l.contactName}`} phone={l.phone} message={() => leadMessage(l)} />
+                      <EmailSendButton title={`Lead: ${l.contactName}`} to={l.email} name={l.contactName} subject={`Following up: ${l.company || 'your enquiry'}`} details={() => leadMessage(l)} />
                       <button
                         onClick={() => setViewLead(l)}
                         className="p-1 text-gray-400 hover:text-brand rounded"
@@ -366,14 +373,16 @@ export default function Leads() {
                       >
                         <Pencil size={14} />
                       </button>
-                      <button
-                        onClick={() => setDeleteConfirm(l)}
-                        className="p-1 text-gray-400 hover:text-danger rounded"
-                        title="Delete Lead"
-                        aria-label={`Delete ${l.contactName}`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {canDelete && (
+                        <button
+                          onClick={() => setDeleteConfirm(l)}
+                          className="p-1 text-gray-400 hover:text-danger rounded"
+                          title="Delete Lead"
+                          aria-label={`Delete ${l.contactName}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
